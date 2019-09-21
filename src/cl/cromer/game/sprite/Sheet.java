@@ -28,10 +28,6 @@ import java.util.logging.Logger;
  */
 public class Sheet implements Constantes {
 	/**
-	 * The logger
-	 */
-	Logger logger;
-	/**
 	 * A list of all the tile in the collection
 	 */
 	private ArrayList<BufferedImage> images;
@@ -43,7 +39,7 @@ public class Sheet implements Constantes {
 	 */
 	public Sheet(String path, int height, int width) {
 		images = new ArrayList<>();
-		logger = getLogger(this.getClass(), IMAGE_LOG_LEVEL);
+		Logger logger = getLogger(this.getClass(), IMAGE_LOG_LEVEL);
 
 		try {
 			BufferedImage image = ImageIO.read(getClass().getResourceAsStream(path));
