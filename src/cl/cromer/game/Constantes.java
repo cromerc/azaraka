@@ -15,67 +15,179 @@
 
 package cl.cromer.game;
 
+import cl.cromer.game.logging.HtmlFormatter;
+
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Constants used in the game
  */
 public interface Constantes {
 	/**
+	 * The name of the game
+	 */
+	String TITLE = "La Aventura de Azaraka";
+
+	/**
+	 * The level of logs to record
+	 */
+	Level GLOBAL_LOG_LEVEL = Level.WARNING;
+	Level MAIN_LOG_LEVEL = Level.WARNING;
+	Level VENTANA_PRINCIPAL_LOG_LEVEL = Level.WARNING;
+	Level LIENZO_LOG_LEVEL = Level.WARNING;
+	Level ESCENARIO_LOG_LEVEL = Level.WARNING;
+	Level ENEMY_LOG_LEVEL = Level.WARNING;
+	Level CONFIG_LOG_LEVEL = Level.WARNING;
+	Level SOUND_LOG_LEVEL = Level.WARNING;
+	Level IMAGE_LOG_LEVEL = Level.WARNING;
+	Level CELDA_LOG_LEVEL = Level.WARNING;
+	/**
+	 * Use a global log if true or individual logs if false
+	 */
+	boolean GLOBAL_LOG = true;
+	/**
+	 * Append to the logs if true or make a new log if false
+	 */
+	boolean APPEND_LOGS = false;
+
+	/**
 	 * The size in pixels of the cells
 	 */
-	int CELL_PIXELS = 32;
+	int CELL_PIXELS = 64;
 	/**
 	 * The number of cells to draw horizontally
 	 */
-	int HORIZONTAL_CELLS = 40;
+	int HORIZONTAL_CELLS = 18;
 	/**
 	 * The number of cells to draw vertically
 	 */
-	int VERTICAL_CELLS = 20;
-	/**
-	 * The window border width
-	 */
-	int WINDOW_BORDER_WIDTH = 30;
-	/**
-	 * The window border height
-	 */
-	int WINDOW_BORDER_HEIGHT = 50;
+	int VERTICAL_CELLS = 10;
 
-	/**
-	 * The scene width
-	 */
-	int SCENE_WIDTH = (CELL_PIXELS * HORIZONTAL_CELLS) + WINDOW_BORDER_WIDTH;
-	/**
-	 * The scene height
-	 */
-	int SCENE_HEIGHT = (CELL_PIXELS * VERTICAL_CELLS) + WINDOW_BORDER_HEIGHT;
+	int TOP_MARGIN = 40;
+	int LEFT_MARGIN = 40;
 
-	/**
-	 * The letter that represents the player
-	 */
-	char PLAYER = 'P';
+	Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+
 	/**
 	 * The letter that represents the end
 	 */
 	char END = 'F';
 	/**
-	 * The letter that represents the prize
+	 * The amount of chests to draw
 	 */
-	char PRIZE = 'G';
-	/**
-	 * The letter that represents the enemy
-	 */
-	char ENEMY = 'E';
-	/**
-	 * The letter that represents the obstacle
-	 */
-	char OBSTACLE = 'O';
-
-	/**
-	 * The amount of prizes to draw
-	 */
-	int PRIZES = 5;
+	int CHESTS = 3;
 	/**
 	 * The amount of enemies to draw
 	 */
-	int ENEMIES = 3;
+	int ENEMIES = 2;
+	int PLAYER_START_X = 2;
+	int PLAYER_START_Y = 1;
+	int FONT_SIZE = 12;
+	Font BOLD_FONT = new Font("monospaced", Font.BOLD, FONT_SIZE);
+	Font FONT = new Font("monospaced", Font.PLAIN, FONT_SIZE);
+	int MINIMUM_SPEED = 100;
+	int MAXIMUM_SPEED = 500;
+	int DEFAULT_SPEED = 100;
+	int MINIMUM_VOLUME = 0;
+	int MAXIMUM_VOLUME = 100;
+	int DEFAULT_VOLUME = 100;
+	boolean GENERATE_SCENE = false;
+	boolean EXPORT_SCENE = false;
+
+	/**
+	 * Generate a random number between given min and max
+	 *
+	 * @param min Minimum number in range
+	 * @param max Maximum number in range
+	 * @return Returns a random number
+	 */
+	default int random(int min, int max) {
+		Random random = new Random();
+		return random.nextInt((max - min) + 1) + min;
+	}
+
+	/**
+	 * Initialize the logger and assign a html handler
+	 *
+	 * @param logClass The class to be initialized
+	 */
+	default void initializeLogger(Class logClass) {
+		String className = logClass.getName();
+		Logger logger;
+		if (GLOBAL_LOG) {
+			logger = Logger.getGlobal();
+		}
+		else {
+			logger = Logger.getLogger(className);
+		}
+		FileHandler fileHandler = null;
+		File directory = new File("log");
+		if (!directory.exists()) {
+			if (!directory.mkdir()) {
+				System.out.println("Could not make directory \"log\"");
+			}
+		}
+		try {
+			if (GLOBAL_LOG) {
+				fileHandler = new FileHandler("log/log.html", APPEND_LOGS);
+			}
+			else {
+				fileHandler = new FileHandler("log/" + className + ".html", APPEND_LOGS);
+			}
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (fileHandler != null) {
+			logger.addHandler(fileHandler);
+		}
+		Formatter formatter = new HtmlFormatter();
+		if (fileHandler != null) {
+			fileHandler.setFormatter(formatter);
+		}
+	}
+
+	/**
+	 * Get a logger object to use for debugging
+	 *
+	 * @param logClass The class that is in need of a logger
+	 * @param level    What log level to use
+	 * @return Returns the logger
+	 */
+	default Logger getLogger(Class logClass, Level level) {
+		String className = logClass.getName();
+		Logger logger;
+		if (GLOBAL_LOG) {
+			logger = Logger.getGlobal();
+		}
+		else {
+			logger = Logger.getLogger(className);
+		}
+		if (logger.getHandlers().length == 0) {
+			initializeLogger(logClass);
+		}
+		if (GLOBAL_LOG) {
+			logger.setLevel(GLOBAL_LOG_LEVEL);
+		}
+		else {
+			logger.setLevel(level);
+		}
+		return logger;
+	}
+
+	/**
+	 * The sprite type
+	 */
+	enum SpriteType {
+		PLAYER,
+		ENEMY,
+		CHEST
+	}
 }

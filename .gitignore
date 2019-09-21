@@ -1,2 +1,3 @@
-out
-doc
+/out/
+/doc/
+/log/

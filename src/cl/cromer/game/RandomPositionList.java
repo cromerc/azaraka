@@ -20,9 +20,13 @@ package cl.cromer.game;
  */
 public class RandomPositionList {
 	/**
-	 * The position
+	 * The x position
 	 */
-	private int position;
+	private int x;
+	/**
+	 * The y position
+	 */
+	private int y;
 	/**
 	 * The type
 	 */
@@ -30,20 +34,31 @@ public class RandomPositionList {
 
 	/**
 	 * Initialize the position and type of the list
-	 * @param position The position
+	 * @param x The x position
+	 * @param y The y position
 	 * @param type The type
 	 */
-	public RandomPositionList(int position, Celda.Type type) {
-		this.position = position;
+	public RandomPositionList(int x, int y, Celda.Type type) {
+		this.x = x;
+		this.y = y;
 		this.type = type;
 	}
 
 	/**
-	 * Return the position that the object should be drawn
-	 * @return The position
+	 * Get the x position
+	 * @return Returns the x position
 	 */
-	public int getPosition() {
-		return position;
+	public int getX() {
+		return x;
+	}
+
+	/**
+	 * Get the y position
+	 *
+	 * @return Returns the y position
+	 */
+	public int getY() {
+		return y;
 	}
 
 	/**
@@ -68,6 +83,6 @@ public class RandomPositionList {
 			return false;
 		}
 		RandomPositionList that = (RandomPositionList) o;
-		return position == that.position;
+		return (x == that.x && y == that.y);
 	}
 }

@@ -15,21 +15,186 @@
 
 package cl.cromer.game;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Graphics;
+import cl.cromer.game.object.Enemy;
+import cl.cromer.game.sound.Sound;
+import cl.cromer.game.sound.SoundException;
+import cl.cromer.game.sprite.AnimationException;
 
+import javax.sound.sampled.Clip;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
+/**
+ * This class extends the canvas to make drawing and listening easier
+ */
 public class Lienzo extends Canvas implements Constantes {
-
+	/**
+	 * The game scene
+	 */
 	private Escenario escenario;
+	/**
+	 * Check if the mouse button is being held down or not
+	 */
+	private boolean holdMouseButton = false;
+	/**
+	 * Check if the selected cell is the player or not
+	 */
+	private boolean playerSelected = false;
+	/**
+	 * The current mouse x position
+	 */
+	private int mouseX;
+	/**
+	 * The current mouse y position
+	 */
+	private int mouseY;
+	/**
+	 * The graphics buffer
+	 */
+	private Graphics graphicBuffer;
+	/**
+	 * The image buffer
+	 */
+	private Image imageBuffer;
+	/**
+	 * The first enemy
+	 */
+	private Enemy enemy;
+	/**
+	 * The second enemy
+	 */
+	private Enemy enemy2;
+	/**
+	 * The logger
+	 */
+	private Logger logger;
+	/**
+	 * The background music of the game
+	 */
+	private Sound backgroundMusic;
 
 	/**
 	 * Initialize the canvas
 	 */
 	public Lienzo() {
-		escenario = new Escenario();
-		this.setBackground(Color.orange);
-		this.setSize(SCENE_WIDTH, SCENE_HEIGHT);
+		logger = getLogger(this.getClass(), LIENZO_LOG_LEVEL);
+		escenario = new Escenario(this);
+		setBackground(Color.black);
+		setSize(escenario.width, escenario.height);
+
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent event) {
+				super.mouseClicked(event);
+				if (event.getButton() == MouseEvent.BUTTON1) {
+					escenario.emptyEscenario();
+					setMousePosition(event);
+					holdMouseButton = true;
+					repaint();
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent event) {
+				super.mouseClicked(event);
+				if (event.getButton() == MouseEvent.BUTTON1) {
+					escenario.emptyEscenario();
+					setMousePosition(event);
+					holdMouseButton = false;
+					activateCell(event);
+					repaint();
+				}
+			}
+		});
+
+		addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent event) {
+				super.mouseDragged(event);
+				escenario.emptyEscenario();
+				setMousePosition(event);
+				repaint();
+			}
+		});
+
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent event) {
+				super.keyPressed(event);
+				escenario.emptyEscenario();
+				playerSelected = false;
+				escenario.keyPressed(event);
+				repaint();
+			}
+		});
+
+		final Lock lock = new ReentrantLock(true);
+
+		enemy = new Enemy(escenario, lock);
+		enemy.setCoordinates(10, 3);
+		enemy2 = new Enemy(escenario, lock);
+		enemy2.setCoordinates(10, 7);
+		enemy2.setDirection(Enemy.Direction.DOWN);
+
+		Thread thread = new Thread(enemy);
+		Thread thread2 = new Thread(enemy2);
+
+		thread.start();
+		thread2.start();
+
+		try {
+			backgroundMusic = new Sound("/res/snd/GameLoop.wav");
+			backgroundMusic.setLoops(Clip.LOOP_CONTINUOUSLY);
+			backgroundMusic.play();
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * Activate the cell that was clicked
+	 *
+	 * @param event The mouse click event
+	 */
+	private void activateCell(MouseEvent event) {
+		for (int i = 0; i < HORIZONTAL_CELLS; i++) {
+			for (int j = 0; j < VERTICAL_CELLS; j++) {
+				if (escenario.getCeldas()[i][j].selected(event.getX(), event.getY())) {
+					logger.info("Cell x: " + i + " y: " + j + " selected");
+					escenario.getCeldas()[i][j].setSelected(true);
+
+					if (playerSelected) {
+						if (escenario.getCeldas()[i][j].getType() == Celda.Type.SPACE) {
+							int x = escenario.getPlayer().getX();
+							int y = escenario.getPlayer().getY();
+
+							// Put the player in the new place
+							escenario.getCeldas()[i][j].setType(Celda.Type.PLAYER);
+							escenario.getCeldas()[i][j].setAnimation(escenario.getCeldas()[x][y].getAnimation());
+							escenario.getPlayer().setCoords(i, j);
+							playerSelected = false;
+
+							// Remove the player from previous place
+							escenario.getCeldas()[x][y].setType(Celda.Type.SPACE);
+							escenario.getCeldas()[x][y].setAnimation(null);
+
+							escenario.emptyEscenario();
+							break;
+						}
+					}
+
+					if (escenario.getCeldas()[i][j].getType() == Celda.Type.PLAYER) {
+						playerSelected = true;
+					}
+
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -38,6 +203,78 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	@Override
 	public void paint(Graphics g) {
-	   escenario.paintComponent(g);
+		update(g);
+	}
+
+	/**
+	 * Override the update method of Canvas to update using a double buffer
+	 *
+	 * @param g The graphics object to paint
+	 */
+	@Override
+	public void update(Graphics g) {
+		if (graphicBuffer == null) {
+			imageBuffer = createImage(this.getWidth(), this.getHeight());
+			graphicBuffer = imageBuffer.getGraphics();
+		}
+
+		graphicBuffer.setColor(getBackground());
+		graphicBuffer.fillRect(0, 0, this.getWidth(), this.getHeight());
+		//graphicBuffer.drawImage()
+
+		escenario.paintComponent(graphicBuffer);
+
+		g.drawImage(imageBuffer, 0, 0, null);
+		if (holdMouseButton && playerSelected) {
+			try {
+				int x = escenario.getPlayer().getX();
+				int y = escenario.getPlayer().getY();
+				Celda celda = escenario.getCeldas()[x][y];
+				if (celda.getAnimation() != null) {
+					g.drawImage(celda.getAnimation().getNextFrame(), mouseX, mouseY, null);
+				}
+			}
+			catch (AnimationException e) {
+				logger.warning(e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Set the position of the mouse while it is being dragged
+	 *
+	 * @param event The event
+	 */
+	private void setMousePosition(MouseEvent event) {
+		mouseX = event.getX();
+		mouseY = event.getY();
+	}
+
+	/**
+	 * Change the speed of the enemies
+	 *
+	 * @param speed The new speed
+	 */
+	public void changeSpeed(int speed) {
+		if (speed <= 0) {
+			speed = 1;
+		}
+		enemy.setSpeed(speed);
+		enemy2.setSpeed(speed);
+		requestFocus();
+	}
+
+	/**
+	 * Change the volume of the game background music
+	 *
+	 * @param volume The new volume
+	 */
+	public void changeVolume(float volume) {
+		try {
+			backgroundMusic.setVolume(volume);
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
 	}
 }
