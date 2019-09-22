@@ -13,66 +13,75 @@
  *
  */
 
-package cl.cromer.game.sprite;
+package cl.cromer.game.json;
 
+import cl.cromer.game.Celda;
 import cl.cromer.game.Constantes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * This class handles loading the images and subimages
+ * This class handles reading and writing of JSON objects
  */
-public class Sheet implements Constantes {
+public class Json implements Constantes {
 	/**
-	 * A list of all the textures in the collection
+	 * The logger
 	 */
-	private ArrayList<BufferedImage> images;
+	private Logger logger;
 
 	/**
-	 * Initialize the texture collection
+	 * Initialize the JSON object
+	 */
+	public Json() {
+		logger = getLogger(this.getClass(), JSON_LOG_LEVEL);
+	}
+
+	/**
+	 * Export the game cells to a JSON ready object then write it to a file
 	 *
-	 * @param path The path to the image
+	 * @param celdas The cells of the scene to export
 	 */
-	public Sheet(String path, int height, int width) {
-		images = new ArrayList<>();
-		Logger logger = getLogger(this.getClass(), IMAGE_LOG_LEVEL);
-
-		try {
-			BufferedImage image = ImageIO.read(getClass().getResourceAsStream(path));
-			int columns = image.getWidth() / width;
-			int rows = image.getHeight() / height;
-			for (int i = 0; i < rows; i++) {
-				for (int j = 0; j < columns; j++) {
-					BufferedImage subImage = image.getSubimage(j * width, i * height, width, height);
-					images.add(subImage);
-				}
+	public void exportScene(Celda[][] celdas) {
+		Cell[][] cells = new Cell[celdas.length][celdas[0].length];
+		for (int i = 0; i < celdas.length; i++) {
+			for (int j = 0; j < celdas[i].length; j++) {
+				cells[i][j] = new Cell();
+				cells[i][j].type = celdas[i][j].getType();
+				cells[i][j].textures = celdas[i][j].getTextureNumbers();
 			}
 		}
-		catch (IOException | IllegalArgumentException e) {
-			logger.warning("Failed to load image: " + path);
+		writeScene(cells);
+	}
+
+	/**
+	 * Write the JSON scene to a file
+	 *
+	 * @param cells The JSON cells object
+	 */
+	private void writeScene(Cell[][] cells) {
+		GsonBuilder gsonBuilder;
+		if (PRETTY_JSON) {
+			gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		}
+		else {
+			gsonBuilder = new GsonBuilder();
+		}
+		Gson gson = gsonBuilder.create();
+		String json = gson.toJson(cells);
+
+		File file = new File("src/res/scene.json");
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			fileOutputStream.write(json.getBytes());
+			fileOutputStream.close();
+		}
+		catch (IOException e) {
 			logger.warning(e.getMessage());
 		}
 	}
-
-	/**
-	 * Returns the selected texture
-	 *
-	 * @return Returns the current texture
-	 * @throws SheetException Thrown when there are no images in the texture collection
-	 */
-	public BufferedImage getTexture(int textureNumber) throws SheetException {
-		if (images.size() == 0) {
-			throw new SheetException("There are no images in the texture collection!");
-		}
-		if (textureNumber < 0 || textureNumber > images.size() - 1) {
-			throw new SheetException("Invalid texture number!");
-		}
-		return images.get(textureNumber);
-	}
 }
-
-

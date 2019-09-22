@@ -49,9 +49,13 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	private Animation animation = null;
 	/**
-	 * The tiles to show in this cell
+	 * The textures to show in this cell
 	 */
-	private ArrayList<BufferedImage> tiles = new ArrayList<>();
+	private ArrayList<BufferedImage> textures = new ArrayList<>();
+	/**
+	 * The texture numbers
+	 */
+	private ArrayList<Integer> textureNumbers = new ArrayList<>();
 	/**
 	 * The logger
 	 */
@@ -133,8 +137,19 @@ public class Celda extends JComponent implements Constantes {
 		this.animation = animation;
 	}
 
-	public void addTile(BufferedImage tile) {
-		tiles.add(tile);
+	/**
+	 * Add a texture to the texture list
+	 *
+	 * @param texture       The new texture
+	 * @param textureNumber The texture's number
+	 */
+	public void addTexture(BufferedImage texture, int textureNumber) {
+		textures.add(texture);
+		textureNumbers.add(textureNumber);
+	}
+
+	public ArrayList<Integer> getTextureNumbers() {
+		return textureNumbers;
 	}
 
 	/**
@@ -172,7 +187,7 @@ public class Celda extends JComponent implements Constantes {
 		// Set the text font
 		g.setFont(new Font("monospaced", Font.BOLD, 10));
 
-		for (BufferedImage tile : tiles) {
+		for (BufferedImage tile : textures) {
 			if (tile != null) {
 				g.drawImage(tile, x, y, null);
 			}

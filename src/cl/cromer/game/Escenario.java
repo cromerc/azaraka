@@ -15,18 +15,21 @@
 
 package cl.cromer.game;
 
+import cl.cromer.game.json.Cell;
+import cl.cromer.game.json.Json;
 import cl.cromer.game.sound.Sound;
 import cl.cromer.game.sound.SoundException;
 import cl.cromer.game.sprite.*;
-import com.github.cliftonlabs.json_simple.JsonArray;
-import com.github.cliftonlabs.json_simple.JsonObject;
-import com.github.cliftonlabs.json_simple.Jsoner;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.*;
-import java.math.BigDecimal;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -83,9 +86,11 @@ public class Escenario extends JComponent implements Constantes {
 
 		celdas = new Celda[HORIZONTAL_CELLS][VERTICAL_CELLS];
 
-		StringBuilder stringBuilder;
-		if (!GENERATE_SCENE) {
-			stringBuilder = new StringBuilder();
+		if (GENERATE_SCENE) {
+			generateScene();
+		}
+		else {
+			StringBuilder stringBuilder = new StringBuilder();
 
 			InputStream inputStream = getClass().getResourceAsStream("/res/scene.json");
 			try {
@@ -98,30 +103,57 @@ public class Escenario extends JComponent implements Constantes {
 			catch (IOException e) {
 				logger.warning(e.getMessage());
 			}
-		}
-
-		int cellCount = 0;
-		for (int i = 0; i < HORIZONTAL_CELLS; i++) {
-			for (int j = 0; j < VERTICAL_CELLS; j++) {
-				celdas[i][j] = new Celda((i * CELL_PIXELS) + LEFT_MARGIN, (j * CELL_PIXELS) + TOP_MARGIN);
-
-				if (GENERATE_SCENE) {
-					generateScene(i, j);
-				}
-				else {
-					loadScene(i, j, stringBuilder, cellCount);
-					cellCount++;
-				}
-			}
+			loadScene(stringBuilder.toString());
 		}
 
 		if (EXPORT_SCENE) {
-			exportScene();
+			Json json = new Json();
+			json.exportScene(celdas);
 		}
 
 		generateRandomObjects();
 	}
 
+	/**
+	 * Load the scene from a JSON file
+	 *
+	 * @param json The JSON string to load
+	 */
+	private void loadScene(String json) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.create();
+		Cell[][] cells = gson.fromJson(json, Cell[][].class);
+
+		for (int i = 0; i < cells.length; i++) {
+			for (int j = 0; j < cells[i].length; j++) {
+				celdas[i][j] = new Celda((i * CELL_PIXELS) + LEFT_MARGIN, (j * CELL_PIXELS) + TOP_MARGIN);
+				celdas[i][j].setType(cells[i][j].type);
+
+				if (cells[i][j].type == Celda.Type.PLAYER) {
+					celdas[i][j].setAnimation(sprites.get(SpriteType.PLAYER));
+				}
+				else if (cells[i][j].type == Celda.Type.ENEMY) {
+					celdas[i][j].setAnimation(sprites.get(SpriteType.ENEMY));
+				}
+				else if (cells[i][j].type == Celda.Type.CHEST) {
+					celdas[i][j].setAnimation(sprites.get(SpriteType.CHEST));
+				}
+
+				for (int k = 0; k < cells[i][j].textures.size(); k++) {
+					try {
+						celdas[i][j].addTexture(textureSheet.getTexture(cells[i][j].textures.get(k)), cells[i][j].textures.get(k));
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Generate random objects in the scene
+	 */
 	private void generateRandomObjects() {
 		final int cells = (HORIZONTAL_CELLS * VERTICAL_CELLS);
 		final int obstacles = (int) Math.floor((double) cells * 0.05);
@@ -176,7 +208,7 @@ public class Escenario extends JComponent implements Constantes {
 					break;
 				case OBSTACLE:
 					try {
-						celdas[x][y].addTile(textureSheet.getTile(30));
+						celdas[x][y].addTexture(textureSheet.getTexture(30), 30);
 					}
 					catch (SheetException e) {
 						e.printStackTrace();
@@ -188,429 +220,222 @@ public class Escenario extends JComponent implements Constantes {
 
 	/**
 	 * Generate the scene manually without the JSON file
-	 *
-	 * @param x The cell x position
-	 * @param y The cell y position
 	 */
-	private void generateScene(int x, int y) {
-		logger.info("Generate cell x: " + x + " y: " + y + " manually");
-		try {
-			celdas[x][y].addTile(textureSheet.getTile(0));
-		}
-		catch (SheetException e) {
-			logger.warning(e.getMessage());
-		}
+	private void generateScene() {
+		for (int x = 0; x < HORIZONTAL_CELLS; x++) {
+			for (int y = 0; y < VERTICAL_CELLS; y++) {
+				logger.info("Generate cell x: " + x + " y: " + y + " manually");
+				celdas[x][y] = new Celda((x * CELL_PIXELS) + LEFT_MARGIN, (y * CELL_PIXELS) + TOP_MARGIN);
+				try {
+					celdas[x][y].addTexture(textureSheet.getTexture(0), 0);
+				}
+				catch (SheetException e) {
+					logger.warning(e.getMessage());
+				}
 
-		if (x == 0 && y == 0) {
-			// Top left corner
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			try {
-				celdas[x][y].addTile(textureSheet.getTile(33));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-		else if (x == 4 && y == 3) {
-			// Obstacle on floor
-			try {
-				celdas[x][y].setType(Celda.Type.OBSTACLE);
-				celdas[x][y].addTile(textureSheet.getTile(30));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-		else if (x == 6 && y == 6) {
-			// Blood on floor
-			try {
-				celdas[x][y].addTile(textureSheet.getTile(12));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-		else if (x == HORIZONTAL_CELLS - 1 && y == 0) {
-			// Top right corner
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			try {
-				celdas[x][y].addTile(textureSheet.getTile(37));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-		else if (x == 0 && y == VERTICAL_CELLS - 1) {
-			// Bottom left corner
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			try {
-				celdas[x][y].addTile(textureSheet.getTile(97));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-		else if (x == HORIZONTAL_CELLS - 1 && y == VERTICAL_CELLS - 1) {
-			// Bottom right corner
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			try {
-				celdas[x][y].addTile(textureSheet.getTile(101));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-		else if (y == 0) {
-			// Top wall
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			if (x == 1) {
-				// Left door frame
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(144));
-					celdas[x][y].addTile(textureSheet.getTile(192));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else if (x == 2) {
-				// Door
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(145));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else if (x == 3) {
-				// Right door frame
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(146));
-					celdas[x][y].addTile(textureSheet.getTile(194));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else if (x == 8) {
-				// Broken wall piece
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(105));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else if (x % 2 == 0) {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(34));
-					celdas[x][y].addTile(textureSheet.getTile(222));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(35));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-		}
-		else if (x == 0) {
-			// Left wall
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			if (y % 2 == 0) {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(49));
-					celdas[x][y].addTile(textureSheet.getTile(255));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(65));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-		}
-		else if (x == HORIZONTAL_CELLS - 1) {
-			// Right wall
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			if (y % 2 == 0) {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(53));
-					celdas[x][y].addTile(textureSheet.getTile(238));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(69));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-		}
-		else if (y == VERTICAL_CELLS - 1) {
-			// Bottom wall
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-			if (x % 2 == 0) {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(98));
-					celdas[x][y].addTile(textureSheet.getTile(207));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else {
-				try {
-					celdas[x][y].addTile(textureSheet.getTile(99));
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-		}
-
-		if (x == PLAYER_START_X && y == PLAYER_START_Y) {
-			celdas[x][y].setType(Celda.Type.PLAYER);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.PLAYER));
-		}
-		else if (x == 10 && y == 3) {
-			celdas[x][y].setType(Celda.Type.ENEMY);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
-		}
-		else if (x == 10 && y == 7) {
-			celdas[x][y].setType(Celda.Type.ENEMY);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
-		}
-		/*else if (x == 16 && y == 1) {
-			celdas[x][y].setType(Celda.Type.CHEST);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
-		}
-		else if (x == 12 && y == 7) {
-			celdas[x][y].setType(Celda.Type.CHEST);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
-		}*/
-		/*else {
-			for (RandomPositionList randomList : arrayList) {
-				if (cellCount == randomList.getPosition()) {
-					celdas[i][j].setType(randomList.getType());
-					switch (randomList.getType()) {
-						case ENEMY:
-							celdas[i][j].setAnimation(sprites.get(SpriteType.ENEMY));
-							break;
-						case CHEST:
-							Animation chestSprite = sprites.get(SpriteType.CHEST);
-							celdas[i][j].setAnimation(chestSprite);
-							break;
-					}
-					break;
-				}
-			}
-		}*/
-	}
-
-	/**
-	 * Load the cell for the scene
-	 *
-	 * @param x             The cell x position
-	 * @param y             The cell y position
-	 * @param stringBuilder The string builder which contains the JSON
-	 * @param cellCount     Which cell to get out of the JSON
-	 */
-	private void loadScene(int x, int y, StringBuilder stringBuilder, int cellCount) {
-		logger.info("Load cell x: " + x + " y: " + y + " from JSON file");
-		JsonArray jsonArray = Jsoner.deserialize(stringBuilder.toString(), new JsonArray());
-		// Get the cell
-		JsonObject cell = (JsonObject) jsonArray.get(cellCount);
-		// Get the textures
-		JsonObject textures = (JsonObject) cell.get("textures");
-		// Get the type
-		BigDecimal bigDecimal = (BigDecimal) cell.get("type");
-		int type = bigDecimal.intValue();
-
-		// Create the textures needed
-		for (int k = 0; k < textures.size(); k++) {
-			int tile = Integer.parseInt(textures.get(String.valueOf(k)).toString());
-			try {
-				celdas[x][y].addTile(textureSheet.getTile(tile));
-			}
-			catch (SheetException e) {
-				logger.warning(e.getMessage());
-			}
-		}
-
-		// Set the type and animation
-		if (type == Celda.Type.PLAYER.ordinal()) {
-			celdas[x][y].setType(Celda.Type.PLAYER);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.PLAYER));
-		}
-		else if (type == Celda.Type.ENEMY.ordinal()) {
-			celdas[x][y].setType(Celda.Type.ENEMY);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
-		}
-		else if (type == Celda.Type.CHEST.ordinal()) {
-			celdas[x][y].setType(Celda.Type.CHEST);
-			celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
-		}
-		else if (type == Celda.Type.OBSTACLE.ordinal()) {
-			celdas[x][y].setType(Celda.Type.OBSTACLE);
-		}
-	}
-
-	/**
-	 * Export the scene to a JSON file
-	 */
-	private void exportScene() {
-		logger.info("Export scene to JSON");
-		JsonObject textures;
-		JsonObject cell;
-		JsonArray cells = new JsonArray();
-		for (int i = 0; i < HORIZONTAL_CELLS; i++) {
-			for (int j = 0; j < VERTICAL_CELLS; j++) {
-				cell = new JsonObject();
-				textures = new JsonObject();
-				textures.put("0", 0);
-
-				if (i == 0 && j == 0) {
+				if (x == 0 && y == 0) {
 					// Top left corner
-					textures.put("1", 33);
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					try {
+						celdas[x][y].addTexture(textureSheet.getTexture(33), 33);
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
 				}
-				else if (i == 4 && j == 3) {
+				else if (x == 4 && y == 3) {
 					// Obstacle on floor
-					textures.put("1", 30);
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
+					try {
+						celdas[x][y].setType(Celda.Type.OBSTACLE);
+						celdas[x][y].addTexture(textureSheet.getTexture(30), 30);
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
 				}
-				else if (i == 6 && j == 6) {
+				else if (x == 6 && y == 6) {
 					// Blood on floor
-					textures.put("1", 12);
-					cell.put("type", Celda.Type.SPACE.ordinal());
+					try {
+						celdas[x][y].addTexture(textureSheet.getTexture(12), 12);
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
 				}
-				else if (i == HORIZONTAL_CELLS - 1 && j == 0) {
+				else if (x == HORIZONTAL_CELLS - 1 && y == 0) {
 					// Top right corner
-					textures.put("1", 37);
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					try {
+						celdas[x][y].addTexture(textureSheet.getTexture(37), 37);
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
 				}
-				else if (i == 0 && j == VERTICAL_CELLS - 1) {
+				else if (x == 0 && y == VERTICAL_CELLS - 1) {
 					// Bottom left corner
-					textures.put("1", 97);
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					try {
+						celdas[x][y].addTexture(textureSheet.getTexture(97), 97);
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
 				}
-				else if (i == HORIZONTAL_CELLS - 1 && j == VERTICAL_CELLS - 1) {
+				else if (x == HORIZONTAL_CELLS - 1 && y == VERTICAL_CELLS - 1) {
 					// Bottom right corner
-					textures.put("1", 101);
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					try {
+						celdas[x][y].addTexture(textureSheet.getTexture(101), 101);
+					}
+					catch (SheetException e) {
+						logger.warning(e.getMessage());
+					}
 				}
-				else if (j == 0) {
+				else if (y == 0) {
 					// Top wall
-					if (i == 1) {
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					if (x == 1) {
 						// Left door frame
-						textures.put("1", 144);
-						textures.put("2", 192);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(144), 144);
+							celdas[x][y].addTexture(textureSheet.getTexture(192), 192);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					else if (i == 2) {
+					else if (x == 2) {
 						// Door
-						textures.put("1", 145);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(145), 145);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					else if (i == 3) {
+					else if (x == 3) {
 						// Right door frame
-						textures.put("1", 146);
-						textures.put("2", 194);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(146), 146);
+							celdas[x][y].addTexture(textureSheet.getTexture(194), 194);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					else if (i == 8) {
+					else if (x == 8) {
 						// Broken wall piece
-						textures.put("1", 105);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(105), 105);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					else if (i % 2 == 0) {
-						textures.put("1", 34);
-						textures.put("2", 222);
+					else if (x % 2 == 0) {
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(34), 34);
+							celdas[x][y].addTexture(textureSheet.getTexture(222), 222);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
 					else {
-						textures.put("1", 35);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(35), 35);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
 				}
-				else if (i == 0) {
+				else if (x == 0) {
 					// Left wall
-					if (j % 2 == 0) {
-						textures.put("1", 49);
-						textures.put("2", 255);
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					if (y % 2 == 0) {
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(49), 49);
+							celdas[x][y].addTexture(textureSheet.getTexture(255), 255);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
 					else {
-						textures.put("1", 65);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(65), 65);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
 				}
-				else if (i == HORIZONTAL_CELLS - 1) {
+				else if (x == HORIZONTAL_CELLS - 1) {
 					// Right wall
-					if (j % 2 == 0) {
-						textures.put("1", 53);
-						textures.put("2", 238);
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					if (y % 2 == 0) {
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(53), 53);
+							celdas[x][y].addTexture(textureSheet.getTexture(238), 238);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
 					else {
-						textures.put("1", 69);
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(69), 69);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
 				}
-				else if (j == VERTICAL_CELLS - 1) {
+				else if (y == VERTICAL_CELLS - 1) {
 					// Bottom wall
-					if (i % 2 == 0) {
-						textures.put("1", 98);
-						textures.put("2", 207);
+					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					if (x % 2 == 0) {
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(98), 98);
+							celdas[x][y].addTexture(textureSheet.getTexture(207), 207);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
 					else {
-						textures.put("1", 99);
-					}
-					cell.put("type", Celda.Type.OBSTACLE.ordinal());
-				}
-				else {
-					if (i == PLAYER_START_X && j == PLAYER_START_Y) {
-						cell.put("type", Celda.Type.PLAYER.ordinal());
-					}
-					else if (i == 10 && j == 3) {
-						cell.put("type", Celda.Type.ENEMY.ordinal());
-					}
-					else if (i == 10 && j == 7) {
-						cell.put("type", Celda.Type.ENEMY.ordinal());
-					}
-					/*else if (i == 16 && j == 1) {
-						cell.put("type", Celda.Type.CHEST.ordinal());
-					}
-					else if (i == 12 && j == 7) {
-						cell.put("type", Celda.Type.CHEST.ordinal());
-					}*/
-					else {
-						cell.put("type", Celda.Type.SPACE.ordinal());
+						try {
+							celdas[x][y].addTexture(textureSheet.getTexture(99), 99);
+						}
+						catch (SheetException e) {
+							logger.warning(e.getMessage());
+						}
 					}
 				}
-				cell.put("textures", textures);
 
-				cells.add(cell);
+				if (x == PLAYER_START_X && y == PLAYER_START_Y) {
+					celdas[x][y].setType(Celda.Type.PLAYER);
+					celdas[x][y].setAnimation(sprites.get(SpriteType.PLAYER));
+				}
+				else if (x == 10 && y == 3) {
+					celdas[x][y].setType(Celda.Type.ENEMY);
+					celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
+				}
+				else if (x == 10 && y == 7) {
+					celdas[x][y].setType(Celda.Type.ENEMY);
+					celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
+				}
+				/*else if (x == 16 && y == 1) {
+					celdas[x][y].setType(Celda.Type.CHEST);
+					celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
+				}
+				else if (x == 12 && y == 7) {
+					celdas[x][y].setType(Celda.Type.CHEST);
+					celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
+				}*/
 			}
-		}
-
-		// Save the new json file
-		File file = new File("src/res/scene.json");
-		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(file);
-			fileOutputStream.write(Jsoner.prettyPrint(cells.toJson()).getBytes());
-			fileOutputStream.close();
-		}
-		catch (IOException e) {
-			logger.warning(e.getMessage());
 		}
 	}
 
@@ -654,10 +479,10 @@ public class Escenario extends JComponent implements Constantes {
 		Sheet chestSheet = new Sheet("/res/img/chest/chests.png", 54, 63);
 		try {
 			animation = new Animation();
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTile(54));
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTile(66));
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTile(78));
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTile(80));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(54));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(66));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(78));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(80));
 			animation.setYOffset(0);
 			sprites.put(SpriteType.CHEST, animation);
 		}
@@ -678,17 +503,17 @@ public class Escenario extends JComponent implements Constantes {
 	 * @throws SheetException Thrown if there is a problem loading images from the sheet
 	 */
 	private void loadCharacter(Animation animation, Sheet characterSheet, int character) throws SheetException {
-		animation.addImage(Animation.Direction.DOWN, characterSheet.getTile(character));
-		animation.addImage(Animation.Direction.DOWN, characterSheet.getTile(character + 2));
+		animation.addImage(Animation.Direction.DOWN, characterSheet.getTexture(character));
+		animation.addImage(Animation.Direction.DOWN, characterSheet.getTexture(character + 2));
 		character = character + 12;
-		animation.addImage(Animation.Direction.LEFT, characterSheet.getTile(character));
-		animation.addImage(Animation.Direction.LEFT, characterSheet.getTile(character + 2));
+		animation.addImage(Animation.Direction.LEFT, characterSheet.getTexture(character));
+		animation.addImage(Animation.Direction.LEFT, characterSheet.getTexture(character + 2));
 		character = character + 12;
-		animation.addImage(Animation.Direction.RIGHT, characterSheet.getTile(character));
-		animation.addImage(Animation.Direction.RIGHT, characterSheet.getTile(character + 2));
+		animation.addImage(Animation.Direction.RIGHT, characterSheet.getTexture(character));
+		animation.addImage(Animation.Direction.RIGHT, characterSheet.getTexture(character + 2));
 		character = character + 12;
-		animation.addImage(Animation.Direction.UP, characterSheet.getTile(character));
-		animation.addImage(Animation.Direction.UP, characterSheet.getTile(character + 2));
+		animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character));
+		animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character + 2));
 
 		animation.setYOffset(0);
 	}
@@ -723,7 +548,7 @@ public class Escenario extends JComponent implements Constantes {
 	public void keyPressed(KeyEvent event) {
 		if (!doorClosed) {
 			try {
-				celdas[2][0].addTile(textureSheet.getTile(193));
+				celdas[2][0].addTexture(textureSheet.getTexture(193), 193);
 			}
 			catch (SheetException e) {
 				e.printStackTrace();
