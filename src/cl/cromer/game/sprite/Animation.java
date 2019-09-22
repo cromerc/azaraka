@@ -55,6 +55,18 @@ public class Animation implements Cloneable, Constantes {
 	private Logger logger;
 
 	/**
+	 * The sprite type
+	 */
+	public enum SpriteType {
+		PLAYER,
+		ENEMY,
+		CHEST,
+		GEM,
+		KEY,
+		PORTAL
+	}
+
+	/**
 	 * Initialize the sprite
 	 */
 	public Animation() {

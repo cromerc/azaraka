@@ -683,12 +683,6 @@
       ]
     },
     {
-      "type": "ENEMY",
-      "textures": [
-        0
-      ]
-    },
-    {
       "type": "SPACE",
       "textures": [
         0
@@ -707,7 +701,13 @@
       ]
     },
     {
-      "type": "ENEMY",
+      "type": "SPACE",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "SPACE",
       "textures": [
         0
       ]

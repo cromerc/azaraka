@@ -61,7 +61,7 @@ public class Escenario extends JComponent implements Constantes {
 	/**
 	 * A hashmap that contains all the sprites for the game
 	 */
-	private Map<SpriteType, Animation> sprites = new AnimationMap();
+	private Map<Animation.SpriteType, Animation> sprites = new AnimationMap();
 	/**
 	 * A collection of tiles that can be used in the scene
 	 */
@@ -74,6 +74,14 @@ public class Escenario extends JComponent implements Constantes {
 	 * The logger
 	 */
 	private Logger logger;
+	/**
+	 * The magic portal
+	 */
+	private Celda portal;
+	/**
+	 * The enemies
+	 */
+	private ArrayList<Celda> enemies = new ArrayList<>();
 
 	/**
 	 * Initialize the scene
@@ -82,7 +90,10 @@ public class Escenario extends JComponent implements Constantes {
 		logger = getLogger(this.getClass(), ESCENARIO_LOG_LEVEL);
 		this.canvas = canvas;
 		loadResources();
-		player = new Celda(PLAYER_START_X, PLAYER_START_Y);
+
+		// TODO: change to player object later
+		player = new Celda();
+		player.setCoords(PLAYER_START_X, PLAYER_START_Y);
 
 		celdas = new Celda[HORIZONTAL_CELLS][VERTICAL_CELLS];
 
@@ -130,13 +141,13 @@ public class Escenario extends JComponent implements Constantes {
 				celdas[i][j].setType(cells[i][j].type);
 
 				if (cells[i][j].type == Celda.Type.PLAYER) {
-					celdas[i][j].setAnimation(sprites.get(SpriteType.PLAYER));
+					celdas[i][j].setAnimation(sprites.get(Animation.SpriteType.PLAYER));
 				}
 				else if (cells[i][j].type == Celda.Type.ENEMY) {
-					celdas[i][j].setAnimation(sprites.get(SpriteType.ENEMY));
+					celdas[i][j].setAnimation(sprites.get(Animation.SpriteType.ENEMY));
 				}
 				else if (cells[i][j].type == Celda.Type.CHEST) {
-					celdas[i][j].setAnimation(sprites.get(SpriteType.CHEST));
+					celdas[i][j].setAnimation(sprites.get(Animation.SpriteType.CHEST));
 				}
 
 				for (int k = 0; k < cells[i][j].textures.size(); k++) {
@@ -179,6 +190,16 @@ public class Escenario extends JComponent implements Constantes {
 			}
 			arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.OBSTACLE));
 		}
+
+		random_x = random(0, HORIZONTAL_CELLS - 1);
+		random_y = random(0, VERTICAL_CELLS - 1);
+		while (arrayList.contains(new RandomPositionList(random_x, random_y, Celda.Type.PORTAL)) || celdas[random_x][random_y].getType() != Celda.Type.SPACE) {
+			random_x = random(0, HORIZONTAL_CELLS - 1);
+			random_y = random(0, VERTICAL_CELLS - 1);
+		}
+		arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.PORTAL));
+
+		// Chests need to be last to make sure they are openable
 		for (int i = 0; i < CHESTS; i++) {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);
@@ -189,11 +210,6 @@ public class Escenario extends JComponent implements Constantes {
 			}
 			arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.CHEST));
 		}
-		/*random_value = random(1, cells);
-		while (arrayList.contains(new RandomPositionList(random_value, Celda.Type.PORTAL))) {
-			random_value = random(1, cells);
-		}
-		arrayList.add(new RandomPositionList(random_value, Celda.Type.PORTAL));*/
 
 		for (RandomPositionList randomList : arrayList) {
 			int x = randomList.getX();
@@ -201,10 +217,16 @@ public class Escenario extends JComponent implements Constantes {
 			celdas[x][y].setType(randomList.getType());
 			switch (randomList.getType()) {
 				case ENEMY:
-					celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
+					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.ENEMY));
+					celdas[x][y].setCoords(x, y);
+					enemies.add(celdas[x][y]);
 					break;
 				case CHEST:
-					celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
+					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.CHEST));
+					break;
+				case PORTAL:
+					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.PORTAL));
+					portal = celdas[x][y];
 					break;
 				case OBSTACLE:
 					try {
@@ -417,23 +439,15 @@ public class Escenario extends JComponent implements Constantes {
 
 				if (x == PLAYER_START_X && y == PLAYER_START_Y) {
 					celdas[x][y].setType(Celda.Type.PLAYER);
-					celdas[x][y].setAnimation(sprites.get(SpriteType.PLAYER));
+					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.PLAYER));
 				}
-				else if (x == 10 && y == 3) {
+				/*else if (x == 10 && y == 3) {
 					celdas[x][y].setType(Celda.Type.ENEMY);
-					celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
+					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.ENEMY));
 				}
 				else if (x == 10 && y == 7) {
 					celdas[x][y].setType(Celda.Type.ENEMY);
-					celdas[x][y].setAnimation(sprites.get(SpriteType.ENEMY));
-				}
-				/*else if (x == 16 && y == 1) {
-					celdas[x][y].setType(Celda.Type.CHEST);
-					celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
-				}
-				else if (x == 12 && y == 7) {
-					celdas[x][y].setType(Celda.Type.CHEST);
-					celdas[x][y].setAnimation(sprites.get(SpriteType.CHEST));
+					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.ENEMY));
 				}*/
 			}
 		}
@@ -454,7 +468,7 @@ public class Escenario extends JComponent implements Constantes {
 
 			loadCharacter(animation, characterSheet, character);
 
-			sprites.put(SpriteType.PLAYER, animation);
+			sprites.put(Animation.SpriteType.PLAYER, animation);
 		}
 		catch (SheetException e) {
 			logger.warning(e.getMessage());
@@ -469,7 +483,7 @@ public class Escenario extends JComponent implements Constantes {
 
 			loadCharacter(animation, characterSheet, character);
 
-			sprites.put(SpriteType.ENEMY, animation);
+			sprites.put(Animation.SpriteType.ENEMY, animation);
 		}
 		catch (SheetException e) {
 			logger.warning(e.getMessage());
@@ -484,11 +498,23 @@ public class Escenario extends JComponent implements Constantes {
 			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(78));
 			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(80));
 			animation.setYOffset(0);
-			sprites.put(SpriteType.CHEST, animation);
+			sprites.put(Animation.SpriteType.CHEST, animation);
 		}
 		catch (SheetException e) {
 			logger.warning(e.getMessage());
 		}
+
+		animation = new Animation();
+		for (int i = 0; i < 120; i++) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(i);
+			while (stringBuilder.length() < 3) {
+				stringBuilder.insert(0, 0);
+			}
+			stringBuilder.append(".png");
+			animation.addImage(Animation.Direction.NONE, "/res/img/portal/gray/" + stringBuilder.toString());
+		}
+		sprites.put(Animation.SpriteType.PORTAL, animation);
 
 		// Load the background textures
 		textureSheet = new Sheet("/res/img/textures/3.png", 64, 64);
@@ -735,6 +761,24 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	public Celda getPlayer() {
 		return player;
+	}
+
+	/**
+	 * Get the portal
+	 *
+	 * @return Returns the cell contain the portal
+	 */
+	public Celda getPortal() {
+		return portal;
+	}
+
+	/**
+	 * Get the enemies
+	 *
+	 * @return Returns an array list containing the enemies
+	 */
+	public ArrayList<Celda> getEnemies() {
+		return enemies;
 	}
 
 	/**

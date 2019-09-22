@@ -16,7 +16,7 @@
 package cl.cromer.game;
 
 /**
- * This class is used to save locations of random cells for enemies, obstacles, and prizes
+ * This class is used to save locations of random cells for enemies, obstacles, chests, etc
  */
 public class RandomPositionList {
 	/**

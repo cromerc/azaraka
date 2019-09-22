@@ -16,6 +16,7 @@
 package cl.cromer.game;
 
 import cl.cromer.game.object.Enemy;
+import cl.cromer.game.object.Portal;
 import cl.cromer.game.sound.Sound;
 import cl.cromer.game.sound.SoundException;
 import cl.cromer.game.sprite.AnimationException;
@@ -23,6 +24,7 @@ import cl.cromer.game.sprite.AnimationException;
 import javax.sound.sampled.Clip;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -60,13 +62,21 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private Image imageBuffer;
 	/**
-	 * The first enemy
+	 * The threads for the objects
 	 */
-	private Enemy enemy;
+	private ArrayList<Thread> threads = new ArrayList<>();
 	/**
-	 * The second enemy
+	 * The enemies
 	 */
-	private Enemy enemy2;
+	private ArrayList<Enemy> enemies = new ArrayList<>();
+	/**
+	 * The current direction that is assigned to an enemy
+	 */
+	private Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
+	/**
+	 * The magic portal
+	 */
+	private Portal portal;
 	/**
 	 * The logger
 	 */
@@ -133,17 +143,31 @@ public class Lienzo extends Canvas implements Constantes {
 
 		final Lock lock = new ReentrantLock(true);
 
-		enemy = new Enemy(escenario, lock);
-		enemy.setCoordinates(10, 3);
-		enemy2 = new Enemy(escenario, lock);
-		enemy2.setCoordinates(10, 7);
-		enemy2.setDirection(Enemy.Direction.DOWN);
+		for (Celda celda : escenario.getEnemies()) {
+			Enemy enemy = new Enemy(escenario, celda, lock);
+			enemy.setDirection(enemyDirection);
+			if (enemyDirection == Enemy.Direction.UP) {
+				enemyDirection = Enemy.Direction.DOWN;
+			}
+			else if (enemyDirection == Enemy.Direction.DOWN) {
+				enemyDirection = Enemy.Direction.LEFT;
+			}
+			else if (enemyDirection == Enemy.Direction.LEFT) {
+				enemyDirection = Enemy.Direction.RIGHT;
+			}
+			else {
+				enemyDirection = Enemy.Direction.UP;
+			}
+			enemies.add(enemy);
+			threads.add(new Thread(enemy));
+		}
 
-		Thread thread = new Thread(enemy);
-		Thread thread2 = new Thread(enemy2);
+		portal = new Portal(escenario);
+		threads.add(new Thread(portal));
 
-		thread.start();
-		thread2.start();
+		for (Thread thread : threads) {
+			thread.start();
+		}
 
 		try {
 			backgroundMusic = new Sound("/res/snd/GameLoop.wav");
@@ -259,8 +283,9 @@ public class Lienzo extends Canvas implements Constantes {
 		if (speed <= 0) {
 			speed = 1;
 		}
-		enemy.setSpeed(speed);
-		enemy2.setSpeed(speed);
+		for (Enemy enemy : enemies) {
+			enemy.setSpeed(speed);
+		}
 		requestFocus();
 	}
 

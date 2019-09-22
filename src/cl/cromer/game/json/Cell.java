@@ -19,7 +19,16 @@ import cl.cromer.game.Celda;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents the structure of a cell in JSON
+ */
 public class Cell {
+	/**
+	 * The type of cell, e.g. player, chest, enemy, etc
+	 */
 	public Celda.Type type;
+	/**
+	 * A list of the textures to apply to the cell
+	 */
 	public ArrayList<Integer> textures = new ArrayList<>();
 }

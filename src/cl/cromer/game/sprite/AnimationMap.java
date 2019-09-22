@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * This class is used to copy the sprite into a new sprite object so that the sprite doesn't get passed by reference
  * This is important because 2 cells share the same sprite, but not the same frame of animation
  */
-public class AnimationMap extends HashMap<Constantes.SpriteType, Animation> implements Constantes {
+public class AnimationMap extends HashMap<Animation.SpriteType, Animation> implements Constantes {
 	/**
 	 * Clone the sprite object when returning
 	 *

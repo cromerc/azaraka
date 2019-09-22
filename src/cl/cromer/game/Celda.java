@@ -29,6 +29,14 @@ import java.util.logging.Logger;
  */
 public class Celda extends JComponent implements Constantes {
 	/**
+	 * The x graphical coordinate of the cell
+	 */
+	private int xPixels;
+	/**
+	 * The y graphical coordinate of the cell
+	 */
+	private int yPixels;
+	/**
 	 * The x coordinate of the cell
 	 */
 	private int x;
@@ -63,12 +71,19 @@ public class Celda extends JComponent implements Constantes {
 
 	/**
 	 * Initialize the cell with its coordinates
-	 * @param x The x coordinate
-	 * @param y The y coordinate
 	 */
-	public Celda(int x, int y) {
-		this.x = x;
-		this.y = y;
+	public Celda() {
+		logger = getLogger(this.getClass(), CELDA_LOG_LEVEL);
+	}
+
+	/**
+	 * Initialize the cell with its coordinates
+	 * @param xPixels The x graphical coordinate
+	 * @param yPixels The y graphical coordinate
+	 */
+	public Celda(int xPixels, int yPixels) {
+		this.xPixels = xPixels;
+		this.yPixels = yPixels;
 		logger = getLogger(this.getClass(), CELDA_LOG_LEVEL);
 	}
 
@@ -189,7 +204,7 @@ public class Celda extends JComponent implements Constantes {
 
 		for (BufferedImage tile : textures) {
 			if (tile != null) {
-				g.drawImage(tile, x, y, null);
+				g.drawImage(tile, xPixels, yPixels, null);
 			}
 		}
 
@@ -198,27 +213,22 @@ public class Celda extends JComponent implements Constantes {
 			case PLAYER:
 			case ENEMY:
 			case CHEST:
+			case PORTAL:
 				try {
 					if (animation != null && animation.getFrame() != null) {
-						g.drawImage(animation.getFrame(), x + animation.getXOffset(), y + animation.getYOffset(), null);
+						g.drawImage(animation.getFrame(), xPixels + animation.getXOffset(), yPixels + animation.getYOffset(), null);
 					}
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
 				}
 				break;
-			case PORTAL:
-				g.setColor(Color.pink);
-				g.fillRect(x + 1, y + 1, CELL_PIXELS - 1, CELL_PIXELS - 1);
-				g.setColor(Color.black);
-				g.drawString(String.valueOf(END), x + (CELL_PIXELS / 2), y + (CELL_PIXELS / 2));
-				break;
 		}
 
 		// The cell is selected
 		if (isSelected()) {
 			g.setColor(Color.black);
-			g.drawRect(x, y, CELL_PIXELS - 1, CELL_PIXELS - 1);
+			g.drawRect(xPixels, yPixels, CELL_PIXELS - 1, CELL_PIXELS - 1);
 		}
 	}
 
@@ -248,7 +258,7 @@ public class Celda extends JComponent implements Constantes {
 	 * @return Returns true if the cell is selected
 	 */
 	public boolean selected(int clickX, int clickY) {
-		Rectangle rectangle = new Rectangle(x, y, CELL_PIXELS, CELL_PIXELS);
+		Rectangle rectangle = new Rectangle(xPixels, yPixels, CELL_PIXELS, CELL_PIXELS);
 		if (rectangle.contains(new Point(clickX, clickY))) {
 			selected = !selected;
 			return true;

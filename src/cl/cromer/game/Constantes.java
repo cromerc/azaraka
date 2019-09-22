@@ -48,6 +48,7 @@ public interface Constantes {
 	Level IMAGE_LOG_LEVEL = Level.WARNING;
 	Level CELDA_LOG_LEVEL = Level.WARNING;
 	Level JSON_LOG_LEVEL = Level.WARNING;
+	Level PORTAL_LOG_LEVEL = Level.WARNING;
 	/**
 	 * Use a global log if true or individual logs if false
 	 */
@@ -68,36 +69,82 @@ public interface Constantes {
 	 * The number of cells to draw vertically
 	 */
 	int VERTICAL_CELLS = 10;
-	int TOP_MARGIN = 40;
-	int LEFT_MARGIN = 40;
-	Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 	/**
-	 * The letter that represents the end
+	 * The amount of margin before drawing the cells
 	 */
-	char END = 'F';
+	int TOP_MARGIN = 40;
+	/**
+	 * The amount of margin to the left and right of cells
+	 */
+	int LEFT_MARGIN = 40;
+	/**
+	 * The screen size
+	 */
+	Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 	/**
 	 * The amount of chests to draw
 	 */
-	int CHESTS = 3;
+	int CHESTS = 4;
 	/**
 	 * The amount of enemies to draw
 	 */
-	int ENEMIES = 2;
+	int ENEMIES = 4;
+	/**
+	 * The player's start x position
+	 */
 	int PLAYER_START_X = 2;
+	/**
+	 * The player's start y position
+	 */
 	int PLAYER_START_Y = 1;
+	/**
+	 * The font size to use
+	 */
 	int FONT_SIZE = 12;
+	/**
+	 * The minimum speed of the enemies
+	 */
 	int MINIMUM_SPEED = 100;
+	/**
+	 * The maximum speed of the enemies
+	 */
 	int MAXIMUM_SPEED = 500;
+	/**
+	 * The default speed of the enemies
+	 */
 	int DEFAULT_SPEED = 100;
+	/**
+	 * The minimum volume
+	 */
 	int MINIMUM_VOLUME = 0;
+	/**
+	 * The maximum volume
+	 */
 	int MAXIMUM_VOLUME = 100;
+	/**
+	 * The default volume
+	 */
 	int DEFAULT_VOLUME = 100;
+	/**
+	 * Generates the scene manually instead of from the JSON file if true
+	 */
 	boolean GENERATE_SCENE = false;
-	boolean EXPORT_SCENE = true;
-	Font BOLD_FONT = new Font("monospaced", Font.BOLD, FONT_SIZE);
-	Font FONT = new Font("monospaced", Font.PLAIN, FONT_SIZE);
-
+	/**
+	 * Exports the scene to a JSON file if true
+	 */
+	boolean EXPORT_SCENE = false;
+	/**
+	 * Use pretty JSON if true
+	 */
 	boolean PRETTY_JSON = false;
+	/**
+	 * The normal font to use
+	 */
+	Font FONT = new Font("monospaced", Font.PLAIN, FONT_SIZE);
+	/**
+	 * The bold font to use
+	 */
+	Font BOLD_FONT = new Font("monospaced", Font.BOLD, FONT_SIZE);
 
 	/**
 	 * Generate a random number between given min and max
@@ -178,14 +225,5 @@ public interface Constantes {
 			logger.setLevel(level);
 		}
 		return logger;
-	}
-
-	/**
-	 * The sprite type
-	 */
-	enum SpriteType {
-		PLAYER,
-		ENEMY,
-		CHEST
 	}
 }

@@ -39,11 +39,11 @@ public class Enemy implements Runnable, Constantes {
 	/**
 	 * The current x position of the enemy
 	 */
-	private int x = 0;
+	private int x;
 	/**
 	 * The current y position of the enemy
 	 */
-	private int y = 0;
+	private int y;
 	/**
 	 * The current direction the enemy is facing
 	 */
@@ -70,12 +70,13 @@ public class Enemy implements Runnable, Constantes {
 	 *
 	 * @param escenario The scene the enemy is in
 	 */
-	public Enemy(Escenario escenario, Lock lock) {
+	public Enemy(Escenario escenario, Celda celda, Lock lock) {
 		this.lock = lock;
 		logger = getLogger(this.getClass(), ENEMY_LOG_LEVEL);
 		this.escenario = escenario;
-		celda = new Celda(x, y);
-		celda.setType(Celda.Type.ENEMY);
+		this.celda = celda;
+		this.x = celda.getX();
+		this.y = celda.getY();
 	}
 
 	/**
