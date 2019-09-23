@@ -103,7 +103,7 @@ public class Escenario extends JComponent implements Constantes {
 		else {
 			StringBuilder stringBuilder = new StringBuilder();
 
-			InputStream inputStream = getClass().getResourceAsStream("/res/scene.json");
+			InputStream inputStream = getClass().getResourceAsStream("/scene.json");
 			try {
 				String line;
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -460,7 +460,7 @@ public class Escenario extends JComponent implements Constantes {
 		Animation animation;
 
 		// Load player animations
-		Sheet characterSheet = new Sheet("/res/img/player/chara2.png", 54, 39);
+		Sheet characterSheet = new Sheet("/img/player/chara2.png", 54, 39);
 		int character = 6;
 		try {
 			animation = new Animation();
@@ -475,7 +475,7 @@ public class Escenario extends JComponent implements Constantes {
 		}
 
 		// Load enemy animations
-		characterSheet = new Sheet("/res/img/enemy/chara4.png", 54, 39);
+		characterSheet = new Sheet("/img/enemy/chara4.png", 54, 39);
 		character = 57;
 		try {
 			animation = new Animation();
@@ -490,7 +490,7 @@ public class Escenario extends JComponent implements Constantes {
 		}
 
 		// Load the chest animation
-		Sheet chestSheet = new Sheet("/res/img/chest/chests.png", 54, 63);
+		Sheet chestSheet = new Sheet("/img/chest/chests.png", 54, 63);
 		try {
 			animation = new Animation();
 			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(54));
@@ -512,12 +512,12 @@ public class Escenario extends JComponent implements Constantes {
 				stringBuilder.insert(0, 0);
 			}
 			stringBuilder.append(".png");
-			animation.addImage(Animation.Direction.NONE, "/res/img/portal/gray/" + stringBuilder.toString());
+			animation.addImage(Animation.Direction.NONE, "/img/portal/gray/" + stringBuilder.toString());
 		}
 		sprites.put(Animation.SpriteType.PORTAL, animation);
 
 		// Load the background textures
-		textureSheet = new Sheet("/res/img/textures/3.png", 64, 64);
+		textureSheet = new Sheet("/img/textures/3.png", 64, 64);
 	}
 
 	/**
@@ -716,7 +716,7 @@ public class Escenario extends JComponent implements Constantes {
 				logger.info("Opened chest");
 
 				try {
-					Sound chestOpenSound = new Sound("/res/snd/OpenChest.wav");
+					Sound chestOpenSound = new Sound("/snd/OpenChest.wav");
 					chestOpenSound.play();
 				}
 				catch (SoundException e) {

@@ -170,7 +170,7 @@ public class Lienzo extends Canvas implements Constantes {
 		}
 
 		try {
-			backgroundMusic = new Sound("/res/snd/GameLoop.wav");
+			backgroundMusic = new Sound("/snd/GameLoop.wav");
 			backgroundMusic.setLoops(Clip.LOOP_CONTINUOUSLY);
 			backgroundMusic.play();
 		}

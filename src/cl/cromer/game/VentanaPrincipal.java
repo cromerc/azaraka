@@ -57,7 +57,7 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 		setSize(SCREEN_SIZE.width - 50, SCREEN_SIZE.height - 50);
 
 		setTitle(TITLE);
-		String icon = "/res/img/icon.png";
+		String icon = "/img/icon.png";
 		try {
 			BufferedImage image = ImageIO.read(getClass().getResourceAsStream(icon));
 			this.setIconImage(image);
