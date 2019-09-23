@@ -84,11 +84,11 @@ public interface Constantes {
 	/**
 	 * The amount of chests to draw
 	 */
-	int CHESTS = 4;
+	int CHESTS = 2;
 	/**
 	 * The amount of enemies to draw
 	 */
-	int ENEMIES = 4;
+	int ENEMIES = 2;
 	/**
 	 * The player's start x position
 	 */

@@ -49,10 +49,6 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	private Type type = Type.SPACE;
 	/**
-	 * If the cell is selected
-	 */
-	private boolean selected = false;
-	/**
 	 * The sprites that can be used in the cell
 	 */
 	private Animation animation = null;
@@ -224,46 +220,6 @@ public class Celda extends JComponent implements Constantes {
 				}
 				break;
 		}
-
-		// The cell is selected
-		if (isSelected()) {
-			g.setColor(Color.black);
-			g.drawRect(xPixels, yPixels, CELL_PIXELS - 1, CELL_PIXELS - 1);
-		}
-	}
-
-	/**
-	 * Check if the cell is selected
-	 *
-	 * @return Returns true if the cell is selected
-	 */
-	public boolean isSelected() {
-		return selected;
-	}
-
-	/**
-	 * Set the call as selected or unselected
-	 *
-	 * @param selected True if the cell is selected
-	 */
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
-
-	/**
-	 * Called when the player uses mouse to select cell
-	 *
-	 * @param clickX The x coordinate
-	 * @param clickY They y coordinate
-	 * @return Returns true if the cell is selected
-	 */
-	public boolean selected(int clickX, int clickY) {
-		Rectangle rectangle = new Rectangle(xPixels, yPixels, CELL_PIXELS, CELL_PIXELS);
-		if (rectangle.contains(new Point(clickX, clickY))) {
-			selected = !selected;
-			return true;
-		}
-		return false;
 	}
 
 	/**

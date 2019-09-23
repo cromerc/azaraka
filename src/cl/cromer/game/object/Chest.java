@@ -15,14 +15,44 @@
 
 package cl.cromer.game.object;
 
+import cl.cromer.game.Celda;
+import cl.cromer.game.Escenario;
+
 /**
  * This class handles the chests
  */
-public class Chest {
+public class Chest implements Runnable {
 	/**
 	 * The current state of the chest
 	 */
 	private State state = State.CLOSED;
+	/**
+	 * The scene the chest is in
+	 */
+	private Escenario escenario;
+	/**
+	 * The cell the chest is in
+	 */
+	private Celda celda;
+
+	/**
+	 * Initialize the chest
+	 *
+	 * @param escenario The scene the chest is in
+	 * @param celda     The cell that contains the chest
+	 */
+	public Chest(Escenario escenario, Celda celda) {
+		this.escenario = escenario;
+		this.celda = celda;
+	}
+
+	/**
+	 * This method is run when the thread starts
+	 */
+	@Override
+	public void run() {
+
+	}
 
 	/**
 	 * The possible states of the chest
@@ -32,6 +62,10 @@ public class Chest {
 		 * The chest is closed
 		 */
 		CLOSED,
+		/**
+		 * The chest is opening
+		 */
+		OPENING,
 		/**
 		 * The chest is opened
 		 */

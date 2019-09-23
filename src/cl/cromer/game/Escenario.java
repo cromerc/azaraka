@@ -82,6 +82,10 @@ public class Escenario extends JComponent implements Constantes {
 	 * The enemies
 	 */
 	private ArrayList<Celda> enemies = new ArrayList<>();
+	/**
+	 * The chests
+	 */
+	private ArrayList<Celda> chests = new ArrayList<>();
 
 	/**
 	 * Initialize the scene
@@ -225,6 +229,8 @@ public class Escenario extends JComponent implements Constantes {
 					break;
 				case CHEST:
 					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.CHEST));
+					celdas[x][y].setCoords(x, y);
+					chests.add(celdas[x][y]);
 					break;
 				case PORTAL:
 					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.PORTAL));
@@ -514,7 +520,7 @@ public class Escenario extends JComponent implements Constantes {
 				stringBuilder.insert(0, 0);
 			}
 			stringBuilder.append(".png");
-			animation.addImage(Animation.Direction.NONE, "/img/portal/gray/" + stringBuilder.toString());
+			animation.addImage(Animation.Direction.NONE, "/img/portal/green/" + stringBuilder.toString());
 		}
 		sprites.put(Animation.SpriteType.PORTAL, animation);
 
@@ -544,19 +550,6 @@ public class Escenario extends JComponent implements Constantes {
 		animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character + 2));
 
 		animation.setYOffset(0);
-	}
-
-	/**
-	 * This method will remove the selected attribute from all cells
-	 */
-	public void emptyEscenario() {
-		for (int i = 0; i < HORIZONTAL_CELLS; i++) {
-			for (int j = 0; j < VERTICAL_CELLS; j++) {
-				if (celdas[i][j].isSelected()) {
-					celdas[i][j].setSelected(false);
-				}
-			}
-		}
 	}
 
 	/**
@@ -781,6 +774,15 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	public ArrayList<Celda> getEnemies() {
 		return enemies;
+	}
+
+	/**
+	 * Get the chests
+	 *
+	 * @return Returns an array list containing the chests
+	 */
+	public ArrayList<Celda> getChests() {
+		return chests;
 	}
 
 	/**
