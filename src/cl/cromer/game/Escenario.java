@@ -85,6 +85,8 @@ public class Escenario extends JComponent implements Constantes {
 
 	/**
 	 * Initialize the scene
+	 *
+	 * @param canvas The canvas that this scene is in
 	 */
 	public Escenario(Lienzo canvas) {
 		logger = getLogger(this.getClass(), ESCENARIO_LOG_LEVEL);

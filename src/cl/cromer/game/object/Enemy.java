@@ -65,10 +65,13 @@ public class Enemy implements Runnable, Constantes {
 	 */
 	private Lock lock;
 
+	// TODO: the cell is not needed, just it's x and y position
 	/**
 	 * Initialize the enemy
 	 *
 	 * @param escenario The scene the enemy is in
+	 * @param celda The cell this enemy is in
+	 * @param lock The lock used to prevent the threads from conflicting
 	 */
 	public Enemy(Escenario escenario, Celda celda, Lock lock) {
 		this.lock = lock;
@@ -88,7 +91,6 @@ public class Enemy implements Runnable, Constantes {
 	public void setCoordinates(int x, int y) {
 		this.x = x;
 		this.y = y;
-		celda.setCoords(x, y);
 	}
 
 	/**

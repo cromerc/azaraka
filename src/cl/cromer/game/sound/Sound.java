@@ -44,6 +44,7 @@ public class Sound implements Constantes {
 	 * Load the sound
 	 *
 	 * @param path The path to the sound resource
+	 * @throws SoundException Thrown if the sound file could not be loaded
 	 */
 	public Sound(String path) throws SoundException {
 		this.path = path;
@@ -83,6 +84,7 @@ public class Sound implements Constantes {
 
 	/**
 	 * Play the sound
+	 * @throws SoundException Thrown if the sound clip is null
 	 */
 	public void play() throws SoundException {
 		if (sound == null) {
@@ -95,6 +97,7 @@ public class Sound implements Constantes {
 
 	/**
 	 * Stop the sound
+	 * @throws SoundException Thrown if the sound clip is null
 	 */
 	public void stop() throws SoundException {
 		if (sound == null) {
@@ -116,6 +119,7 @@ public class Sound implements Constantes {
 	 * Set the volume of the sound
 	 *
 	 * @param volume Volume between 0f and 1f
+	 * @throws SoundException Thrown if the sound clip is null or the volume is out of range
 	 */
 	public void setVolume(float volume) throws SoundException {
 		if (sound == null) {

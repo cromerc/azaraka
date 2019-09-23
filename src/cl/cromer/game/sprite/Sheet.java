@@ -36,6 +36,8 @@ public class Sheet implements Constantes {
 	 * Initialize the texture collection
 	 *
 	 * @param path The path to the image
+	 * @param height The height of the textures in the image
+	 * @param width The width of the textures in the image
 	 */
 	public Sheet(String path, int height, int width) {
 		images = new ArrayList<>();
@@ -62,6 +64,7 @@ public class Sheet implements Constantes {
 	 * Returns the selected texture
 	 *
 	 * @return Returns the current texture
+	 * @param textureNumber The texture to get from the collection
 	 * @throws SheetException Thrown when there are no images in the texture collection
 	 */
 	public BufferedImage getTexture(int textureNumber) throws SheetException {

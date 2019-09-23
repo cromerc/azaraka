@@ -148,8 +148,9 @@ public class Animation implements Cloneable, Constantes {
 	}
 
 	/**
-	 * Add an image to the sprite
+	 * Add an image to the animation
 	 *
+	 * @param direction The direction to add the image to
 	 * @param path The path to the sprite e.g. res/player/image.png
 	 */
 	public void addImage(Direction direction, String path) {
@@ -164,14 +165,21 @@ public class Animation implements Cloneable, Constantes {
 	}
 
 	/**
-	 * Add an image to the sprite
+	 * Add an image to the animation
 	 *
+	 * @param direction The direction to add the image to
 	 * @param bufferedImage The path to the sprite e.g. res/player/image.png
 	 */
 	public void addImage(Direction direction, BufferedImage bufferedImage) {
 		addImageToList(direction, bufferedImage);
 	}
 
+	/**
+	 * Add an image to the list of images
+	 *
+	 * @param direction     The direction to add the image to
+	 * @param bufferedImage The image to add
+	 */
 	private void addImageToList(Direction direction, BufferedImage bufferedImage) {
 		calculateXOffset(bufferedImage.getWidth());
 		calculateYOffset(bufferedImage.getHeight());
