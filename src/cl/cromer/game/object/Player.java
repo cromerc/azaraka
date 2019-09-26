@@ -15,30 +15,462 @@
 
 package cl.cromer.game.object;
 
+import cl.cromer.game.Celda;
+import cl.cromer.game.Constantes;
+import cl.cromer.game.Escenario;
+import cl.cromer.game.sound.Sound;
+import cl.cromer.game.sprite.Animation;
+import cl.cromer.game.sprite.AnimationException;
+
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * This class contains the player
  */
-public class Player {
+public class Player extends Object implements Constantes {
 	/**
 	 * The maximum health of the player
 	 */
-	private final int MAX_HEALTH = 10;
+	public final static int MAX_HEALTH = 8;
+	/**
+	 * The logger
+	 */
+	private Logger logger;
 	/**
 	 * The current health of the player
 	 */
 	private int health = MAX_HEALTH;
 	/**
-	 * The current x position of the player
-	 */
-	private int x;
-	/**
-	 * The current y position of the player
-	 */
-	private int y;
-	/**
 	 * Objects that the player is carrying
 	 */
-	private ArrayList<Object> carrying;
+	private ArrayList<Object> carrying = new ArrayList<>();
+
+	/**
+	 * Initialize the player
+	 *
+	 * @param escenario The scene the player is in
+	 * @param celda     The cell the player is in
+	 */
+	public Player(Escenario escenario, Celda celda) {
+		super(escenario, celda);
+		logger = getLogger(this.getClass(), PLAYER_LOG_LEVEL);
+	}
+
+	/**
+	 * Handle keys being pressed in the game
+	 *
+	 * @param event The event from the keyboard
+	 */
+	public void keyPressed(KeyEvent event) {
+		if (!getEscenario().isDoorClosed()) {
+			getEscenario().setDoorClosed(true);
+		}
+		switch (event.getKeyCode()) {
+			case KeyEvent.VK_UP:
+				moveUp();
+				break;
+			case KeyEvent.VK_DOWN:
+				moveDown();
+				break;
+			case KeyEvent.VK_LEFT:
+				moveLeft();
+				break;
+			case KeyEvent.VK_RIGHT:
+				moveRight();
+				break;
+			case KeyEvent.VK_SPACE:
+				interact();
+				break;
+		}
+	}
+
+	/**
+	 * Move the player up
+	 */
+	private void moveUp() {
+		int x = getX();
+		int y = getY();
+		logger.info("Up key pressed");
+		if (y > 0) {
+			Celda.Type type = getEscenario().getCeldas()[x][y - 1].getType();
+			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
+				if (type == Celda.Type.KEY) {
+					for (Key key : getEscenario().getCanvas().getKeys()) {
+						if (key.checkPosition(x, y - 1)) {
+							// Get the key
+							getKey(key);
+							// Remove the key from the cell
+							getEscenario().getCeldas()[x][y - 1].setType(Celda.Type.SPACE);
+							getEscenario().getCeldas()[x][y - 1].setAnimation(null);
+							break;
+						}
+					}
+				}
+
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x][y - 1].setType(Celda.Type.PLAYER);
+
+				if (changeDirection(Animation.Direction.UP)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+
+				getEscenario().getCeldas()[x][y - 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setAnimation(null);
+				setY(getY() - 1);
+			}
+			else {
+				if (changeDirection(Animation.Direction.UP)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+			}
+		}
+		else {
+			if (changeDirection(Animation.Direction.UP)) {
+				try {
+					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Move the player down
+	 */
+	private void moveDown() {
+		int x = getX();
+		int y = getY();
+		logger.info("Down key pressed");
+		Celda.Type type = getEscenario().getCeldas()[x][y + 1].getType();
+		if (y < (VERTICAL_CELLS - 1) && (type == Celda.Type.SPACE || type == Celda.Type.KEY)) {
+			if (type == Celda.Type.KEY) {
+				for (Key key : getEscenario().getCanvas().getKeys()) {
+					if (key.checkPosition(x, y + 1)) {
+						// Get the key
+						getKey(key);
+						// Remove the key from the cell
+						getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.SPACE);
+						getEscenario().getCeldas()[x][y + 1].setAnimation(null);
+						break;
+					}
+				}
+			}
+
+			getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+			getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.PLAYER);
+
+			if (changeDirection(Animation.Direction.DOWN)) {
+				try {
+					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
+				}
+			}
+
+			getEscenario().getCeldas()[x][y + 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+			getEscenario().getCeldas()[x][y].setAnimation(null);
+			setY(getY() + 1);
+		}
+		else {
+			if (changeDirection(Animation.Direction.DOWN)) {
+				try {
+					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Move the player to the left
+	 */
+	private void moveLeft() {
+		int x = getX();
+		int y = getY();
+		logger.info("Left key pressed");
+		if (x > 0) {
+			Celda.Type type = getEscenario().getCeldas()[x - 1][y].getType();
+			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
+				if (type == Celda.Type.KEY) {
+					for (Key key : getEscenario().getCanvas().getKeys()) {
+						if (key.checkPosition(x - 1, y)) {
+							// Get the key
+							getKey(key);
+							// Remove the key from the cell
+							getEscenario().getCeldas()[x - 1][y].setType(Celda.Type.SPACE);
+							getEscenario().getCeldas()[x - 1][y].setAnimation(null);
+							break;
+						}
+					}
+				}
+
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x - 1][y].setType(Celda.Type.PLAYER);
+
+				if (changeDirection(Animation.Direction.LEFT)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+
+				getEscenario().getCeldas()[x - 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setAnimation(null);
+				setX(getX() - 1);
+			}
+			else {
+				if (changeDirection(Animation.Direction.LEFT)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Move the player to the right
+	 */
+	private void moveRight() {
+		int x = getX();
+		int y = getY();
+		logger.info("Right key pressed");
+		Celda.Type type = getEscenario().getCeldas()[x + 1][y].getType();
+		if (x < (HORIZONTAL_CELLS - 1) && (type == Celda.Type.SPACE || type == Celda.Type.KEY)) {
+			if (type == Celda.Type.KEY) {
+				for (Key key : getEscenario().getCanvas().getKeys()) {
+					if (key.checkPosition(x + 1, y)) {
+						// Get the key
+						getKey(key);
+						// Remove the key from the cell
+						getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.SPACE);
+						getEscenario().getCeldas()[x + 1][y].setAnimation(null);
+						break;
+					}
+				}
+			}
+
+			getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+			getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.PLAYER);
+
+			if (changeDirection(Animation.Direction.RIGHT)) {
+				try {
+					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
+				}
+			}
+
+			getEscenario().getCeldas()[x + 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+			getEscenario().getCeldas()[x][y].setAnimation(null);
+			setX(getX() + 1);
+		}
+		else {
+			if (changeDirection(Animation.Direction.RIGHT)) {
+				try {
+					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Change the direction of the player sprite
+	 *
+	 * @param direction The new direction
+	 * @return Returns true if a direction change is not necessary
+	 */
+	private boolean changeDirection(Animation.Direction direction) {
+		int x = getX();
+		int y = getY();
+		if (getEscenario().getCeldas()[x][y].getAnimation().getCurrentDirection() != direction) {
+			getEscenario().getCeldas()[x][y].getAnimation().setCurrentDirection(direction);
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	/**
+	 * Get the key
+	 *
+	 * @param key The key to get
+	 */
+	private void getKey(Key key) {
+		gainHealth(1);
+		// Kill the loop in the thread
+		key.setActive(false);
+		// Add key to inventory
+		carrying.add(key);
+		// Stop the thread
+		try {
+			getEscenario().getCanvas().getThreads().get(key).join();
+		}
+		catch (InterruptedException e) {
+			logger.warning(e.getMessage());
+		}
+		// Play sound
+		new Thread(getEscenario().getSounds().get(Sound.SoundType.GET_KEY)).start();
+	}
+
+	/**
+	 * Interact with an object in the game
+	 */
+	private void interact() {
+		int x = getX();
+		int y = getY();
+		logger.info("Space bar pressed");
+		if (getEscenario().getCeldas()[x][y].getAnimation().getCurrentDirection() == Animation.Direction.UP) {
+			if (getEscenario().getCeldas()[x][y - 1].getType() == Celda.Type.CHEST) {
+				if (hasKey()) {
+					logger.info("Player opened chest");
+
+					new Thread(getEscenario().getSounds().get(Sound.SoundType.OPEN_CHEST)).start();
+
+					gainHealth(1);
+
+					for (Chest chest : getEscenario().getCanvas().getChests()) {
+						if (chest.checkPosition(x, y - 1)) {
+							if (chest.getState() == Chest.State.OPENED) {
+								return;
+							}
+							chest.setState(Chest.State.OPENING);
+							break;
+						}
+					}
+
+					useKey();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks if the player has a key
+	 *
+	 * @return Returns true if the player has a key or false if they have no keys
+	 */
+	private boolean hasKey() {
+		for (Object object : carrying) {
+			if (object instanceof Key) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check how many keys the player has
+	 *
+	 * @return Returns the number of key in the inventory
+	 */
+	public int keyCount() {
+		int i = 0;
+		for (Object object : carrying) {
+			if (object instanceof Key) {
+				i++;
+			}
+		}
+		return i;
+	}
+
+	/**
+	 * Removes a key from the player inventory
+	 */
+	private void useKey() {
+		for (Object object : carrying) {
+			if (object instanceof Key) {
+				logger.info("Used key");
+				carrying.remove(object);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Get the current health of the player
+	 *
+	 * @return Returns the health value
+	 */
+	public int getHealth() {
+		return health;
+	}
+
+	/**
+	 * Lose a variable amount of health
+	 *
+	 * @param amount The amount to lose
+	 */
+	public void loseHealth(int amount) {
+		if (health > 0) {
+			logger.info("Lose " + amount + " health");
+			health = health - amount;
+			if (health < 0) {
+				logger.info("Player is dead");
+				health = 0;
+			}
+		}
+	}
+
+	/**
+	 * Gain a variable amount of health
+	 *
+	 * @param amount The amount of health to gain
+	 */
+	private void gainHealth(int amount) {
+		if (health < MAX_HEALTH) {
+			logger.info("Gain " + amount + " health");
+			health = health + amount;
+			if (health > MAX_HEALTH) {
+				health = MAX_HEALTH;
+			}
+		}
+	}
+
+	/**
+	 * This runs when the thread starts
+	 */
+	@Override
+	public void run() {
+		super.run();
+		while (getActive()) {
+			try {
+				Thread.sleep(5000);
+			}
+			catch (InterruptedException e) {
+				logger.info(e.getMessage());
+			}
+			synchronized (this) {
+				loseHealth(1);
+				getEscenario().getCanvas().repaint();
+			}
+		}
+	}
 }

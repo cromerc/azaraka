@@ -34,37 +34,38 @@ public class HtmlFormatter extends Formatter {
 	 */
 	public String format(LogRecord logRecord) {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("<tr>\n");
+		stringBuilder.append("\t<tr>\n");
 
 		// colorize any levels >= WARNING in red
 		if (logRecord.getLevel().intValue() >= Level.WARNING.intValue()) {
-			stringBuilder.append("\t<td style=\"color:red\">");
+			stringBuilder.append("\t\t<td style=\"color:red\">");
 			stringBuilder.append("<b>");
 			stringBuilder.append(StringUtils.encodeHtml(logRecord.getLevel().getName()));
 			stringBuilder.append("</b>");
 		}
 		else {
-			stringBuilder.append("\t<td>");
+			stringBuilder.append("\t\t<td>");
 			stringBuilder.append(StringUtils.encodeHtml(logRecord.getLevel().getName()));
 		}
 		stringBuilder.append("</td>\n");
 
-		stringBuilder.append("\t<td>");
+		stringBuilder.append("\t\t<td>");
 		stringBuilder.append(StringUtils.encodeHtml(calculateDate(logRecord.getMillis())));
 		stringBuilder.append("</td>\n");
 
-		stringBuilder.append("\t<td>");
+		stringBuilder.append("\t\t<td>");
 		stringBuilder.append(StringUtils.encodeHtml(logRecord.getSourceClassName()));
 		stringBuilder.append("</td>\n");
-		stringBuilder.append("\t<td>");
+
+		stringBuilder.append("\t\t<td>");
 		stringBuilder.append(StringUtils.encodeHtml(logRecord.getSourceMethodName()));
 		stringBuilder.append("</td>\n");
 
-		stringBuilder.append("\t<td>");
+		stringBuilder.append("\t\t<td>");
 		stringBuilder.append(StringUtils.encodeHtml(formatMessage(logRecord)));
 		stringBuilder.append("</td>\n");
 
-		stringBuilder.append("</tr>\n");
+		stringBuilder.append("\t</tr>\n");
 
 		return stringBuilder.toString();
 	}
@@ -90,21 +91,22 @@ public class HtmlFormatter extends Formatter {
 	public String getHead(Handler handler) {
 		return "<!DOCTYPE html>\n<head>\n<style>\n"
 				+ "table { width: 100%; border: 1px solid black; border-collapse: collapse; }\n"
-				+ "th { font:bold 10pt Tahoma; border: 1px solid black; border-collapse: collapse; }\n"
-				+ "td { font:normal 10pt Tahoma; border: 1px solid black; border-collapse: collapse; }\n"
-				+ "h1 {font:normal 11pt Tahoma;}\n"
+				+ "th { font:bold 10pt monospaced; border: 1px solid black; border-collapse: collapse; }\n"
+				+ "td { font:normal 10pt monospaced; border: 1px solid black; border-collapse: collapse; }\n"
+				+ "h1 {font:normal 11pt monospaced;}\n"
 				+ "</style>\n"
+				+ "<title>Log</title>\n"
 				+ "</head>\n"
 				+ "<body>\n"
 				+ "<h1>" + (StringUtils.encodeHtml(new Date().toString())) + "</h1>\n"
 				+ "<table border=\"0\" cellpadding=\"5\" cellspacing=\"3\">\n"
-				+ "<tr align=\"left\">\n"
-				+ "\t<th style=\"width:10%\">Loglevel</th>\n"
-				+ "\t<th style=\"width:15%\">Time</th>\n"
-				+ "\t<th style=\"width:10%\">Class</th>\n"
-				+ "\t<th style=\"width:10%\">Method</th>\n"
-				+ "\t<th style=\"width:55%\">Log Message</th>\n"
-				+ "</tr>\n";
+				+ "\t<tr align=\"left\">\n"
+				+ "\t\t<th style=\"width:10%\">Loglevel</th>\n"
+				+ "\t\t<th style=\"width:15%\">Time</th>\n"
+				+ "\t\t<th style=\"width:10%\">Class</th>\n"
+				+ "\t\t<th style=\"width:10%\">Method</th>\n"
+				+ "\t\t<th style=\"width:55%\">Log Message</th>\n"
+				+ "\t</tr>\n";
 	}
 
 	/**

@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 /**
  * This class handles sound
  */
-public class Sound implements Constantes {
+public class Sound implements Runnable, Constantes {
 	/**
 	 * The sound clip to play
 	 */
@@ -39,7 +39,6 @@ public class Sound implements Constantes {
 	 * The logger
 	 */
 	private Logger logger;
-
 	/**
 	 * Load the sound
 	 *
@@ -79,6 +78,7 @@ public class Sound implements Constantes {
 		catch (LineUnavailableException | IOException e) {
 			logger.warning(e.getMessage());
 		}
+
 		logger.info("Opened sound: " + path);
 	}
 
@@ -86,13 +86,33 @@ public class Sound implements Constantes {
 	 * Play the sound
 	 * @throws SoundException Thrown if the sound clip is null
 	 */
-	public void play() throws SoundException {
+	private void play() throws SoundException {
 		if (sound == null) {
 			throw new SoundException("Sound is null!");
 		}
 
+		// Stop the sound if it was already playing
+		if (isPlaying()) {
+			sound.stop();
+		}
+
+		sound.setFramePosition(0);
 		sound.start();
 		logger.info("Play sound: " + path);
+	}
+
+	/**
+	 * Check if the sound clip is playing or not
+	 *
+	 * @return Returns true if the sound is playing or false otherwise
+	 * @throws SoundException Thrown if the sound clip is null
+	 */
+	public boolean isPlaying() throws SoundException {
+		if (sound == null) {
+			throw new SoundException("Sound is null!");
+		}
+
+		return sound.isActive();
 	}
 
 	/**
@@ -104,15 +124,35 @@ public class Sound implements Constantes {
 			throw new SoundException("Sound is null!");
 		}
 
-		sound.stop();
+		if (isPlaying()) {
+			sound.stop();
+		}
 		logger.info("Stop sound: " + path);
 	}
 
+	/**
+	 * Set the number of loops to play
+	 * @param loops The number of loops, should be n-1
+	 * @throws SoundException Thrown if the sound is null
+	 */
 	public void setLoops(int loops) throws SoundException {
 		if (sound == null) {
 			throw new SoundException("Sound is null!");
 		}
 		sound.loop(loops);
+	}
+
+	/**
+	 * Run the sound in a thread
+	 */
+	@Override
+	public void run() {
+		try {
+			play();
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
 	}
 
 	/**
@@ -149,5 +189,31 @@ public class Sound implements Constantes {
 		else {
 			logger.info("No control to modify volume");
 		}
+	}
+
+	/**
+	 * The types of sounds
+	 */
+	public enum SoundType {
+		/**
+		 * Background music
+		 */
+		BACKGROUND,
+		/**
+		 * Open chest sound
+		 */
+		OPEN_CHEST,
+		/**
+		 * Get key sound
+		 */
+		GET_KEY,
+		/**
+		 * Game over music
+		 */
+		GAME_OVER,
+		/**
+		 * Enemy attack sound
+		 */
+		ENEMY_ATTACK
 	}
 }

@@ -67,31 +67,17 @@ public class Celda extends JComponent implements Constantes {
 
 	/**
 	 * Initialize the cell with its coordinates
-	 */
-	public Celda() {
-		logger = getLogger(this.getClass(), CELDA_LOG_LEVEL);
-	}
-
-	/**
-	 * Initialize the cell with its coordinates
 	 * @param xPixels The x graphical coordinate
 	 * @param yPixels The y graphical coordinate
+	 * @param x The x coordinate of the cell
+	 * @param y The y coordinate of the cell
 	 */
-	public Celda(int xPixels, int yPixels) {
+	public Celda(int xPixels, int yPixels, int x, int y) {
 		this.xPixels = xPixels;
 		this.yPixels = yPixels;
-		logger = getLogger(this.getClass(), CELDA_LOG_LEVEL);
-	}
-
-	/**
-	 * Set the x and y coordinates of the cell
-	 *
-	 * @param x The x coordinate
-	 * @param y The y coordinate
-	 */
-	public void setCoords(int x, int y) {
 		this.x = x;
 		this.y = y;
+		logger = getLogger(this.getClass(), CELDA_LOG_LEVEL);
 	}
 
 	/**
@@ -104,30 +90,12 @@ public class Celda extends JComponent implements Constantes {
 	}
 
 	/**
-	 * Set the x coordinate for the cell
-	 *
-	 * @param x The new x coordinate
-	 */
-	public void setX(int x) {
-		this.x = x;
-	}
-
-	/**
 	 * Get the y coordinate for the cell
 	 *
 	 * @return Returns the y coordinate
 	 */
 	public int getY() {
 		return y;
-	}
-
-	/**
-	 * Set the y coordinate for the cell
-	 *
-	 * @param y The new y coordinate
-	 */
-	public void setY(int y) {
-		this.y = y;
 	}
 
 	/**
@@ -157,6 +125,11 @@ public class Celda extends JComponent implements Constantes {
 	public void addTexture(BufferedImage texture, int textureNumber) {
 		textures.add(texture);
 		textureNumbers.add(textureNumber);
+	}
+
+	public void removeTopTexture() {
+		textures.remove(textures.size() - 1);
+		textureNumbers.remove(textureNumbers.size() - 1);
 	}
 
 	public ArrayList<Integer> getTextureNumbers() {
@@ -196,7 +169,7 @@ public class Celda extends JComponent implements Constantes {
 	@Override
 	public void update(Graphics g) {
 		// Set the text font
-		g.setFont(new Font("monospaced", Font.BOLD, 10));
+		//g.setFont(new Font("monospaced", Font.BOLD, 10));
 
 		for (BufferedImage tile : textures) {
 			if (tile != null) {
@@ -205,20 +178,15 @@ public class Celda extends JComponent implements Constantes {
 		}
 
 		// Draw a sprite in the cell if needed
-		switch (getType()) {
-			case PLAYER:
-			case ENEMY:
-			case CHEST:
-			case PORTAL:
-				try {
-					if (animation != null && animation.getFrame() != null) {
-						g.drawImage(animation.getFrame(), xPixels + animation.getXOffset(), yPixels + animation.getYOffset(), null);
-					}
+		if (getType() != Type.SPACE) {
+			try {
+				if (animation != null && animation.getFrame() != null) {
+					g.drawImage(animation.getFrame(), xPixels + animation.getXOffset(), yPixels + animation.getYOffset(), null);
 				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-				break;
+			}
+			catch (AnimationException e) {
+				logger.warning(e.getMessage());
+			}
 		}
 	}
 

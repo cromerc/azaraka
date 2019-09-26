@@ -18,8 +18,10 @@ package cl.cromer.game.object;
 import cl.cromer.game.Celda;
 import cl.cromer.game.Constantes;
 import cl.cromer.game.Escenario;
+import cl.cromer.game.sound.Sound;
 import cl.cromer.game.sprite.Animation;
 import cl.cromer.game.sprite.AnimationException;
+import cl.cromer.game.sprite.SheetException;
 
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
@@ -27,23 +29,7 @@ import java.util.logging.Logger;
 /**
  * This class handles the enemy object
  */
-public class Enemy implements Runnable, Constantes {
-	/**
-	 * The scene that contains the enemy
-	 */
-	private Escenario escenario;
-	/**
-	 * The cell that contains the enemy
-	 */
-	private Celda celda;
-	/**
-	 * The current x position of the enemy
-	 */
-	private int x;
-	/**
-	 * The current y position of the enemy
-	 */
-	private int y;
+public class Enemy extends Object implements Constantes {
 	/**
 	 * The current direction the enemy is facing
 	 */
@@ -53,10 +39,6 @@ public class Enemy implements Runnable, Constantes {
 	 */
 	private Logger logger;
 	/**
-	 * If the enemy is alive
-	 */
-	private boolean alive = true;
-	/**
 	 * The speed of the enemy
 	 */
 	private int speed = 500;
@@ -65,7 +47,6 @@ public class Enemy implements Runnable, Constantes {
 	 */
 	private Lock lock;
 
-	// TODO: the cell is not needed, just it's x and y position
 	/**
 	 * Initialize the enemy
 	 *
@@ -74,23 +55,9 @@ public class Enemy implements Runnable, Constantes {
 	 * @param lock The lock used to prevent the threads from conflicting
 	 */
 	public Enemy(Escenario escenario, Celda celda, Lock lock) {
-		this.lock = lock;
+		super(escenario, celda);
 		logger = getLogger(this.getClass(), ENEMY_LOG_LEVEL);
-		this.escenario = escenario;
-		this.celda = celda;
-		this.x = celda.getX();
-		this.y = celda.getY();
-	}
-
-	/**
-	 * Set the x and y coordinate of the enemy
-	 *
-	 * @param x The x coordinate
-	 * @param y The y coordinate
-	 */
-	public void setCoordinates(int x, int y) {
-		this.x = x;
-		this.y = y;
+		this.lock = lock;
 	}
 
 	/**
@@ -106,88 +73,118 @@ public class Enemy implements Runnable, Constantes {
 	 * This method handles the enemy's movements
 	 */
 	private void move() {
+		int x = getX();
+		int y = getY();
 		if (direction == Direction.LEFT) {
-			if (x > 0 && escenario.getCeldas()[x - 1][y].getType() == Celda.Type.SPACE) {
-				escenario.getCeldas()[x - 1][y].setType(Celda.Type.ENEMY);
-				escenario.getCeldas()[x - 1][y].setAnimation(escenario.getCeldas()[x][y].getAnimation());
-				escenario.getCeldas()[x][y].setType(Celda.Type.SPACE);
-				escenario.getCeldas()[x][y].setAnimation(null);
+			if (x > 0 && getEscenario().getCeldas()[x - 1][y].getType() == Celda.Type.SPACE) {
+				getEscenario().getCeldas()[x - 1][y].setType(Celda.Type.ENEMY);
+				getEscenario().getCeldas()[x - 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x][y].setAnimation(null);
 				try {
-					escenario.getCeldas()[x - 1][y].getAnimation().getNextFrame();
+					getEscenario().getCeldas()[x - 1][y].getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
 				}
-				x--;
+				setX(getX() - 1);
 				logger.info("Move left to x: " + x + " y: " + y);
+			}
+			else if (x > 0 && getEscenario().getCeldas()[x - 1][y].getType() == Celda.Type.PLAYER) {
+				attackPlayer(x - 1, y);
 			}
 			else {
 				logger.info("Change to right direction");
-				escenario.getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
+				getEscenario().getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
 				direction = Direction.RIGHT;
 			}
 		}
 		else if (direction == Direction.RIGHT) {
-			if (x < (HORIZONTAL_CELLS) - 1 && escenario.getCeldas()[x + 1][y].getType() == Celda.Type.SPACE) {
-				escenario.getCeldas()[x + 1][y].setType(Celda.Type.ENEMY);
-				escenario.getCeldas()[x + 1][y].setAnimation(escenario.getCeldas()[x][y].getAnimation());
-				escenario.getCeldas()[x][y].setType(Celda.Type.SPACE);
-				escenario.getCeldas()[x][y].setAnimation(null);
+			if (x < (HORIZONTAL_CELLS - 1) && getEscenario().getCeldas()[x + 1][y].getType() == Celda.Type.SPACE) {
+				getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.ENEMY);
+				getEscenario().getCeldas()[x + 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x][y].setAnimation(null);
 				try {
-					escenario.getCeldas()[x + 1][y].getAnimation().getNextFrame();
+					getEscenario().getCeldas()[x + 1][y].getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
 				}
-				x++;
+				setX(getX() + 1);
 				logger.info("Move right to x: " + x + " y: " + y);
+			}
+			else if (x < (HORIZONTAL_CELLS - 1) && getEscenario().getCeldas()[x + 1][y].getType() == Celda.Type.PLAYER) {
+				attackPlayer(x + 1, y);
 			}
 			else {
 				logger.info("Change to left direction");
-				escenario.getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.LEFT);
+				getEscenario().getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.LEFT);
 				direction = Direction.LEFT;
 			}
 		}
 		else if (direction == Direction.DOWN) {
-			if (y < (VERTICAL_CELLS) - 1 && escenario.getCeldas()[x][y + 1].getType() == Celda.Type.SPACE) {
-				escenario.getCeldas()[x][y + 1].setType(Celda.Type.ENEMY);
-				escenario.getCeldas()[x][y + 1].setAnimation(escenario.getCeldas()[x][y].getAnimation());
-				escenario.getCeldas()[x][y].setType(Celda.Type.SPACE);
-				escenario.getCeldas()[x][y].setAnimation(null);
+			if (y < (VERTICAL_CELLS) - 1 && getEscenario().getCeldas()[x][y + 1].getType() == Celda.Type.SPACE) {
+				getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.ENEMY);
+				getEscenario().getCeldas()[x][y + 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x][y].setAnimation(null);
 				try {
-					escenario.getCeldas()[x][y + 1].getAnimation().getNextFrame();
+					getEscenario().getCeldas()[x][y + 1].getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
 				}
-				y++;
+				setY(getY() + 1);
 				logger.info("Move down to x: " + x + " y: " + y);
+			}
+			else if (y < (VERTICAL_CELLS - 1) && getEscenario().getCeldas()[x][y + 1].getType() == Celda.Type.PLAYER) {
+				attackPlayer(x, y + 1);
 			}
 			else {
 				logger.info("Change to up direction");
-				escenario.getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.UP);
+				getEscenario().getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.UP);
 				direction = Direction.UP;
 			}
 		}
 		else if (direction == Direction.UP) {
-			if (y > 0 && escenario.getCeldas()[x][y - 1].getType() == Celda.Type.SPACE) {
-				escenario.getCeldas()[x][y - 1].setType(Celda.Type.ENEMY);
-				escenario.getCeldas()[x][y - 1].setAnimation(escenario.getCeldas()[x][y].getAnimation());
-				escenario.getCeldas()[x][y].setType(Celda.Type.SPACE);
-				escenario.getCeldas()[x][y].setAnimation(null);
+			if (y > 0 && getEscenario().getCeldas()[x][y - 1].getType() == Celda.Type.SPACE) {
+				getEscenario().getCeldas()[x][y - 1].setType(Celda.Type.ENEMY);
+				getEscenario().getCeldas()[x][y - 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x][y].setAnimation(null);
 				try {
-					escenario.getCeldas()[x][y - 1].getAnimation().getNextFrame();
+					getEscenario().getCeldas()[x][y - 1].getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
 				}
-				y--;
+				setY(getY() - 1);
 				logger.info("Move up to x: " + x + " y: " + y);
+			}
+			else if (y > 0 && getEscenario().getCeldas()[x][y - 1].getType() == Celda.Type.PLAYER) {
+				attackPlayer(x, y - 1);
 			}
 			else {
 				logger.info("Change to down direction");
-				escenario.getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.DOWN);
+				getEscenario().getCeldas()[x][y].getAnimation().setCurrentDirection(Animation.Direction.DOWN);
 				direction = Direction.DOWN;
+			}
+		}
+	}
+
+	private void attackPlayer(int x, int y) {
+		if (getEscenario().getCanvas().getPlayer().getHealth() > 0) {
+			logger.info("Attacked player at x: " + x + " y: " + y);
+
+			new Thread(getEscenario().getSounds().get(Sound.SoundType.ENEMY_ATTACK)).start();
+
+			getEscenario().getCanvas().getPlayer().loseHealth(2);
+			try {
+				getEscenario().getCeldas()[x][y].addTexture(getEscenario().getTextureSheet().getTexture(12), 12);
+			}
+			catch (SheetException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -196,27 +193,21 @@ public class Enemy implements Runnable, Constantes {
 	 * This method is run constantly by the runnable
 	 */
 	public void run() {
-		while (alive) {
+		super.run();
+		while (getActive()) {
 			try {
 				Thread.sleep(speed);
 			}
 			catch (InterruptedException e) {
-				logger.warning(e.getMessage());
+				logger.info(e.getMessage());
 			}
 			synchronized (this) {
 				lock.lock();
 				move();
-				escenario.getCanvas().repaint();
+				getEscenario().getCanvas().repaint();
 				lock.unlock();
 			}
 		}
-	}
-
-	/**
-	 * Kill the enemy
-	 */
-	public void kill() {
-		alive = false;
 	}
 
 	/**

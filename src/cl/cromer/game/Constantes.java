@@ -42,11 +42,14 @@ public interface Constantes {
 	Level VENTANA_PRINCIPAL_LOG_LEVEL = Level.WARNING;
 	Level LIENZO_LOG_LEVEL = Level.WARNING;
 	Level ESCENARIO_LOG_LEVEL = Level.WARNING;
+	Level PLAYER_LOG_LEVEL = Level.WARNING;
 	Level ENEMY_LOG_LEVEL = Level.WARNING;
+	Level CHEST_LOG_LEVEL = Level.WARNING;
 	Level CONFIG_LOG_LEVEL = Level.WARNING;
 	Level SOUND_LOG_LEVEL = Level.WARNING;
 	Level IMAGE_LOG_LEVEL = Level.WARNING;
 	Level CELDA_LOG_LEVEL = Level.WARNING;
+	Level KEY_LOG_LEVEL = Level.WARNING;
 	Level JSON_LOG_LEVEL = Level.WARNING;
 	Level PORTAL_LOG_LEVEL = Level.WARNING;
 	/**
@@ -88,15 +91,7 @@ public interface Constantes {
 	/**
 	 * The amount of enemies to draw
 	 */
-	int ENEMIES = 2;
-	/**
-	 * The player's start x position
-	 */
-	int PLAYER_START_X = 2;
-	/**
-	 * The player's start y position
-	 */
-	int PLAYER_START_Y = 1;
+	int ENEMIES = 3;
 	/**
 	 * The font size to use
 	 */

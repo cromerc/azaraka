@@ -13,71 +13,59 @@
  *
  */
 
-package cl.cromer.game.object;
+package cl.cromer.game.test;
 
 import cl.cromer.game.Celda;
-import cl.cromer.game.Constantes;
-import cl.cromer.game.Escenario;
-import cl.cromer.game.sprite.AnimationException;
+import cl.cromer.game.RandomPositionList;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.logging.Logger;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * This class handles the portal functionality
+ * Test the random position position list to make sure it has expected values
  */
-public class Portal extends Object implements Constantes {
+class RandomPositionListTest {
+	private RandomPositionList randomPositionList;
+
 	/**
-	 * The logger
+	 * Create a random position list
 	 */
-	private Logger logger;
-	/**
-	 * Initialize the portal
-	 *
-	 * @param escenario The scene that contains the portal
-	 * @param celda The cell the portal is in
-	 */
-	public Portal(Escenario escenario, Celda celda) {
-		super(escenario, celda);
-		logger = getLogger(this.getClass(), PORTAL_LOG_LEVEL);
+	@BeforeEach
+	void setUp() {
+		randomPositionList = new RandomPositionList(2, 3, Celda.Type.PLAYER);
 	}
 
 	/**
-	 * This method animates the portal
+	 * Destroy the random position list
 	 */
-	private void animate() {
-		try {
-			getCelda().getAnimation().getNextFrame();
-		}
-		catch (AnimationException e) {
-			logger.warning(e.getMessage());
-		}
+	@AfterEach
+	void tearDown() {
+		randomPositionList = null;
 	}
 
 	/**
-	 * This method is run when the thread starts
+	 * Check if the x position is correct
 	 */
-	@Override
-	public void run() {
-		super.run();
-		while (getActive()) {
-			try {
-				Thread.sleep(35);
-			}
-			catch (InterruptedException e) {
-				logger.info(e.getMessage());
-			}
-			synchronized (this) {
-				animate();
-				getEscenario().getCanvas().repaint();
-			}
-		}
+	@Test
+	void getX() {
+		assertEquals(2, randomPositionList.getX(), "The position should be 2");
 	}
 
 	/**
-	 * The current state of the portal
+	 * Check if the y position is correct
 	 */
-	public enum State {
-		ACTIVE,
-		INACTIVE
+	@Test
+	void getY() {
+		assertEquals(3, randomPositionList.getY(), "The position should be 3");
+	}
+
+	/**
+	 * Check if the type is correct
+	 */
+	@Test
+	void getType() {
+		assertEquals(Celda.Type.PLAYER, randomPositionList.getType(), "The type should be player");
 	}
 }

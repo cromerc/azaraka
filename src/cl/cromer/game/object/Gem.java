@@ -15,10 +15,13 @@
 
 package cl.cromer.game.object;
 
+import cl.cromer.game.Celda;
+import cl.cromer.game.Escenario;
+
 /**
  * This class contains the gem
  */
-public class Gem {
+public class Gem extends Object {
 	/**
 	 * The current state of the gem
 	 */
@@ -36,5 +39,18 @@ public class Gem {
 		 * The gem has been purified
 		 */
 		PURIFIED
+	}
+
+	public Gem(Escenario escenario, Celda celda) {
+		super(escenario, celda);
+	}
+
+	/**
+	 * `
+	 * This method is run when the thread starts
+	 */
+	@Override
+	public void run() {
+		super.run();
 	}
 }

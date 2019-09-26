@@ -15,8 +15,73 @@
 
 package cl.cromer.game.object;
 
+import cl.cromer.game.Celda;
+import cl.cromer.game.Constantes;
+import cl.cromer.game.Escenario;
+import cl.cromer.game.sprite.AnimationException;
+
+import java.util.logging.Logger;
+
 /**
  * This class contains the key
  */
-public class Key {
+public class Key extends Object implements Constantes {
+	/**
+	 * The logger
+	 */
+	private Logger logger;
+
+	/**
+	 * Initialize the key
+	 *
+	 * @param escenario The scene the key is in
+	 * @param celda     The cell the key is in
+	 */
+	public Key(Escenario escenario, Celda celda) {
+		super(escenario, celda);
+		logger = getLogger(this.getClass(), KEY_LOG_LEVEL);
+	}
+
+	/**
+	 * This method animates the portal
+	 */
+	private void animate() {
+		try {
+			getCelda().getAnimation().getNextFrame();
+		}
+		catch (AnimationException e) {
+			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * This is run when the thread starts
+	 */
+	@Override
+	public void run() {
+		super.run();
+		while (getActive()) {
+			try {
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e) {
+				logger.info(e.getMessage());
+			}
+			synchronized (this) {
+				animate();
+				getEscenario().getCanvas().repaint();
+			}
+		}
+	}
+
+	/**
+	 * Check what position the key is located at
+	 *
+	 * @param x The x position to compare
+	 * @param y The y position to compare
+	 * @return Returns true if it is the same position or false otherwise
+	 */
+	public boolean checkPosition(int x, int y) {
+		return (getX() == x && getY() == y);
+	}
 }

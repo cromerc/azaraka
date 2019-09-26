@@ -48,11 +48,11 @@ public class Json implements Constantes {
 	 */
 	public void exportScene(Celda[][] celdas) {
 		Cell[][] cells = new Cell[celdas.length][celdas[0].length];
-		for (int i = 0; i < celdas.length; i++) {
-			for (int j = 0; j < celdas[i].length; j++) {
-				cells[i][j] = new Cell();
-				cells[i][j].type = celdas[i][j].getType();
-				cells[i][j].textures = celdas[i][j].getTextureNumbers();
+		for (int x = 0; x < celdas.length; x++) {
+			for (int y = 0; y < celdas[x].length; y++) {
+				cells[x][y] = new Cell();
+				cells[x][y].type = celdas[x][y].getType();
+				cells[x][y].textures = celdas[x][y].getTextureNumbers();
 			}
 		}
 		writeScene(cells);
@@ -74,7 +74,7 @@ public class Json implements Constantes {
 		Gson gson = gsonBuilder.create();
 		String json = gson.toJson(cells);
 
-		File file = new File("src/res/scene.json");
+		File file = new File("res/scene.json");
 		try {
 			FileOutputStream fileOutputStream = new FileOutputStream(file);
 			fileOutputStream.write(json.getBytes());

@@ -55,15 +55,11 @@ public class Animation implements Cloneable, Constantes {
 	private Logger logger;
 
 	/**
-	 * The sprite type
+	 * Get the frame number
+	 * @return The current frame number
 	 */
-	public enum SpriteType {
-		PLAYER,
-		ENEMY,
-		CHEST,
-		GEM,
-		KEY,
-		PORTAL
+	public int getFrameNumber() {
+		return currentFrame;
 	}
 
 	/**
@@ -207,6 +203,31 @@ public class Animation implements Cloneable, Constantes {
 			throw new AnimationException("Animation does not have frame: " + currentFrame);
 		}
 		return images.get(currentFrame);
+	}
+
+	/**
+	 * Get the number of frames in the
+	 *
+	 * @return Returns the amount of frames in the sprite
+	 * @throws AnimationException Thrown if there are no images in the animation
+	 */
+	public int getFrameCount() throws AnimationException {
+		return getImagesFromHash().size();
+	}
+
+	/**
+	 * The sprite type
+	 */
+	public enum SpriteType {
+		PLAYER,
+		ENEMY,
+		CHEST,
+		GEM,
+		KEY,
+		HEART,
+		GAME_OVER,
+		INACTIVE_PORTAL,
+		ACTIVE_PORTAL
 	}
 
 	/**

@@ -292,10 +292,9 @@
       ]
     },
     {
-      "type": "OBSTACLE",
+      "type": "SPACE",
       "textures": [
-        0,
-        30
+        0
       ]
     },
     {
@@ -443,8 +442,7 @@
     {
       "type": "SPACE",
       "textures": [
-        0,
-        12
+        0
       ]
     },
     {
