@@ -1,3 +1,11 @@
 Manifest-Version: 1.0
-Main-Class: cl.cromer.game.Main
-
+Main-Class: cl.cromer.azaraka.Main
+Name: cl/cromer/game/
+Specification-Title: La Aventura de Azaraka
+Specification-Version: 1.0
+Specification-Vendor: Chris Cromer
+Implementation-Title: cl.cromer.azaraka
+Implementation-Version: build1
+Implementation-Vendor: Chris Cromer
+Name: cl/cromer/game/
+Sealed: true
