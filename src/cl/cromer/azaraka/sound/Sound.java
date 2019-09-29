@@ -214,6 +214,10 @@ public class Sound implements Runnable, Constantes {
 		/**
 		 * Enemy attack sound
 		 */
-		ENEMY_ATTACK
+		ENEMY_ATTACK,
+		/**
+		 * Sounds when receiving gem, purifying gem, or winning
+		 */
+		SUCCESS
 	}
 }

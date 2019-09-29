@@ -168,12 +168,12 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	@Override
 	public void update(Graphics g) {
-		// Set the text font
-		//g.setFont(new Font("monospaced", Font.BOLD, 10));
-
-		for (BufferedImage tile : textures) {
-			if (tile != null) {
-				g.drawImage(tile, xPixels, yPixels, null);
+		// Don't replace with foreach because it can cause a race condition
+		//noinspection ForLoopReplaceableByForEach
+		for (int i = 0; i < textures.size(); i++) {
+			BufferedImage texture = textures.get(i);
+			if (texture != null) {
+				g.drawImage(texture, xPixels, yPixels, null);
 			}
 		}
 

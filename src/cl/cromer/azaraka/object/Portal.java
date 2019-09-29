@@ -18,6 +18,7 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
 import java.util.logging.Logger;
@@ -27,9 +28,14 @@ import java.util.logging.Logger;
  */
 public class Portal extends Object implements Constantes {
 	/**
+	 * The current state of the portal
+	 */
+	private State state = State.INACTIVE;
+	/**
 	 * The logger
 	 */
 	private Logger logger;
+
 	/**
 	 * Initialize the portal
 	 *
@@ -50,6 +56,50 @@ public class Portal extends Object implements Constantes {
 		}
 		catch (AnimationException e) {
 			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * Get the current status of the portal
+	 *
+	 * @return Returns the status
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
+	 * Sets a new status for the portal
+	 *
+	 * @param state The new status
+	 */
+	public void setState(State state) {
+		this.state = state;
+		int frame = 0;
+		try {
+			frame = getCelda().getAnimation().getCurrentFrame();
+		}
+		catch (AnimationException e) {
+			logger.warning(e.getMessage());
+		}
+
+		if (state == State.ACTIVE) {
+			getCelda().setAnimation(getEscenario().getSprites().get(Animation.SpriteType.ACTIVE_PORTAL));
+			try {
+				getCelda().getAnimation().setCurrentFrame(frame);
+			}
+			catch (AnimationException e) {
+				logger.warning(e.getMessage());
+			}
+		}
+		else if (state == State.INACTIVE) {
+			getCelda().setAnimation(getEscenario().getSprites().get(Animation.SpriteType.INACTIVE_PORTAL));
+			try {
+				getCelda().getAnimation().setCurrentFrame(frame);
+			}
+			catch (AnimationException e) {
+				logger.warning(e.getMessage());
+			}
 		}
 	}
 

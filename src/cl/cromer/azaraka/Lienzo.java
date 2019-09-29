@@ -23,6 +23,7 @@ import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
 import javax.sound.sampled.Clip;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -201,7 +202,7 @@ public class Lienzo extends Canvas implements Constantes {
 			case 2:
 				try {
 					keyAnimation = escenario.getSprites().get(Animation.SpriteType.KEY);
-					keyAnimation.setFrame(4);
+					keyAnimation.setCurrentFrame(4);
 					graphicBuffer.drawImage(keyAnimation.getFrame(), 69, 8, null);
 				}
 				catch (AnimationException e) {
@@ -211,7 +212,7 @@ public class Lienzo extends Canvas implements Constantes {
 				try {
 					if (keyAnimation == null) {
 						keyAnimation = escenario.getSprites().get(Animation.SpriteType.KEY);
-						keyAnimation.setFrame(4);
+						keyAnimation.setCurrentFrame(4);
 					}
 					graphicBuffer.drawImage(keyAnimation.getFrame(), 40, 8, null);
 				}
@@ -230,7 +231,7 @@ public class Lienzo extends Canvas implements Constantes {
 			Animation heartAnimation = escenario.getSprites().get(Animation.SpriteType.HEART);
 			if (health >= 4) {
 				try {
-					heartAnimation.setFrame(4);
+					heartAnimation.setCurrentFrame(4);
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
@@ -238,7 +239,7 @@ public class Lienzo extends Canvas implements Constantes {
 			}
 			else {
 				try {
-					heartAnimation.setFrame(health);
+					heartAnimation.setCurrentFrame(health);
 				}
 				catch (AnimationException e) {
 					logger.warning(e.getMessage());
@@ -261,33 +262,11 @@ public class Lienzo extends Canvas implements Constantes {
 
 		if (gameOver) {
 			if (!gameOverRan) {
-				try {
-					if (backgroundMusic.isPlaying()) {
-						backgroundMusic.stop();
-						backgroundMusicThread.interrupt();
-					}
-				}
-				catch (SoundException e) {
-					logger.warning(e.getMessage());
-				}
+				stopBackgroundMusic();
 
 				new Thread(escenario.getSounds().get(Sound.SoundType.GAME_OVER)).start();
 
-				// Stop all the active threads
-				for (Map.Entry<Object, Thread> entry : threads.entrySet()) {
-					Thread thread = entry.getValue();
-					if (thread.isAlive()) {
-						Object object = entry.getKey();
-						object.setActive(false);
-						thread.interrupt();
-						try {
-							thread.join();
-						}
-						catch (InterruptedException e) {
-							logger.info(e.getMessage());
-						}
-					}
-				}
+				stopThreads();
 
 				gameOverRan = true;
 			}
@@ -310,6 +289,51 @@ public class Lienzo extends Canvas implements Constantes {
 		}
 
 		g.drawImage(imageBuffer, 0, 0, null);
+	}
+
+	private void stopBackgroundMusic() {
+		try {
+			if (backgroundMusic.isPlaying()) {
+				backgroundMusic.stop();
+				backgroundMusicThread.interrupt();
+			}
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * Stop all active threads
+	 */
+	private void stopThreads() {
+		for (Map.Entry<Object, Thread> entry : threads.entrySet()) {
+			Thread thread = entry.getValue();
+			if (thread.isAlive()) {
+				Object object = entry.getKey();
+				object.setActive(false);
+				thread.interrupt();
+				try {
+					thread.join();
+				}
+				catch (InterruptedException e) {
+					logger.info(e.getMessage());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Called when the game is won
+	 */
+	public void win() {
+		stopBackgroundMusic();
+
+		new Thread(escenario.getSounds().get(Sound.SoundType.SUCCESS)).start();
+
+		stopThreads();
+		JOptionPane.showMessageDialog(null, "Ganaste!");
+		System.exit(0);
 	}
 
 	/**
@@ -348,6 +372,15 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	public Player getPlayer() {
 		return player;
+	}
+
+	/**
+	 * Get the portal
+	 *
+	 * @return Returns the portal object
+	 */
+	public Portal getPortal() {
+		return portal;
 	}
 
 	/**

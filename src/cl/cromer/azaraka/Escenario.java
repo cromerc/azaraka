@@ -585,6 +585,9 @@ public class Escenario extends JComponent implements Constantes {
 
 			sound = new Sound("/snd/GetKey.wav");
 			sounds.put(Sound.SoundType.GET_KEY, sound);
+
+			sound = new Sound("/snd/Success.wav");
+			sounds.put(Sound.SoundType.SUCCESS, sound);
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());

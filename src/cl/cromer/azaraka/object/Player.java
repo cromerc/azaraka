@@ -125,6 +125,9 @@ public class Player extends Object implements Constantes {
 				getEscenario().getCeldas()[x][y].setAnimation(null);
 				setY(getY() - 1);
 			}
+			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				getEscenario().getCanvas().win();
+			}
 			else {
 				if (changeDirection(Animation.Direction.UP)) {
 					try {
@@ -156,35 +159,50 @@ public class Player extends Object implements Constantes {
 		int y = getY();
 		logger.info("Down key pressed");
 		Celda.Type type = getEscenario().getCeldas()[x][y + 1].getType();
-		if (y < (VERTICAL_CELLS - 1) && (type == Celda.Type.SPACE || type == Celda.Type.KEY)) {
-			if (type == Celda.Type.KEY) {
-				for (Key key : getEscenario().getCanvas().getKeys()) {
-					if (key.checkPosition(x, y + 1)) {
-						// Get the key
-						getKey(key);
-						// Remove the key from the cell
-						getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.SPACE);
-						getEscenario().getCeldas()[x][y + 1].setAnimation(null);
-						break;
+		if (y < (VERTICAL_CELLS - 1)) {
+			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
+				if (type == Celda.Type.KEY) {
+					for (Key key : getEscenario().getCanvas().getKeys()) {
+						if (key.checkPosition(x, y + 1)) {
+							// Get the key
+							getKey(key);
+							// Remove the key from the cell
+							getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.SPACE);
+							getEscenario().getCeldas()[x][y + 1].setAnimation(null);
+							break;
+						}
+					}
+				}
+
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.PLAYER);
+
+				if (changeDirection(Animation.Direction.DOWN)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+
+				getEscenario().getCeldas()[x][y + 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setAnimation(null);
+				setY(getY() + 1);
+			}
+			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				getEscenario().getCanvas().win();
+			}
+			else {
+				if (changeDirection(Animation.Direction.DOWN)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
 					}
 				}
 			}
-
-			getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
-			getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.PLAYER);
-
-			if (changeDirection(Animation.Direction.DOWN)) {
-				try {
-					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
-				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-
-			getEscenario().getCeldas()[x][y + 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
-			getEscenario().getCeldas()[x][y].setAnimation(null);
-			setY(getY() + 1);
 		}
 		else {
 			if (changeDirection(Animation.Direction.DOWN)) {
@@ -237,6 +255,9 @@ public class Player extends Object implements Constantes {
 				getEscenario().getCeldas()[x][y].setAnimation(null);
 				setX(getX() - 1);
 			}
+			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				getEscenario().getCanvas().win();
+			}
 			else {
 				if (changeDirection(Animation.Direction.LEFT)) {
 					try {
@@ -245,6 +266,16 @@ public class Player extends Object implements Constantes {
 					catch (AnimationException e) {
 						logger.warning(e.getMessage());
 					}
+				}
+			}
+		}
+		else {
+			if (changeDirection(Animation.Direction.LEFT)) {
+				try {
+					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
 				}
 			}
 		}
@@ -258,35 +289,50 @@ public class Player extends Object implements Constantes {
 		int y = getY();
 		logger.info("Right key pressed");
 		Celda.Type type = getEscenario().getCeldas()[x + 1][y].getType();
-		if (x < (HORIZONTAL_CELLS - 1) && (type == Celda.Type.SPACE || type == Celda.Type.KEY)) {
-			if (type == Celda.Type.KEY) {
-				for (Key key : getEscenario().getCanvas().getKeys()) {
-					if (key.checkPosition(x + 1, y)) {
-						// Get the key
-						getKey(key);
-						// Remove the key from the cell
-						getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.SPACE);
-						getEscenario().getCeldas()[x + 1][y].setAnimation(null);
-						break;
+		if (x < (HORIZONTAL_CELLS - 1)) {
+			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
+				if (type == Celda.Type.KEY) {
+					for (Key key : getEscenario().getCanvas().getKeys()) {
+						if (key.checkPosition(x + 1, y)) {
+							// Get the key
+							getKey(key);
+							// Remove the key from the cell
+							getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.SPACE);
+							getEscenario().getCeldas()[x + 1][y].setAnimation(null);
+							break;
+						}
+					}
+				}
+
+				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
+				getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.PLAYER);
+
+				if (changeDirection(Animation.Direction.RIGHT)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
+					}
+				}
+
+				getEscenario().getCeldas()[x + 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
+				getEscenario().getCeldas()[x][y].setAnimation(null);
+				setX(getX() + 1);
+			}
+			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				getEscenario().getCanvas().win();
+			}
+			else {
+				if (changeDirection(Animation.Direction.RIGHT)) {
+					try {
+						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					}
+					catch (AnimationException e) {
+						logger.warning(e.getMessage());
 					}
 				}
 			}
-
-			getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
-			getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.PLAYER);
-
-			if (changeDirection(Animation.Direction.RIGHT)) {
-				try {
-					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
-				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-
-			getEscenario().getCeldas()[x + 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
-			getEscenario().getCeldas()[x][y].setAnimation(null);
-			setX(getX() + 1);
 		}
 		else {
 			if (changeDirection(Animation.Direction.RIGHT)) {
@@ -356,17 +402,23 @@ public class Player extends Object implements Constantes {
 
 					gainHealth(1);
 
+					int openedChests = 0;
 					for (Chest chest : getEscenario().getCanvas().getChests()) {
 						if (chest.checkPosition(x, y - 1)) {
-							if (chest.getState() == Chest.State.OPENED) {
-								return;
+							if (chest.getState() == Chest.State.CLOSED) {
+								chest.setState(Chest.State.OPENING);
+								useKey();
 							}
-							chest.setState(Chest.State.OPENING);
-							break;
+						}
+						if (chest.getState() == Chest.State.OPENED || chest.getState() == Chest.State.OPENING) {
+							openedChests++;
 						}
 					}
 
-					useKey();
+					// All chests are opened, active portal
+					if (openedChests == getEscenario().getCanvas().getChests().size()) {
+						getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+					}
 				}
 			}
 		}

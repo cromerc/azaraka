@@ -70,7 +70,7 @@ public class Chest extends Object implements Constantes {
 		else if (state == State.CLOSED) {
 			logger.info("Chest is closed");
 			try {
-				getCelda().getAnimation().setFrame(0);
+				getCelda().getAnimation().setCurrentFrame(0);
 			}
 			catch (AnimationException e) {
 				logger.warning(e.getMessage());
@@ -85,7 +85,7 @@ public class Chest extends Object implements Constantes {
 	private void animate() {
 		try {
 			getCelda().getAnimation().getNextFrame();
-			if (getCelda().getAnimation().getFrameNumber() == getCelda().getAnimation().getFrameCount() - 1) {
+			if (getCelda().getAnimation().getCurrentFrame() == getCelda().getAnimation().getFrameCount() - 1) {
 				setState(State.OPENED);
 			}
 		}

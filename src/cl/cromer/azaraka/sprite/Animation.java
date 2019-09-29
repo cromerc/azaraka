@@ -55,14 +55,6 @@ public class Animation implements Cloneable, Constantes {
 	private Logger logger;
 
 	/**
-	 * Get the frame number
-	 * @return The current frame number
-	 */
-	public int getFrameNumber() {
-		return currentFrame;
-	}
-
-	/**
 	 * Initialize the sprite
 	 */
 	public Animation() {
@@ -231,18 +223,39 @@ public class Animation implements Cloneable, Constantes {
 	}
 
 	/**
+	 * Get the current frame
+	 *
+	 * @return Returns the current frame
+	 * @throws AnimationException Thrown if there are no frame in the current animation
+	 */
+	public int getCurrentFrame() throws AnimationException {
+		ArrayList<BufferedImage> images;
+		if (imageHash.containsKey(currentDirection)) {
+			images = imageHash.get(currentDirection);
+			if (images.size() == 0) {
+				throw new AnimationException("The direction has no images assigned!");
+			}
+		}
+		else {
+			throw new AnimationException("There is no direction assigned to the animation!");
+		}
+
+		return currentFrame;
+	}
+
+	/**
 	 * Set which frame is to be shown in the sprite manually
 	 *
 	 * @param frame The frame to show
 	 * @throws AnimationException Thrown if the frame number does not exist
 	 */
-	public void setFrame(int frame) throws AnimationException {
+	public void setCurrentFrame(int frame) throws AnimationException {
 		ArrayList<BufferedImage> images;
 		if (imageHash.containsKey(currentDirection)) {
 			images = imageHash.get(currentDirection);
 		}
 		else {
-			throw new AnimationException("The direction has no images assigned!");
+			throw new AnimationException("There is no direction assigned to the animation");
 		}
 
 		if (frame < 0) {
@@ -257,16 +270,14 @@ public class Animation implements Cloneable, Constantes {
 	/**
 	 * Returns the next frame in the sprite
 	 *
-	 * @return Returns the next frame in the sprite
 	 * @throws AnimationException Thrown when there are no images in the sprite
 	 */
-	public BufferedImage getNextFrame() throws AnimationException {
+	public void getNextFrame() throws AnimationException {
 		ArrayList<BufferedImage> images = getImagesFromHash();
 		currentFrame++;
 		if (currentFrame >= images.size()) {
 			currentFrame = 0;
 		}
-		return images.get(currentFrame);
 	}
 
 	/**
