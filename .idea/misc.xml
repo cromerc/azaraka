@@ -6,6 +6,6 @@
     <option name="OPEN_IN_BROWSER" value="false" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8 Oracle" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
+    <output url="file://$PROJECT_DIR$/../Azaraka/out" />
   </component>
 </project>

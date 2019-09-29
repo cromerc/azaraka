@@ -66,11 +66,13 @@ public class Animation implements Cloneable, Constantes {
 	 * Scale an image
 	 *
 	 * @param image The image to scale
+	 * @param width The new width
+	 * @param height The new height
 	 * @return Returns the scaled image
 	 */
-	static public BufferedImage scaleImage(BufferedImage image) {
-		Image tmp = image.getScaledInstance(16, 16, BufferedImage.SCALE_SMOOTH);
-		BufferedImage resized = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+	static public BufferedImage scaleImage(BufferedImage image, int width, int height) {
+		Image tmp = image.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
+		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = resized.createGraphics();
 		g2d.drawImage(tmp, 0, 0, null);
 		g2d.dispose();
