@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact name="Azaraka">
+    <output-path>$PROJECT_DIR$/out/artifacts/Azaraka</output-path>
+    <root id="root">
+      <element id="archive" name="Azaraka.jar">
+        <element id="module-output" name="Azaraka" />
+      </element>
+      <element id="library" level="project" name="com.google.code.gson:gson:2.8.5" />
+      <element id="archive" name="Azaraka-javadoc.jar">
+        <element id="dir-copy" path="$PROJECT_DIR$/javadoc" />
+      </element>
+    </root>
+  </artifact>
+</component>
