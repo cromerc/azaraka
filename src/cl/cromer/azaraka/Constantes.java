@@ -147,10 +147,6 @@ public interface Constantes {
 	 * The normal font to use
 	 */
 	Font FONT = new Font("monospaced", Font.PLAIN, FONT_SIZE);
-	/**
-	 * The bold font to use
-	 */
-	Font BOLD_FONT = new Font("monospaced", Font.BOLD, FONT_SIZE);
 
 	/**
 	 * Generate a random number between given min and max
