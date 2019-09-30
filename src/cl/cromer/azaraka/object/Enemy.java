@@ -19,6 +19,7 @@ import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.sound.Sound;
+import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 import cl.cromer.azaraka.sprite.SheetException;
@@ -183,7 +184,12 @@ public class Enemy extends Object implements Constantes {
 		if (getEscenario().getCanvas().getPlayer().getHealth() > 0) {
 			logger.info("Attacked player at x: " + x + " y: " + y);
 
-			new Thread(getEscenario().getSounds().get(Sound.SoundType.ENEMY_ATTACK)).start();
+			try {
+				getEscenario().getSounds().get(Sound.SoundType.ENEMY_ATTACK).play();
+			}
+			catch (SoundException e) {
+				e.printStackTrace();
+			}
 
 			getEscenario().getCanvas().getPlayer().loseHealth(2);
 			try {

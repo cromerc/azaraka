@@ -389,11 +389,11 @@ public class Player extends Object implements Constantes {
 			if (keySound.isPlaying()) {
 				keySound.stop();
 			}
+			keySound.play();
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
 		}
-		keySound.run();
 	}
 
 	/**
@@ -413,11 +413,11 @@ public class Player extends Object implements Constantes {
 						if (chestSound.isPlaying()) {
 							chestSound.stop();
 						}
+						chestSound.play();
 					}
 					catch (SoundException e) {
 						logger.warning(e.getMessage());
 					}
-					chestSound.run();
 
 					gainHealth(1);
 

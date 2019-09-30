@@ -159,7 +159,7 @@ public class Lienzo extends Canvas implements Constantes {
 		try {
 			backgroundMusic = escenario.getSounds().get(Sound.SoundType.BACKGROUND);
 			backgroundMusic.setLoops(Clip.LOOP_CONTINUOUSLY);
-			backgroundMusic.run();
+			backgroundMusic.play();
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
@@ -259,7 +259,12 @@ public class Lienzo extends Canvas implements Constantes {
 			if (!gameOverRan) {
 				stopBackgroundMusic();
 
-				new Thread(escenario.getSounds().get(Sound.SoundType.GAME_OVER)).start();
+				try {
+					escenario.getSounds().get(Sound.SoundType.GAME_OVER).play();
+				}
+				catch (SoundException e) {
+					logger.warning(e.getMessage());
+				}
 
 				stopThreads();
 
@@ -323,7 +328,12 @@ public class Lienzo extends Canvas implements Constantes {
 	public void win() {
 		stopBackgroundMusic();
 
-		new Thread(escenario.getSounds().get(Sound.SoundType.SUCCESS)).start();
+		try {
+			escenario.getSounds().get(Sound.SoundType.SUCCESS).play();
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
 
 		stopThreads();
 		JOptionPane.showMessageDialog(null, "Ganaste!");

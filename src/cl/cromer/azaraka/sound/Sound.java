@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 /**
  * This class handles sound
  */
-public class Sound implements Runnable, Constantes {
+public class Sound implements Constantes {
 	/**
 	 * The sound clip to play
 	 */
@@ -61,12 +61,11 @@ public class Sound implements Runnable, Constantes {
 			logger.warning(e.getMessage());
 		}
 		try {
-			/*DataLine.Info info = null;
+			DataLine.Info info = null;
 			if (audioInputStream != null) {
 				info = new DataLine.Info(Clip.class, audioInputStream.getFormat());
 			}
-			sound = (Clip) AudioSystem.getLine(info);*/
-			sound = AudioSystem.getClip();
+			sound = (Clip) AudioSystem.getLine(info);
 		}
 		catch (LineUnavailableException e) {
 			logger.warning(e.getMessage());
@@ -74,6 +73,7 @@ public class Sound implements Runnable, Constantes {
 		try {
 			if (audioInputStream != null) {
 				sound.open(audioInputStream);
+				sound.stop();
 			}
 		}
 		catch (LineUnavailableException | IOException e) {
@@ -87,7 +87,7 @@ public class Sound implements Runnable, Constantes {
 	 * Play the sound
 	 * @throws SoundException Thrown if the sound clip is null
 	 */
-	private void play() throws SoundException {
+	public void play() throws SoundException {
 		if (sound == null) {
 			throw new SoundException("Sound is null!");
 		}
@@ -141,19 +141,6 @@ public class Sound implements Runnable, Constantes {
 			throw new SoundException("Sound is null!");
 		}
 		sound.loop(loops);
-	}
-
-	/**
-	 * Run the sound in a thread
-	 */
-	@Override
-	public void run() {
-		try {
-			play();
-		}
-		catch (SoundException e) {
-			logger.warning(e.getMessage());
-		}
 	}
 
 	/**
