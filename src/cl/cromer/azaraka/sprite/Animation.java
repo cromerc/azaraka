@@ -213,14 +213,41 @@ public class Animation implements Cloneable, Constantes {
 	 * The sprite type
 	 */
 	public enum SpriteType {
+		/**
+		 * The player animation
+		 */
 		PLAYER,
+		/**
+		 * The enemy animation
+		 */
 		ENEMY,
+		/**
+		 * The chest animation
+		 */
 		CHEST,
+		/**
+		 * The gem animation
+		 */
 		GEM,
+		/**
+		 * The key animation
+		 */
 		KEY,
+		/**
+		 * The heart animation
+		 */
 		HEART,
+		/**
+		 * The game over animation
+		 */
 		GAME_OVER,
+		/**
+		 * The inactive portal animation
+		 */
 		INACTIVE_PORTAL,
+		/**
+		 * The active portal animation
+		 */
 		ACTIVE_PORTAL
 	}
 

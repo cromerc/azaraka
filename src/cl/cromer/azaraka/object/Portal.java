@@ -127,7 +127,13 @@ public class Portal extends Object implements Constantes {
 	 * The current state of the portal
 	 */
 	public enum State {
+		/**
+		 * The portal is active
+		 */
 		ACTIVE,
+		/**
+		 * The portal is inactive
+		 */
 		INACTIVE
 	}
 }

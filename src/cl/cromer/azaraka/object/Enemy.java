@@ -173,6 +173,12 @@ public class Enemy extends Object implements Constantes {
 		}
 	}
 
+	/**
+	 * If the enemy has found the player attack him
+	 *
+	 * @param x The x position of the player
+	 * @param y The y position of the player
+	 */
 	private void attackPlayer(int x, int y) {
 		if (getEscenario().getCanvas().getPlayer().getHealth() > 0) {
 			logger.info("Attacked player at x: " + x + " y: " + y);
@@ -223,9 +229,21 @@ public class Enemy extends Object implements Constantes {
 	 * The possible directions the enemy can face
 	 */
 	public enum Direction {
+		/**
+		 * The enemy is facing up
+		 */
 		UP,
+		/**
+		 * The enemy is facing down
+		 */
 		DOWN,
+		/**
+		 * The enemy is facing left
+		 */
 		LEFT,
+		/**
+		 * The enemy is facing right
+		 */
 		RIGHT
 	}
 }

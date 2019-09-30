@@ -52,12 +52,4 @@ public class Game extends JPanel implements Constantes {
 	public Lienzo getCanvas() {
 		return canvas;
 	}
-
-	/**
-	 * The language to use in the game
-	 */
-	public enum Language {
-		ENGLISH,
-		SPANISH
-	}
 }

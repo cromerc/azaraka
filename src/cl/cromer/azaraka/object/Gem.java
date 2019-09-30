@@ -41,6 +41,12 @@ public class Gem extends Object {
 		PURIFIED
 	}
 
+	/**
+	 * Initialize the gem object
+	 *
+	 * @param escenario The scene the gem is in
+	 * @param celda     The cell the gem is in
+	 */
 	public Gem(Escenario escenario, Celda celda) {
 		super(escenario, celda);
 	}

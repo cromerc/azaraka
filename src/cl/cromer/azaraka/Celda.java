@@ -127,11 +127,19 @@ public class Celda extends JComponent implements Constantes {
 		textureNumbers.add(textureNumber);
 	}
 
+	/**
+	 * Remove the texture that is on the top of the stack
+	 */
 	public void removeTopTexture() {
 		textures.remove(textures.size() - 1);
 		textureNumbers.remove(textureNumbers.size() - 1);
 	}
 
+	/**
+	 * Get the numbers of the textures
+	 *
+	 * @return Returns an array list containing the texture numbers
+	 */
 	public ArrayList<Integer> getTextureNumbers() {
 		return textureNumbers;
 	}
@@ -194,12 +202,33 @@ public class Celda extends JComponent implements Constantes {
 	 * The possible types of cell that this could be
 	 */
 	public enum Type {
+		/**
+		 * The player
+		 */
 		PLAYER,
+		/**
+		 * An enemy
+		 */
 		ENEMY,
+		/**
+		 * An empty space
+		 */
 		SPACE,
+		/**
+		 * The portal
+		 */
 		PORTAL,
+		/**
+		 * An obstacle
+		 */
 		OBSTACLE,
+		/**
+		 * A chest
+		 */
 		CHEST,
+		/**
+		 * A key
+		 */
 		KEY
 	}
 }
