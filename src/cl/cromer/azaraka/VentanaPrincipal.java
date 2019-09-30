@@ -34,7 +34,7 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 	 * Initialize the main window
 	 */
 	public VentanaPrincipal() {
-		Logger logger = getLogger(this.getClass(), VENTANA_PRINCIPAL_LOG_LEVEL);
+		Logger logger = getLogger(this.getClass(), LogLevel.VENTANA_PRINCIPAL);
 
 		logger.info("Create panels");
 

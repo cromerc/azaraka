@@ -42,7 +42,7 @@ public class Chest extends Object implements Constantes {
 	 */
 	public Chest(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), CHEST_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.CHEST);
 	}
 
 	/**

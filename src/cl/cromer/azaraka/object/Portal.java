@@ -44,7 +44,7 @@ public class Portal extends Object implements Constantes {
 	 */
 	public Portal(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), PORTAL_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.PORTAL);
 	}
 
 	/**

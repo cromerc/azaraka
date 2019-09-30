@@ -39,7 +39,7 @@ public class Key extends Object implements Constantes {
 	 */
 	public Key(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), KEY_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.KEY);
 	}
 
 	/**

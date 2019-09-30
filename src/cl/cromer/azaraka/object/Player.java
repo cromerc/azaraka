@@ -19,6 +19,7 @@ import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.sound.Sound;
+import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
@@ -55,7 +56,7 @@ public class Player extends Object implements Constantes {
 	 */
 	public Player(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), PLAYER_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.PLAYER);
 	}
 
 	/**
@@ -383,7 +384,16 @@ public class Player extends Object implements Constantes {
 			logger.warning(e.getMessage());
 		}
 		// Play sound
-		new Thread(getEscenario().getSounds().get(Sound.SoundType.GET_KEY)).start();
+		Sound keySound = getEscenario().getSounds().get(Sound.SoundType.GET_KEY);
+		try {
+			if (keySound.isPlaying()) {
+				keySound.stop();
+			}
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
+		keySound.run();
 	}
 
 	/**
@@ -398,7 +408,16 @@ public class Player extends Object implements Constantes {
 				if (hasKey()) {
 					logger.info("Player opened chest");
 
-					new Thread(getEscenario().getSounds().get(Sound.SoundType.OPEN_CHEST)).start();
+					Sound chestSound = getEscenario().getSounds().get(Sound.SoundType.OPEN_CHEST);
+					try {
+						if (chestSound.isPlaying()) {
+							chestSound.stop();
+						}
+					}
+					catch (SoundException e) {
+						logger.warning(e.getMessage());
+					}
+					chestSound.run();
 
 					gainHealth(1);
 

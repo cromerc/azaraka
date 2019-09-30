@@ -27,7 +27,7 @@ public class Main implements Constantes {
 	 * Initialize the main class
 	 */
 	public Main() {
-		Logger logger = getLogger(this.getClass(), MAIN_LOG_LEVEL);
+		Logger logger = getLogger(this.getClass(), LogLevel.MAIN);
 
 		logger.info("Load main window");
 		VentanaPrincipal ventanaPrincipal = new VentanaPrincipal();

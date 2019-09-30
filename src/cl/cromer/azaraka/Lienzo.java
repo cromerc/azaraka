@@ -83,10 +83,6 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private Sound backgroundMusic;
 	/**
-	 * The background music thread
-	 */
-	private Thread backgroundMusicThread;
-	/**
 	 * Game over
 	 */
 	private boolean gameOver = false;
@@ -99,7 +95,7 @@ public class Lienzo extends Canvas implements Constantes {
 	 * Initialize the canvas
 	 */
 	public Lienzo() {
-		logger = getLogger(this.getClass(), LIENZO_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.LIENZO);
 		escenario = new Escenario(this);
 		setBackground(Color.black);
 		setSize(escenario.width, escenario.height);
@@ -163,8 +159,7 @@ public class Lienzo extends Canvas implements Constantes {
 		try {
 			backgroundMusic = escenario.getSounds().get(Sound.SoundType.BACKGROUND);
 			backgroundMusic.setLoops(Clip.LOOP_CONTINUOUSLY);
-			backgroundMusicThread = new Thread(backgroundMusic);
-			backgroundMusicThread.start();
+			backgroundMusic.run();
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
@@ -295,7 +290,6 @@ public class Lienzo extends Canvas implements Constantes {
 		try {
 			if (backgroundMusic.isPlaying()) {
 				backgroundMusic.stop();
-				backgroundMusicThread.interrupt();
 			}
 		}
 		catch (SoundException e) {

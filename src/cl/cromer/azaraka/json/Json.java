@@ -38,7 +38,7 @@ public class Json implements Constantes {
 	 * Initialize the JSON object
 	 */
 	public Json() {
-		logger = getLogger(this.getClass(), JSON_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.JSON);
 	}
 
 	/**

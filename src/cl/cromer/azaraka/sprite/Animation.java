@@ -59,7 +59,7 @@ public class Animation implements Cloneable, Constantes {
 	 */
 	public Animation() {
 		imageHash = new HashMap<>();
-		logger = getLogger(this.getClass(), IMAGE_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.ANIMATION);
 	}
 
 	/**
@@ -71,13 +71,12 @@ public class Animation implements Cloneable, Constantes {
 	 * @return Returns the scaled image
 	 */
 	static public BufferedImage scaleImage(BufferedImage image, int width, int height) {
-		Image tmp = image.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
+		Image tmpImage = image.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
 		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2d = resized.createGraphics();
-		g2d.drawImage(tmp, 0, 0, null);
-		g2d.dispose();
-		image = resized;
-		return image;
+		Graphics2D graphics2D = resized.createGraphics();
+		graphics2D.drawImage(tmpImage, 0, 0, null);
+		graphics2D.dispose();
+		return resized;
 	}
 
 	/**

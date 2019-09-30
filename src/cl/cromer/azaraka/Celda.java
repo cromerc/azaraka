@@ -77,7 +77,7 @@ public class Celda extends JComponent implements Constantes {
 		this.yPixels = yPixels;
 		this.x = x;
 		this.y = y;
-		logger = getLogger(this.getClass(), CELDA_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.CELDA);
 	}
 
 	/**

@@ -37,7 +37,7 @@ public class AnimationMap extends HashMap<Animation.SpriteType, Animation> imple
 			return (Animation) super.get(key).clone();
 		}
 		catch (CloneNotSupportedException e) {
-			Logger logger = getLogger(this.getClass(), IMAGE_LOG_LEVEL);
+			Logger logger = getLogger(this.getClass(), LogLevel.ANIMATION);
 			logger.warning(e.getMessage());
 		}
 		return null;

@@ -41,7 +41,7 @@ public class Sheet implements Constantes {
 	 */
 	public Sheet(String path, int height, int width) {
 		images = new ArrayList<>();
-		Logger logger = getLogger(this.getClass(), IMAGE_LOG_LEVEL);
+		Logger logger = getLogger(this.getClass(), LogLevel.SHEET);
 
 		try {
 			BufferedImage image = ImageIO.read(getClass().getResourceAsStream(path));

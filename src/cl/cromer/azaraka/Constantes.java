@@ -34,24 +34,35 @@ public interface Constantes {
 	 * The name of the game
 	 */
 	String TITLE = "La Aventura de Azaraka";
+
 	/**
-	 * The level of logs to record
+	 * Get a logger object to use for debugging
+	 *
+	 * @param logClass The class that is in need of a logger
+	 * @param logLevel    What log level to use
+	 * @return Returns the logger
 	 */
-	Level GLOBAL_LOG_LEVEL = Level.WARNING;
-	Level MAIN_LOG_LEVEL = Level.WARNING;
-	Level VENTANA_PRINCIPAL_LOG_LEVEL = Level.WARNING;
-	Level LIENZO_LOG_LEVEL = Level.WARNING;
-	Level ESCENARIO_LOG_LEVEL = Level.WARNING;
-	Level PLAYER_LOG_LEVEL = Level.WARNING;
-	Level ENEMY_LOG_LEVEL = Level.WARNING;
-	Level CHEST_LOG_LEVEL = Level.WARNING;
-	Level CONFIG_LOG_LEVEL = Level.WARNING;
-	Level SOUND_LOG_LEVEL = Level.WARNING;
-	Level IMAGE_LOG_LEVEL = Level.WARNING;
-	Level CELDA_LOG_LEVEL = Level.WARNING;
-	Level KEY_LOG_LEVEL = Level.WARNING;
-	Level JSON_LOG_LEVEL = Level.WARNING;
-	Level PORTAL_LOG_LEVEL = Level.WARNING;
+	default Logger getLogger(Class logClass, LogLevel logLevel) {
+		String className = logClass.getName();
+		Logger logger;
+		if (GLOBAL_LOG) {
+			logger = Logger.getGlobal();
+		}
+		else {
+			logger = Logger.getLogger(className);
+		}
+		if (logger.getHandlers().length == 0) {
+			initializeLogger(logClass);
+		}
+		if (GLOBAL_LOG) {
+			logger.setLevel(LogLevel.GLOBAL.getLevel());
+		}
+		else {
+			logger.setLevel(logLevel.getLevel());
+		}
+		return logger;
+	}
+
 	/**
 	 * Use a global log if true or individual logs if false
 	 */
@@ -195,30 +206,47 @@ public interface Constantes {
 	}
 
 	/**
-	 * Get a logger object to use for debugging
-	 *
-	 * @param logClass The class that is in need of a logger
-	 * @param level    What log level to use
-	 * @return Returns the logger
+	 * This enum contains all the levels used for logging
 	 */
-	default Logger getLogger(Class logClass, Level level) {
-		String className = logClass.getName();
-		Logger logger;
-		if (GLOBAL_LOG) {
-			logger = Logger.getGlobal();
+	enum LogLevel {
+		GLOBAL(Level.WARNING),
+		MAIN(Level.WARNING),
+		VENTANA_PRINCIPAL(Level.WARNING),
+		LIENZO(Level.WARNING),
+		ESCENARIO(Level.WARNING),
+		PLAYER(Level.WARNING),
+		ENEMY(Level.WARNING),
+		CHEST(Level.WARNING),
+		CONFIG(Level.WARNING),
+		SOUND(Level.WARNING),
+		ANIMATION(Level.WARNING),
+		SHEET(Level.WARNING),
+		CELDA(Level.WARNING),
+		KEY(Level.WARNING),
+		JSON(Level.WARNING),
+		PORTAL(Level.WARNING);
+
+		/**
+		 * The level of log for the enum
+		 */
+		private Level level;
+
+		/**
+		 * Initialize the log level enum
+		 *
+		 * @param level The level for each element
+		 */
+		LogLevel(Level level) {
+			this.level = level;
 		}
-		else {
-			logger = Logger.getLogger(className);
+
+		/**
+		 * Get the level for the specific part
+		 *
+		 * @return Returns the level
+		 */
+		public Level getLevel() {
+			return this.level;
 		}
-		if (logger.getHandlers().length == 0) {
-			initializeLogger(logClass);
-		}
-		if (GLOBAL_LOG) {
-			logger.setLevel(GLOBAL_LOG_LEVEL);
-		}
-		else {
-			logger.setLevel(level);
-		}
-		return logger;
 	}
 }

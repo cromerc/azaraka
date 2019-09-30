@@ -44,7 +44,7 @@ public class Config extends JPanel implements Constantes {
 	public Config(Game gamePanel) {
 		this.gamePanel = gamePanel;
 
-		logger = getLogger(this.getClass(), CONFIG_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.CONFIG);
 
 		JLabel speed = new JLabel("Speed");
 		speed.setForeground(Color.yellow);

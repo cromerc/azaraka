@@ -104,7 +104,7 @@ public class Escenario extends JComponent implements Constantes {
 	 * @param canvas The canvas that this scene is in
 	 */
 	public Escenario(Lienzo canvas) {
-		logger = getLogger(this.getClass(), ESCENARIO_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.ESCENARIO);
 		this.canvas = canvas;
 		loadResources();
 
@@ -189,6 +189,10 @@ public class Escenario extends JComponent implements Constantes {
 		int random_x;
 		int random_y;
 		ArrayList<RandomPositionList> arrayList = new ArrayList<>();
+
+		arrayList.add(new RandomPositionList(5, 5, Celda.Type.CHEST));
+		arrayList.add(new RandomPositionList(6, 5, Celda.Type.CHEST));
+
 		for (int i = 0; i < ENEMIES; i++) {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);

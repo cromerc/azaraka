@@ -39,6 +39,7 @@ public class Sound implements Runnable, Constantes {
 	 * The logger
 	 */
 	private Logger logger;
+
 	/**
 	 * Load the sound
 	 *
@@ -47,7 +48,7 @@ public class Sound implements Runnable, Constantes {
 	 */
 	public Sound(String path) throws SoundException {
 		this.path = path;
-		logger = getLogger(this.getClass(), SOUND_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.SOUND);
 		InputStream inputStream = this.getClass().getResourceAsStream(path);
 		if (inputStream == null) {
 			throw new SoundException("Could not load sound: " + path);

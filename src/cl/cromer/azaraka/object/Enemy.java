@@ -56,7 +56,7 @@ public class Enemy extends Object implements Constantes {
 	 */
 	public Enemy(Escenario escenario, Celda celda, Lock lock) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), ENEMY_LOG_LEVEL);
+		logger = getLogger(this.getClass(), LogLevel.ENEMY);
 		this.lock = lock;
 	}
 
