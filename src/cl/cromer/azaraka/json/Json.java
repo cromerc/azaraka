@@ -51,7 +51,12 @@ public class Json implements Constantes {
 		for (int x = 0; x < celdas.length; x++) {
 			for (int y = 0; y < celdas[x].length; y++) {
 				cells[x][y] = new Cell();
-				cells[x][y].type = celdas[x][y].getType();
+				if (celdas[x][y].getObject() != null) {
+					cells[x][y].type = celdas[x][y].getObject().getClass().getName();
+				}
+				else {
+					cells[x][y].type = "null";
+				}
 				cells[x][y].textures = celdas[x][y].getTextureNumbers();
 			}
 		}

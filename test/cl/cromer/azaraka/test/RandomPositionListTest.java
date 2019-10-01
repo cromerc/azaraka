@@ -17,6 +17,7 @@ package cl.cromer.azaraka.test;
 
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.RandomPositionList;
+import cl.cromer.azaraka.object.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class RandomPositionListTest {
 	 */
 	@BeforeEach
 	void setUp() {
-		randomPositionList = new RandomPositionList(2, 3, Celda.Type.PLAYER);
+		randomPositionList = new RandomPositionList(2, 3, new Player(null, new Celda(0, 0, 0, 0)));
 	}
 
 	/**
@@ -66,6 +67,6 @@ class RandomPositionListTest {
 	 */
 	@Test
 	void getType() {
-		assertEquals(Celda.Type.PLAYER, randomPositionList.getType(), "The type should be player");
+		assertEquals(Player.class.getName(), randomPositionList.getObject().getClass().getName(), "The type should be player");
 	}
 }

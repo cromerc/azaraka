@@ -17,6 +17,13 @@ package cl.cromer.azaraka.object;
 
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.sprite.Animation;
+import cl.cromer.azaraka.sprite.AnimationException;
+import cl.cromer.azaraka.sprite.Sheet;
+import cl.cromer.azaraka.sprite.SheetException;
+
+import java.awt.*;
+import java.util.logging.Logger;
 
 /**
  * All game objects extend this class
@@ -38,6 +45,18 @@ public class Object implements Runnable {
 	 * The cell the object is in
 	 */
 	private Celda celda;
+	/**
+	 * The animation of the object
+	 */
+	private Animation animation;
+	/**
+	 * Use an offset when drawing the animation
+	 */
+	private boolean useOffset = true;
+	/**
+	 * The logger
+	 */
+	private Logger logger;
 	/**
 	 * Whether or not the run loop of the object is active
 	 */
@@ -111,12 +130,113 @@ public class Object implements Runnable {
 	}
 
 	/**
+	 * Get the current animation
+	 *
+	 * @return Returns an animation
+	 */
+	public Animation getAnimation() {
+		return animation;
+	}
+
+	/**
+	 * Set a new animation
+	 *
+	 * @param animation The new animation
+	 */
+	public void setAnimation(Animation animation) {
+		this.animation = animation;
+	}
+
+	/**
+	 * Set the use offset for animation
+	 *
+	 * @param useOffset If true the animation will use an offset to help center it
+	 */
+	public void setUseOffset(boolean useOffset) {
+		this.useOffset = useOffset;
+	}
+
+	/**
+	 * Load the character animation
+	 *
+	 * @param path      The path to the image
+	 * @param character The character number
+	 */
+	public void loadCharacter(String path, int character) {
+		Sheet characterSheet = new Sheet(path, 54, 39);
+		try {
+			Animation animation = new Animation();
+			animation.setCurrentDirection(Animation.Direction.DOWN);
+
+			animation.addImage(Animation.Direction.DOWN, characterSheet.getTexture(character));
+			animation.addImage(Animation.Direction.DOWN, characterSheet.getTexture(character + 2));
+			character = character + 12;
+			animation.addImage(Animation.Direction.LEFT, characterSheet.getTexture(character));
+			animation.addImage(Animation.Direction.LEFT, characterSheet.getTexture(character + 2));
+			character = character + 12;
+			animation.addImage(Animation.Direction.RIGHT, characterSheet.getTexture(character));
+			animation.addImage(Animation.Direction.RIGHT, characterSheet.getTexture(character + 2));
+			character = character + 12;
+			animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character));
+			animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character + 2));
+
+			animation.setYOffset(0);
+
+			setAnimation(animation);
+		}
+		catch (SheetException e) {
+			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * Draw the animation on the canvas
+	 *
+	 * @param graphics The graphics object to draw to
+	 * @param x        The x coordinate to draw to
+	 * @param y        The y coordinate to draw to
+	 */
+	public void drawAnimation(Graphics graphics, int x, int y) {
+		try {
+			if (animation != null && animation.getFrame() != null) {
+				if (useOffset) {
+					graphics.drawImage(animation.getFrame(), x + animation.getXOffset(), y + animation.getYOffset(), null);
+				}
+				else {
+					graphics.drawImage(animation.getFrame(), x, y, null);
+				}
+			}
+		}
+		catch (AnimationException e) {
+			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
 	 * Get the cell the object is in
 	 *
 	 * @param celda The cell
 	 */
 	public void setCelda(Celda celda) {
 		this.celda = celda;
+	}
+
+	/**
+	 * Get the logger
+	 *
+	 * @return Returns a logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
+
+	/**
+	 * Set the logger
+	 *
+	 * @param logger The logger to set
+	 */
+	public void setLogger(Logger logger) {
+		this.logger = logger;
 	}
 
 	/**

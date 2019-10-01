@@ -15,7 +15,6 @@
 
 package cl.cromer.azaraka.test.object;
 
-import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.Lienzo;
 import cl.cromer.azaraka.object.Player;
@@ -71,14 +70,14 @@ class PlayerTest {
 	@Test
 	void keyPressed() {
 		int expected = 2;
-		if (escenario.getCeldas()[player.getX() - 1][player.getY()].getType() == Celda.Type.SPACE) {
+		if (escenario.getCeldas()[player.getX() - 1][player.getY()].getObject() == null) {
 			expected--;
 		}
 		player.keyPressed(new KeyEvent(new Component() {
 		}, 0, 0, 0, KeyEvent.VK_LEFT, KeyEvent.getKeyText(KeyEvent.VK_LEFT).charAt(0)));
 		assertEquals(expected, player.getX(), "The player should be at x = 1" + expected);
 
-		if (escenario.getCeldas()[player.getX() + 1][player.getY()].getType() == Celda.Type.SPACE) {
+		if (escenario.getCeldas()[player.getX() + 1][player.getY()].getObject() == null) {
 			expected++;
 		}
 		player.keyPressed(new KeyEvent(new Component() {
@@ -86,14 +85,14 @@ class PlayerTest {
 		assertEquals(expected, player.getX(), "The player should be at x = 2" + expected);
 
 		expected = 1;
-		if (escenario.getCeldas()[player.getX()][player.getY() + 1].getType() == Celda.Type.SPACE) {
+		if (escenario.getCeldas()[player.getX()][player.getY() + 1].getObject() == null) {
 			expected++;
 		}
 		player.keyPressed(new KeyEvent(new Component() {
 		}, 0, 0, 0, KeyEvent.VK_DOWN, KeyEvent.getKeyText(KeyEvent.VK_DOWN).charAt(0)));
 		assertEquals(expected, player.getY(), "The player should be at y = " + expected);
 
-		if (escenario.getCeldas()[player.getX()][player.getY() - 1].getType() == Celda.Type.SPACE) {
+		if (escenario.getCeldas()[player.getX()][player.getY() - 1].getObject() == null) {
 			expected--;
 		}
 		player.keyPressed(new KeyEvent(new Component() {

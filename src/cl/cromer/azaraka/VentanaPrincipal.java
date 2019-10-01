@@ -38,23 +38,7 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 
 		logger.info("Create panels");
 
-		JSplitPane panelSeparator = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		panelSeparator.setOneTouchExpandable(true);
-
-		Game gamePanel = new Game();
-		Config configPanel = new Config(gamePanel);
-
-		panelSeparator.setLeftComponent(gamePanel);
-		panelSeparator.setRightComponent(configPanel);
-		panelSeparator.setDividerLocation(gamePanel.getWidth() + (LEFT_MARGIN * 2));
-		panelSeparator.setDividerSize(0);
-
-		Container contentPane = getContentPane();
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(panelSeparator, BorderLayout.CENTER);
-
 		setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		setSize(SCREEN_SIZE.width - 50, SCREEN_SIZE.height - 50);
 
 		setTitle(TITLE);
 		String icon = "/img/icon.png";
@@ -67,6 +51,20 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 			logger.warning(e.getMessage());
 		}
 
-		logger.info("Finished creating panels");
+		Container contentPane = getContentPane();
+		contentPane.setLayout(new BorderLayout());
+
+		JSplitPane panelSeparator = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		panelSeparator.setOneTouchExpandable(true);
+
+		Game gamePanel = new Game();
+		Config configPanel = new Config(gamePanel);
+
+		panelSeparator.setLeftComponent(gamePanel);
+		panelSeparator.setRightComponent(configPanel);
+		panelSeparator.setDividerLocation(gamePanel.getWidth() + (LEFT_MARGIN * 2));
+		panelSeparator.setDividerSize(0);
+
+		contentPane.add(panelSeparator, BorderLayout.CENTER);
 	}
 }

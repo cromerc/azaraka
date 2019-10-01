@@ -15,14 +15,12 @@
 
 package cl.cromer.azaraka;
 
-import cl.cromer.azaraka.sprite.Animation;
-import cl.cromer.azaraka.sprite.AnimationException;
+import cl.cromer.azaraka.object.Object;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * This class is a cell that will contain a game element such as a player, enemy, prize, etc
@@ -45,14 +43,6 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	private int y;
 	/**
-	 * The type of cell
-	 */
-	private Type type = Type.SPACE;
-	/**
-	 * The sprites that can be used in the cell
-	 */
-	private Animation animation = null;
-	/**
 	 * The textures to show in this cell
 	 */
 	private ArrayList<BufferedImage> textures = new ArrayList<>();
@@ -61,9 +51,9 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	private ArrayList<Integer> textureNumbers = new ArrayList<>();
 	/**
-	 * The logger
+	 * The object in the cell
 	 */
-	private Logger logger;
+	private Object object = null;
 
 	/**
 	 * Initialize the cell with its coordinates
@@ -77,7 +67,24 @@ public class Celda extends JComponent implements Constantes {
 		this.yPixels = yPixels;
 		this.x = x;
 		this.y = y;
-		logger = getLogger(this.getClass(), LogLevel.CELDA);
+	}
+
+	/**
+	 * Get the object that is in the cell
+	 *
+	 * @return Returns the object
+	 */
+	public Object getObject() {
+		return object;
+	}
+
+	/**
+	 * Put an object in the cell
+	 *
+	 * @param object The new object
+	 */
+	public void setObject(Object object) {
+		this.object = object;
 	}
 
 	/**
@@ -96,24 +103,6 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	public int getY() {
 		return y;
-	}
-
-	/**
-	 * Get the sprite for the cell
-	 *
-	 * @return Return the sprite in use
-	 */
-	public Animation getAnimation() {
-		return animation;
-	}
-
-	/**
-	 * Set which sprite to use for this cell
-	 *
-	 * @param animation The sprite to show
-	 */
-	public void setAnimation(Animation animation) {
-		this.animation = animation;
 	}
 
 	/**
@@ -145,23 +134,6 @@ public class Celda extends JComponent implements Constantes {
 	}
 
 	/**
-	 * Get the current type of this cell
-	 *
-	 * @return Returns the type of cell
-	 */
-	public Type getType() {
-		return this.type;
-	}
-
-	/**
-	 * Set the type of cell that this will be
-	 * @param type The type
-	 */
-	public void setType(Type type) {
-		this.type = type;
-	}
-
-	/**
 	 * Override the paintComponent method of JComponent to paint the cell based on type
 	 * @param g The graphics object to paint
 	 */
@@ -186,49 +158,8 @@ public class Celda extends JComponent implements Constantes {
 		}
 
 		// Draw a sprite in the cell if needed
-		if (getType() != Type.SPACE) {
-			try {
-				if (animation != null && animation.getFrame() != null) {
-					g.drawImage(animation.getFrame(), xPixels + animation.getXOffset(), yPixels + animation.getYOffset(), null);
-				}
-			}
-			catch (AnimationException e) {
-				logger.warning(e.getMessage());
-			}
+		if (object != null) {
+			object.drawAnimation(g, xPixels, yPixels);
 		}
-	}
-
-	/**
-	 * The possible types of cell that this could be
-	 */
-	public enum Type {
-		/**
-		 * The player
-		 */
-		PLAYER,
-		/**
-		 * An enemy
-		 */
-		ENEMY,
-		/**
-		 * An empty space
-		 */
-		SPACE,
-		/**
-		 * The portal
-		 */
-		PORTAL,
-		/**
-		 * An obstacle
-		 */
-		OBSTACLE,
-		/**
-		 * A chest
-		 */
-		CHEST,
-		/**
-		 * A key
-		 */
-		KEY
 	}
 }

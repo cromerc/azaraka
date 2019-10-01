@@ -178,34 +178,4 @@ public class Sound implements Constantes {
 			logger.info("No control to modify volume");
 		}
 	}
-
-	/**
-	 * The types of sounds
-	 */
-	public enum SoundType {
-		/**
-		 * Background music
-		 */
-		BACKGROUND,
-		/**
-		 * Open chest sound
-		 */
-		OPEN_CHEST,
-		/**
-		 * Get key sound
-		 */
-		GET_KEY,
-		/**
-		 * Game over music
-		 */
-		GAME_OVER,
-		/**
-		 * Enemy attack sound
-		 */
-		ENEMY_ATTACK,
-		/**
-		 * Sounds when receiving gem, purifying gem, or winning
-		 */
-		SUCCESS
-	}
 }

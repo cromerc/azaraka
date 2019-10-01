@@ -21,8 +21,6 @@ import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
-import java.util.logging.Logger;
-
 /**
  * This class handles the portal functionality
  */
@@ -32,9 +30,13 @@ public class Portal extends Object implements Constantes {
 	 */
 	private State state = State.INACTIVE;
 	/**
-	 * The logger
+	 * The active animation
 	 */
-	private Logger logger;
+	private Animation activeAnimation;
+	/**
+	 * The inactive animation
+	 */
+	private Animation inactiveAnimation;
 
 	/**
 	 * Initialize the portal
@@ -44,7 +46,37 @@ public class Portal extends Object implements Constantes {
 	 */
 	public Portal(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), LogLevel.PORTAL);
+		setLogger(getLogger(this.getClass(), LogLevel.PORTAL));
+		loadPortalAnimation();
+	}
+
+	/**
+	 * Load the portal animation
+	 */
+	private void loadPortalAnimation() {
+		activeAnimation = new Animation();
+		for (int i = 0; i < 120; i++) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(i);
+			while (stringBuilder.length() < 3) {
+				stringBuilder.insert(0, 0);
+			}
+			stringBuilder.append(".png");
+			activeAnimation.addImage(Animation.Direction.NONE, "/img/portal/green/" + stringBuilder.toString());
+		}
+
+		inactiveAnimation = new Animation();
+		for (int i = 0; i < 120; i++) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(i);
+			while (stringBuilder.length() < 3) {
+				stringBuilder.insert(0, 0);
+			}
+			stringBuilder.append(".png");
+			inactiveAnimation.addImage(Animation.Direction.NONE, "/img/portal/gray/" + stringBuilder.toString());
+		}
+
+		setAnimation(inactiveAnimation);
 	}
 
 	/**
@@ -52,10 +84,10 @@ public class Portal extends Object implements Constantes {
 	 */
 	private void animate() {
 		try {
-			getCelda().getAnimation().getNextFrame();
+			getAnimation().getNextFrame();
 		}
 		catch (AnimationException e) {
-			logger.warning(e.getMessage());
+			getLogger().warning(e.getMessage());
 		}
 	}
 
@@ -77,28 +109,28 @@ public class Portal extends Object implements Constantes {
 		this.state = state;
 		int frame = 0;
 		try {
-			frame = getCelda().getAnimation().getCurrentFrame();
+			frame = getAnimation().getCurrentFrame();
 		}
 		catch (AnimationException e) {
-			logger.warning(e.getMessage());
+			getLogger().warning(e.getMessage());
 		}
 
 		if (state == State.ACTIVE) {
-			getCelda().setAnimation(getEscenario().getSprites().get(Animation.SpriteType.ACTIVE_PORTAL));
+			setAnimation(activeAnimation);
 			try {
-				getCelda().getAnimation().setCurrentFrame(frame);
+				getAnimation().setCurrentFrame(frame);
 			}
 			catch (AnimationException e) {
-				logger.warning(e.getMessage());
+				getLogger().warning(e.getMessage());
 			}
 		}
 		else if (state == State.INACTIVE) {
-			getCelda().setAnimation(getEscenario().getSprites().get(Animation.SpriteType.INACTIVE_PORTAL));
+			setAnimation(inactiveAnimation);
 			try {
-				getCelda().getAnimation().setCurrentFrame(frame);
+				getAnimation().setCurrentFrame(frame);
 			}
 			catch (AnimationException e) {
-				logger.warning(e.getMessage());
+				getLogger().warning(e.getMessage());
 			}
 		}
 	}
@@ -114,7 +146,7 @@ public class Portal extends Object implements Constantes {
 				Thread.sleep(35);
 			}
 			catch (InterruptedException e) {
-				logger.info(e.getMessage());
+				getLogger().info(e.getMessage());
 			}
 			synchronized (this) {
 				animate();

@@ -17,10 +17,8 @@ package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.json.Cell;
 import cl.cromer.azaraka.json.Json;
-import cl.cromer.azaraka.sound.Sound;
-import cl.cromer.azaraka.sound.SoundException;
-import cl.cromer.azaraka.sprite.Animation;
-import cl.cromer.azaraka.sprite.AnimationMap;
+import cl.cromer.azaraka.object.Object;
+import cl.cromer.azaraka.object.*;
 import cl.cromer.azaraka.sprite.Sheet;
 import cl.cromer.azaraka.sprite.SheetException;
 import com.google.gson.Gson;
@@ -33,8 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -78,14 +74,6 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	private ArrayList<Celda> keys = new ArrayList<>();
 	/**
-	 * A hash map that contains all the sprites for the game
-	 */
-	private Map<Animation.SpriteType, Animation> sprites = new AnimationMap();
-	/**
-	 * A hash map of the sounds
-	 */
-	private Map<Sound.SoundType, Sound> sounds = new HashMap<>();
-	/**
 	 * A collection of tiles that can be used in the scene
 	 */
 	private Sheet textureSheet;
@@ -106,7 +94,7 @@ public class Escenario extends JComponent implements Constantes {
 	public Escenario(Lienzo canvas) {
 		logger = getLogger(this.getClass(), LogLevel.ESCENARIO);
 		this.canvas = canvas;
-		loadResources();
+		loadTextures();
 
 		celdas = new Celda[HORIZONTAL_CELLS][VERTICAL_CELLS];
 
@@ -151,20 +139,28 @@ public class Escenario extends JComponent implements Constantes {
 		for (int x = 0; x < cells.length; x++) {
 			for (int y = 0; y < cells[x].length; y++) {
 				celdas[x][y] = new Celda((x * CELL_PIXELS) + LEFT_MARGIN, (y * CELL_PIXELS) + TOP_MARGIN, x, y);
-				celdas[x][y].setType(cells[x][y].type);
 
-				if (cells[x][y].type == Celda.Type.PLAYER) {
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.PLAYER));
+				if (cells[x][y].type.equals(Player.class.getName())) {
+					celdas[x][y].setObject(new Player(null, celdas[x][y]));
 					player = celdas[x][y];
 				}
-				else if (cells[x][y].type == Celda.Type.ENEMY) {
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.ENEMY));
+				else if (cells[x][y].type.equals(Enemy.class.getName())) {
+					celdas[x][y].setObject(new Enemy(null, celdas[x][y], null));
 				}
-				else if (cells[x][y].type == Celda.Type.CHEST) {
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.CHEST));
+				else if (cells[x][y].type.equals(Chest.class.getName())) {
+					celdas[x][y].setObject(new Chest(null, celdas[x][y]));
 				}
-				else if (cells[x][y].type == Celda.Type.KEY) {
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.KEY));
+				else if (cells[x][y].type.equals(Gem.class.getName())) {
+					celdas[x][y].setObject(new Gem(null, celdas[x][y]));
+				}
+				else if (cells[x][y].type.equals(Key.class.getName())) {
+					celdas[x][y].setObject(new Key(null, celdas[x][y]));
+				}
+				else if (cells[x][y].type.equals(Obstacle.class.getName())) {
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+				}
+				else if (cells[x][y].type.equals(Portal.class.getName())) {
+					celdas[x][y].setObject(new Portal(null, celdas[x][y]));
 				}
 
 				for (int k = 0; k < cells[x][y].textures.size(); k++) {
@@ -190,45 +186,42 @@ public class Escenario extends JComponent implements Constantes {
 		int random_y;
 		ArrayList<RandomPositionList> arrayList = new ArrayList<>();
 
-		arrayList.add(new RandomPositionList(5, 5, Celda.Type.CHEST));
-		arrayList.add(new RandomPositionList(6, 5, Celda.Type.CHEST));
-
 		for (int i = 0; i < ENEMIES; i++) {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, Celda.Type.ENEMY)) || celdas[random_x][random_y].getType() != Celda.Type.SPACE) {
+			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Enemy(null, celdas[random_x][random_y], null))) || celdas[random_x][random_y].getObject() != null) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
 			}
-			arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.ENEMY));
+			arrayList.add(new RandomPositionList(random_x, random_y, new Enemy(null, celdas[random_x][random_y], null)));
 		}
 		for (int i = 0; i < obstacles; i++) {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, Celda.Type.OBSTACLE)) || celdas[random_x][random_y].getType() != Celda.Type.SPACE) {
+			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Obstacle(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
 			}
-			arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.OBSTACLE));
+			arrayList.add(new RandomPositionList(random_x, random_y, new Obstacle(null, celdas[random_x][random_y])));
 		}
 
 		random_x = random(0, HORIZONTAL_CELLS - 1);
 		random_y = random(0, VERTICAL_CELLS - 1);
-		while (arrayList.contains(new RandomPositionList(random_x, random_y, Celda.Type.PORTAL)) || celdas[random_x][random_y].getType() != Celda.Type.SPACE) {
+		while (arrayList.contains(new RandomPositionList(random_x, random_y, new Portal(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null) {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);
 		}
-		arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.PORTAL));
+		arrayList.add(new RandomPositionList(random_x, random_y, new Portal(null, celdas[random_x][random_y])));
 
 		// Generate enough keys for the chests that will exist
 		for (int i = 0; i < CHESTS; i++) {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, Celda.Type.KEY)) || celdas[random_x][random_y].getType() != Celda.Type.SPACE) {
+			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Key(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
 			}
-			arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.KEY));
+			arrayList.add(new RandomPositionList(random_x, random_y, new Key(null, celdas[random_x][random_y])));
 		}
 
 		// Chests need to be last to make sure they are openable
@@ -236,42 +229,37 @@ public class Escenario extends JComponent implements Constantes {
 			random_x = random(0, HORIZONTAL_CELLS - 1);
 			random_y = random(0, VERTICAL_CELLS - 1);
 			// Don't put a chest if it can't be opened
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, Celda.Type.CHEST)) || arrayList.contains(new RandomPositionList(random_x, random_y + 1, Celda.Type.CHEST)) || celdas[random_x][random_y].getType() != Celda.Type.SPACE || celdas[random_x][random_y + 1].getType() != Celda.Type.SPACE || celdas[random_x][random_y - 1].getType() != Celda.Type.SPACE) {
+			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Chest(null, celdas[random_x][random_y]))) || arrayList.contains(new RandomPositionList(random_x, random_y + 1, new Chest(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null || celdas[random_x][random_y + 1].getObject() != null || celdas[random_x][random_y - 1].getObject() != null) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
 			}
-			arrayList.add(new RandomPositionList(random_x, random_y, Celda.Type.CHEST));
+			arrayList.add(new RandomPositionList(random_x, random_y, new Chest(null, celdas[random_x][random_y])));
 		}
 
 		for (RandomPositionList randomList : arrayList) {
 			int x = randomList.getX();
 			int y = randomList.getY();
-			celdas[x][y].setType(randomList.getType());
-			switch (randomList.getType()) {
-				case ENEMY:
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.ENEMY));
-					enemies.add(celdas[x][y]);
-					break;
-				case CHEST:
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.CHEST));
-					chests.add(celdas[x][y]);
-					break;
-				case KEY:
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.KEY));
-					keys.add(celdas[x][y]);
-					break;
-				case PORTAL:
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.INACTIVE_PORTAL));
-					portal = celdas[x][y];
-					break;
-				case OBSTACLE:
-					try {
-						celdas[x][y].addTexture(textureSheet.getTexture(30), 30);
-					}
-					catch (SheetException e) {
-						logger.warning(e.getMessage());
-					}
-					break;
+			Object object = randomList.getObject();
+			celdas[x][y].setObject(object);
+			if (object instanceof Enemy) {
+				enemies.add(celdas[x][y]);
+			}
+			else if (object instanceof Chest) {
+				chests.add(celdas[x][y]);
+			}
+			else if (object instanceof Key) {
+				keys.add(celdas[x][y]);
+			}
+			else if (object instanceof Portal) {
+				portal = celdas[x][y];
+			}
+			else if (object instanceof Obstacle) {
+				try {
+					celdas[x][y].addTexture(textureSheet.getTexture(30), 30);
+				}
+				catch (SheetException e) {
+					logger.warning(e.getMessage());
+				}
 			}
 		}
 	}
@@ -293,7 +281,7 @@ public class Escenario extends JComponent implements Constantes {
 
 				if (x == 0 && y == 0) {
 					// Top left corner
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(33), 33);
 					}
@@ -303,7 +291,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1 && y == 0) {
 					// Top right corner
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(37), 37);
 					}
@@ -313,7 +301,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == 0 && y == VERTICAL_CELLS - 1) {
 					// Bottom left corner
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(97), 97);
 					}
@@ -323,7 +311,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1 && y == VERTICAL_CELLS - 1) {
 					// Bottom right corner
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(101), 101);
 					}
@@ -333,7 +321,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (y == 0) {
 					// Top wall
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					if (x == 1) {
 						// Left door frame
 						try {
@@ -392,7 +380,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == 0) {
 					// Left wall
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					if (y % 2 == 0) {
 						try {
 							celdas[x][y].addTexture(textureSheet.getTexture(49), 49);
@@ -413,7 +401,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1) {
 					// Right wall
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					if (y % 2 == 0) {
 						try {
 							celdas[x][y].addTexture(textureSheet.getTexture(53), 53);
@@ -434,7 +422,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (y == VERTICAL_CELLS - 1) {
 					// Bottom wall
-					celdas[x][y].setType(Celda.Type.OBSTACLE);
+					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
 					if (x % 2 == 0) {
 						try {
 							celdas[x][y].addTexture(textureSheet.getTexture(98), 98);
@@ -456,8 +444,7 @@ public class Escenario extends JComponent implements Constantes {
 
 				// The player starts at the door
 				if (x == 2 && y == 1) {
-					celdas[x][y].setType(Celda.Type.PLAYER);
-					celdas[x][y].setAnimation(sprites.get(Animation.SpriteType.PLAYER));
+					celdas[x][y].setObject(new Player(null, celdas[x][y]));
 					player = celdas[x][y];
 				}
 			}
@@ -465,161 +452,10 @@ public class Escenario extends JComponent implements Constantes {
 	}
 
 	/**
-	 * Load all the images that will be shown in the game
+	 * Load all the textures that will be shown in the game
 	 */
-	private void loadResources() {
-		Animation animation;
-
-		// Load player animations
-		Sheet characterSheet = new Sheet("/img/player/chara2.png", 54, 39);
-		int character = 6;
-		try {
-			animation = new Animation();
-			animation.setCurrentDirection(Animation.Direction.DOWN);
-
-			loadCharacter(animation, characterSheet, character);
-
-			sprites.put(Animation.SpriteType.PLAYER, animation);
-		}
-		catch (SheetException e) {
-			logger.warning(e.getMessage());
-		}
-
-		// Load enemy animations
-		characterSheet = new Sheet("/img/enemy/chara4.png", 54, 39);
-		character = 57;
-		try {
-			animation = new Animation();
-			animation.setCurrentDirection(Animation.Direction.LEFT);
-
-			loadCharacter(animation, characterSheet, character);
-
-			sprites.put(Animation.SpriteType.ENEMY, animation);
-		}
-		catch (SheetException e) {
-			logger.warning(e.getMessage());
-		}
-
-		// Load the chest animation
-		Sheet chestSheet = new Sheet("/img/chest/chests.png", 54, 63);
-		try {
-			animation = new Animation();
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(54));
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(66));
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(78));
-			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(80));
-			animation.setYOffset(0);
-			sprites.put(Animation.SpriteType.CHEST, animation);
-		}
-		catch (SheetException e) {
-			logger.warning(e.getMessage());
-		}
-
-		// Load the key animation
-		Sheet keySheet = new Sheet("/img/key/key.png", 24, 24);
-		try {
-			animation = new Animation();
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(0));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(1));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(2));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(3));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(4));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(5));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(6));
-			animation.addImage(Animation.Direction.NONE, keySheet.getTexture(7));
-			sprites.put(Animation.SpriteType.KEY, animation);
-		}
-		catch (SheetException e) {
-			logger.warning(e.getMessage());
-		}
-
-		// Load the active portal
-		animation = new Animation();
-		for (int i = 0; i < 120; i++) {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append(i);
-			while (stringBuilder.length() < 3) {
-				stringBuilder.insert(0, 0);
-			}
-			stringBuilder.append(".png");
-			animation.addImage(Animation.Direction.NONE, "/img/portal/green/" + stringBuilder.toString());
-		}
-		sprites.put(Animation.SpriteType.ACTIVE_PORTAL, animation);
-
-		// Load the inactive portal
-		animation = new Animation();
-		for (int i = 0; i < 120; i++) {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append(i);
-			while (stringBuilder.length() < 3) {
-				stringBuilder.insert(0, 0);
-			}
-			stringBuilder.append(".png");
-			animation.addImage(Animation.Direction.NONE, "/img/portal/gray/" + stringBuilder.toString());
-		}
-		sprites.put(Animation.SpriteType.INACTIVE_PORTAL, animation);
-
-		// Load the hearts
-		animation = new Animation();
-		for (int i = 0; i < 5; i++) {
-			animation.addImage(Animation.Direction.NONE, "/img/heart/heart" + i + ".png");
-		}
-		sprites.put(Animation.SpriteType.HEART, animation);
-
-		// Load the game over
-		animation = new Animation();
-		animation.addImage(Animation.Direction.NONE, "/img/gameover/gameover.png");
-		sprites.put(Animation.SpriteType.GAME_OVER, animation);
-
-		// Load the background textures
+	private void loadTextures() {
 		textureSheet = new Sheet("/img/textures/dungeon.png", 64, 64);
-
-		try {
-			Sound sound = new Sound("/snd/OpenChest.wav");
-			sounds.put(Sound.SoundType.OPEN_CHEST, sound);
-
-			sound = new Sound("/snd/EnemyAttack.wav");
-			sounds.put(Sound.SoundType.ENEMY_ATTACK, sound);
-
-			sound = new Sound("/snd/GameOver.wav");
-			sounds.put(Sound.SoundType.GAME_OVER, sound);
-
-			sound = new Sound("/snd/GameLoop.wav");
-			sounds.put(Sound.SoundType.BACKGROUND, sound);
-
-			sound = new Sound("/snd/GetKey.wav");
-			sounds.put(Sound.SoundType.GET_KEY, sound);
-
-			sound = new Sound("/snd/Success.wav");
-			sounds.put(Sound.SoundType.SUCCESS, sound);
-		}
-		catch (SoundException e) {
-			logger.warning(e.getMessage());
-		}
-	}
-
-	/**
-	 * Load a character animation
-	 *
-	 * @param animation      The animation object
-	 * @param characterSheet The sheet to load from
-	 * @param character      The position in the character sheet to start from
-	 * @throws SheetException Thrown if there is a problem loading images from the sheet
-	 */
-	private void loadCharacter(Animation animation, Sheet characterSheet, int character) throws SheetException {
-		animation.addImage(Animation.Direction.DOWN, characterSheet.getTexture(character));
-		animation.addImage(Animation.Direction.DOWN, characterSheet.getTexture(character + 2));
-		character = character + 12;
-		animation.addImage(Animation.Direction.LEFT, characterSheet.getTexture(character));
-		animation.addImage(Animation.Direction.LEFT, characterSheet.getTexture(character + 2));
-		character = character + 12;
-		animation.addImage(Animation.Direction.RIGHT, characterSheet.getTexture(character));
-		animation.addImage(Animation.Direction.RIGHT, characterSheet.getTexture(character + 2));
-		character = character + 12;
-		animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character));
-		animation.addImage(Animation.Direction.UP, characterSheet.getTexture(character + 2));
-
-		animation.setYOffset(0);
 	}
 
 	/**
@@ -736,24 +572,6 @@ public class Escenario extends JComponent implements Constantes {
 			celdas[2][0].removeTopTexture();
 			this.doorClosed = false;
 		}
-	}
-
-	/**
-	 * Get the sprites available
-	 *
-	 * @return Returns all available sprites
-	 */
-	public Map<Animation.SpriteType, Animation> getSprites() {
-		return sprites;
-	}
-
-	/**
-	 * Get the available sounds
-	 *
-	 * @return Returns all available sounds
-	 */
-	public Map<Sound.SoundType, Sound> getSounds() {
-		return sounds;
 	}
 
 	/**

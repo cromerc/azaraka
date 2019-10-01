@@ -79,9 +79,29 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private Logger logger;
 	/**
+	 * The game over animation
+	 */
+	private Animation gameOverAnimation;
+	/**
+	 * The hearts animation
+	 */
+	private Animation heartAnimation;
+	/**
 	 * The background music of the game
 	 */
 	private Sound backgroundMusic;
+	/**
+	 * The music played when game over shows
+	 */
+	private Sound gameOverMusic;
+	/**
+	 * The sound played when a gem is purified or the player wins
+	 */
+	private Sound successSound;
+	/**
+	 * Has the game started
+	 */
+	private boolean gameStarted = false;
 	/**
 	 * Game over
 	 */
@@ -90,12 +110,37 @@ public class Lienzo extends Canvas implements Constantes {
 	 * If the game over loop has been run at least once
 	 */
 	private boolean gameOverRan = false;
+	/**
+	 * The current volume
+	 */
+	private float volume = (float) DEFAULT_VOLUME / 100;
 
 	/**
 	 * Initialize the canvas
 	 */
 	public Lienzo() {
 		logger = getLogger(this.getClass(), LogLevel.LIENZO);
+
+		// Load the sounds
+		try {
+			backgroundMusic = new Sound("/snd/GameLoop.wav");
+			gameOverMusic = new Sound("/snd/GameOver.wav");
+			successSound = new Sound("/snd/Success.wav");
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
+
+		// Load the hearts
+		heartAnimation = new Animation();
+		for (int i = 0; i < 5; i++) {
+			heartAnimation.addImage(Animation.Direction.NONE, "/img/heart/heart" + i + ".png");
+		}
+
+		// Load the game over
+		gameOverAnimation = new Animation();
+		gameOverAnimation.addImage(Animation.Direction.NONE, "/img/gameover/gameover.png");
+
 		escenario = new Escenario(this);
 		setBackground(Color.black);
 		setSize(escenario.width, escenario.height);
@@ -112,6 +157,7 @@ public class Lienzo extends Canvas implements Constantes {
 		});
 
 		player = new Player(escenario, escenario.getPlayer());
+		escenario.getPlayer().setObject(player);
 		threads.put(player, new Thread(player));
 
 		final Lock lock = new ReentrantLock(true);
@@ -119,6 +165,7 @@ public class Lienzo extends Canvas implements Constantes {
 		Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
 		for (Celda celda : escenario.getEnemies()) {
 			Enemy enemy = new Enemy(escenario, celda, lock);
+			celda.setObject(enemy);
 			enemy.setDirection(enemyDirection);
 			if (enemyDirection == Enemy.Direction.UP) {
 				enemyDirection = Enemy.Direction.DOWN;
@@ -138,31 +185,25 @@ public class Lienzo extends Canvas implements Constantes {
 
 		for (Celda celda : escenario.getKeys()) {
 			Key key = new Key(escenario, celda);
+			celda.setObject(key);
 			keys.add(key);
 			threads.put(key, new Thread(key));
 		}
 
 		for (Celda celda : escenario.getChests()) {
 			Chest chest = new Chest(escenario, celda);
+			celda.setObject(chest);
 			chests.add(chest);
 			threads.put(chest, new Thread(chest));
 		}
 
 		portal = new Portal(escenario, escenario.getPortal());
+		escenario.getPortal().setObject(portal);
 		threads.put(portal, new Thread(portal));
 
 		for (Map.Entry<Object, Thread> entry : threads.entrySet()) {
 			Thread thread = entry.getValue();
 			thread.start();
-		}
-
-		try {
-			backgroundMusic = escenario.getSounds().get(Sound.SoundType.BACKGROUND);
-			backgroundMusic.setLoops(Clip.LOOP_CONTINUOUSLY);
-			backgroundMusic.play();
-		}
-		catch (SoundException e) {
-			logger.warning(e.getMessage());
 		}
 	}
 
@@ -189,32 +230,16 @@ public class Lienzo extends Canvas implements Constantes {
 
 		graphicBuffer.setColor(getBackground());
 		graphicBuffer.fillRect(0, 0, this.getWidth(), this.getHeight());
-		// This is needed if there is a background image
-		//graphicBuffer.drawImage();
 
-		Animation keyAnimation = null;
-		switch (player.keyCount()) {
-			case 2:
-				try {
-					keyAnimation = escenario.getSprites().get(Animation.SpriteType.KEY);
-					keyAnimation.setCurrentFrame(4);
-					graphicBuffer.drawImage(keyAnimation.getFrame(), 69, 8, null);
-				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-			case 1:
-				try {
-					if (keyAnimation == null) {
-						keyAnimation = escenario.getSprites().get(Animation.SpriteType.KEY);
-						keyAnimation.setCurrentFrame(4);
-					}
-					graphicBuffer.drawImage(keyAnimation.getFrame(), 40, 8, null);
-				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-				break;
+		int xKey = LEFT_MARGIN;
+		for (int i = 0; i < keys.size(); i++) {
+			Key key = keys.get(i);
+			if (key.getState() == Key.State.HELD) {
+				// Set a still frame of the key
+				//key.setAnimationFrame(4);
+				key.drawAnimation(graphicBuffer, xKey, 8);
+				xKey = xKey + ((key.getAnimationWidth() + 5) * (i + 1));
+			}
 		}
 
 		int health = player.getHealth();
@@ -223,7 +248,6 @@ public class Lienzo extends Canvas implements Constantes {
 		}
 		int hearts = Player.MAX_HEALTH / 4;
 		for (int i = 0; i < hearts; i++) {
-			Animation heartAnimation = escenario.getSprites().get(Animation.SpriteType.HEART);
 			if (health >= 4) {
 				try {
 					heartAnimation.setCurrentFrame(4);
@@ -241,7 +265,7 @@ public class Lienzo extends Canvas implements Constantes {
 				}
 			}
 			try {
-				int x = ((HORIZONTAL_CELLS) * CELL_PIXELS) + LEFT_MARGIN - heartAnimation.getFrame().getWidth() * hearts + heartAnimation.getFrame().getWidth() * i;
+				int x = ((HORIZONTAL_CELLS) * CELL_PIXELS) + LEFT_MARGIN - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
 				graphicBuffer.drawImage(heartAnimation.getFrame(), x, 8, null);
 			}
 			catch (AnimationException e) {
@@ -260,7 +284,8 @@ public class Lienzo extends Canvas implements Constantes {
 				stopBackgroundMusic();
 
 				try {
-					escenario.getSounds().get(Sound.SoundType.GAME_OVER).play();
+					gameOverMusic.setVolume(volume);
+					gameOverMusic.play();
 				}
 				catch (SoundException e) {
 					logger.warning(e.getMessage());
@@ -272,13 +297,12 @@ public class Lienzo extends Canvas implements Constantes {
 			}
 
 			// Place the game over image on the screen
-			Animation gameOver = escenario.getSprites().get(Animation.SpriteType.GAME_OVER);
 			graphicBuffer.setColor(Color.black);
 			graphicBuffer.drawRect(0, 0, getWidth(), getHeight());
 			try {
-				int x = (getWidth() - gameOver.getFrame().getWidth()) / 2;
-				int y = (getHeight() - gameOver.getFrame().getHeight()) / 2;
-				graphicBuffer.drawImage(gameOver.getFrame(), x, y, null);
+				int x = (getWidth() - gameOverAnimation.getFrame().getWidth()) / 2;
+				int y = (getHeight() - gameOverAnimation.getFrame().getHeight()) / 2;
+				graphicBuffer.drawImage(gameOverAnimation.getFrame(), x, y, null);
 			}
 			catch (AnimationException e) {
 				logger.warning(e.getMessage());
@@ -289,8 +313,24 @@ public class Lienzo extends Canvas implements Constantes {
 		}
 
 		g.drawImage(imageBuffer, 0, 0, null);
+		if (!gameStarted) {
+			gameStarted = true;
+			try {
+				if (!backgroundMusic.isPlaying()) {
+					backgroundMusic.setVolume(volume);
+					backgroundMusic.play();
+					backgroundMusic.setLoops(Clip.LOOP_CONTINUOUSLY);
+				}
+			}
+			catch (SoundException e) {
+				logger.warning(e.getMessage());
+			}
+		}
 	}
 
+	/**
+	 * Stop the background music
+	 */
 	private void stopBackgroundMusic() {
 		try {
 			if (backgroundMusic.isPlaying()) {
@@ -329,7 +369,8 @@ public class Lienzo extends Canvas implements Constantes {
 		stopBackgroundMusic();
 
 		try {
-			escenario.getSounds().get(Sound.SoundType.SUCCESS).play();
+			successSound.setVolume(volume);
+			successSound.play();
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
@@ -356,17 +397,28 @@ public class Lienzo extends Canvas implements Constantes {
 	}
 
 	/**
+	 * Get the current volume
+	 *
+	 * @return Returns the current volume
+	 */
+	public float getVolume() {
+		return volume;
+	}
+
+	/**
 	 * Change the volume of the game background music
 	 *
 	 * @param volume The new volume
 	 */
 	public void changeVolume(float volume) {
+		this.volume = volume;
 		try {
 			backgroundMusic.setVolume(volume);
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
 		}
+		requestFocus();
 	}
 
 	/**

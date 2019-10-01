@@ -33,7 +33,6 @@ public class Main implements Constantes {
 		VentanaPrincipal ventanaPrincipal = new VentanaPrincipal();
 		ventanaPrincipal.setVisible(true);
 		ventanaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		logger.info("Finished loading main window");
 	}
 
 	/**

@@ -18,14 +18,11 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
-import cl.cromer.azaraka.sound.Sound;
-import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * This class contains the player
@@ -35,10 +32,6 @@ public class Player extends Object implements Constantes {
 	 * The maximum health of the player
 	 */
 	public final static int MAX_HEALTH = 8;
-	/**
-	 * The logger
-	 */
-	private Logger logger;
 	/**
 	 * The current health of the player
 	 */
@@ -56,7 +49,15 @@ public class Player extends Object implements Constantes {
 	 */
 	public Player(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), LogLevel.PLAYER);
+		setLogger(getLogger(this.getClass(), LogLevel.PLAYER));
+		loadPlayerAnimation();
+	}
+
+	/**
+	 * Load the player animation
+	 */
+	private void loadPlayerAnimation() {
+		loadCharacter("/img/player/chara2.png", 6);
 	}
 
 	/**
@@ -93,49 +94,45 @@ public class Player extends Object implements Constantes {
 	private void moveUp() {
 		int x = getX();
 		int y = getY();
-		logger.info("Up key pressed");
+		getLogger().info("Up key pressed");
 		if (y > 0) {
-			Celda.Type type = getEscenario().getCeldas()[x][y - 1].getType();
-			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
-				if (type == Celda.Type.KEY) {
+			Object type = getEscenario().getCeldas()[x][y - 1].getObject();
+			if (type == null || type instanceof Key) {
+				if (type != null) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x, y - 1)) {
 							// Get the key
 							getKey(key);
-							// Remove the key from the cell
-							getEscenario().getCeldas()[x][y - 1].setType(Celda.Type.SPACE);
-							getEscenario().getCeldas()[x][y - 1].setAnimation(null);
 							break;
 						}
 					}
 				}
 
-				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
-				getEscenario().getCeldas()[x][y - 1].setType(Celda.Type.PLAYER);
+				getCelda().setObject(null);
+				setCelda(getEscenario().getCeldas()[x][y - 1]);
+				getCelda().setObject(this);
 
 				if (changeDirection(Animation.Direction.UP)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 
-				getEscenario().getCeldas()[x][y - 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
-				getEscenario().getCeldas()[x][y].setAnimation(null);
 				setY(getY() - 1);
 			}
-			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.UP)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 			}
@@ -143,10 +140,10 @@ public class Player extends Object implements Constantes {
 		else {
 			if (changeDirection(Animation.Direction.UP)) {
 				try {
-					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
-					logger.warning(e.getMessage());
+					getLogger().warning(e.getMessage());
 				}
 			}
 		}
@@ -158,49 +155,45 @@ public class Player extends Object implements Constantes {
 	private void moveDown() {
 		int x = getX();
 		int y = getY();
-		logger.info("Down key pressed");
-		Celda.Type type = getEscenario().getCeldas()[x][y + 1].getType();
+		getLogger().info("Down key pressed");
+		Object type = getEscenario().getCeldas()[x][y + 1].getObject();
 		if (y < (VERTICAL_CELLS - 1)) {
-			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
-				if (type == Celda.Type.KEY) {
+			if (type == null || type instanceof Key) {
+				if (type != null) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x, y + 1)) {
 							// Get the key
 							getKey(key);
-							// Remove the key from the cell
-							getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.SPACE);
-							getEscenario().getCeldas()[x][y + 1].setAnimation(null);
 							break;
 						}
 					}
 				}
 
-				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
-				getEscenario().getCeldas()[x][y + 1].setType(Celda.Type.PLAYER);
+				getCelda().setObject(null);
+				setCelda(getEscenario().getCeldas()[x][y + 1]);
+				getCelda().setObject(this);
 
 				if (changeDirection(Animation.Direction.DOWN)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 
-				getEscenario().getCeldas()[x][y + 1].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
-				getEscenario().getCeldas()[x][y].setAnimation(null);
 				setY(getY() + 1);
 			}
-			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.DOWN)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 			}
@@ -208,10 +201,10 @@ public class Player extends Object implements Constantes {
 		else {
 			if (changeDirection(Animation.Direction.DOWN)) {
 				try {
-					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
-					logger.warning(e.getMessage());
+					getLogger().warning(e.getMessage());
 				}
 			}
 		}
@@ -223,49 +216,45 @@ public class Player extends Object implements Constantes {
 	private void moveLeft() {
 		int x = getX();
 		int y = getY();
-		logger.info("Left key pressed");
+		getLogger().info("Left key pressed");
 		if (x > 0) {
-			Celda.Type type = getEscenario().getCeldas()[x - 1][y].getType();
-			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
-				if (type == Celda.Type.KEY) {
+			Object type = getEscenario().getCeldas()[x - 1][y].getObject();
+			if (type == null || type instanceof Key) {
+				if (type != null) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x - 1, y)) {
 							// Get the key
 							getKey(key);
-							// Remove the key from the cell
-							getEscenario().getCeldas()[x - 1][y].setType(Celda.Type.SPACE);
-							getEscenario().getCeldas()[x - 1][y].setAnimation(null);
 							break;
 						}
 					}
 				}
 
-				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
-				getEscenario().getCeldas()[x - 1][y].setType(Celda.Type.PLAYER);
+				getCelda().setObject(null);
+				setCelda(getEscenario().getCeldas()[x - 1][y]);
+				getCelda().setObject(this);
 
 				if (changeDirection(Animation.Direction.LEFT)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 
-				getEscenario().getCeldas()[x - 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
-				getEscenario().getCeldas()[x][y].setAnimation(null);
 				setX(getX() - 1);
 			}
-			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.LEFT)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 			}
@@ -273,10 +262,10 @@ public class Player extends Object implements Constantes {
 		else {
 			if (changeDirection(Animation.Direction.LEFT)) {
 				try {
-					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
-					logger.warning(e.getMessage());
+					getLogger().warning(e.getMessage());
 				}
 			}
 		}
@@ -288,49 +277,45 @@ public class Player extends Object implements Constantes {
 	private void moveRight() {
 		int x = getX();
 		int y = getY();
-		logger.info("Right key pressed");
-		Celda.Type type = getEscenario().getCeldas()[x + 1][y].getType();
+		getLogger().info("Right key pressed");
+		Object type = getEscenario().getCeldas()[x + 1][y].getObject();
 		if (x < (HORIZONTAL_CELLS - 1)) {
-			if (type == Celda.Type.SPACE || type == Celda.Type.KEY) {
-				if (type == Celda.Type.KEY) {
+			if (type == null || type instanceof Key) {
+				if (type != null) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x + 1, y)) {
 							// Get the key
 							getKey(key);
-							// Remove the key from the cell
-							getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.SPACE);
-							getEscenario().getCeldas()[x + 1][y].setAnimation(null);
 							break;
 						}
 					}
 				}
 
-				getEscenario().getCeldas()[x][y].setType(Celda.Type.SPACE);
-				getEscenario().getCeldas()[x + 1][y].setType(Celda.Type.PLAYER);
+				getCelda().setObject(null);
+				setCelda(getEscenario().getCeldas()[x + 1][y]);
+				getCelda().setObject(this);
 
 				if (changeDirection(Animation.Direction.RIGHT)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 
-				getEscenario().getCeldas()[x + 1][y].setAnimation(getEscenario().getCeldas()[x][y].getAnimation());
-				getEscenario().getCeldas()[x][y].setAnimation(null);
 				setX(getX() + 1);
 			}
-			else if (type == Celda.Type.PORTAL && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.RIGHT)) {
 					try {
-						getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+						getAnimation().getNextFrame();
 					}
 					catch (AnimationException e) {
-						logger.warning(e.getMessage());
+						getLogger().warning(e.getMessage());
 					}
 				}
 			}
@@ -338,10 +323,10 @@ public class Player extends Object implements Constantes {
 		else {
 			if (changeDirection(Animation.Direction.RIGHT)) {
 				try {
-					getEscenario().getCeldas()[x][y].getAnimation().getNextFrame();
+					getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
-					logger.warning(e.getMessage());
+					getLogger().warning(e.getMessage());
 				}
 			}
 		}
@@ -354,10 +339,8 @@ public class Player extends Object implements Constantes {
 	 * @return Returns true if a direction change is not necessary
 	 */
 	private boolean changeDirection(Animation.Direction direction) {
-		int x = getX();
-		int y = getY();
-		if (getEscenario().getCeldas()[x][y].getAnimation().getCurrentDirection() != direction) {
-			getEscenario().getCeldas()[x][y].getAnimation().setCurrentDirection(direction);
+		if (getAnimation().getCurrentDirection() != direction) {
+			getAnimation().setCurrentDirection(direction);
 			return false;
 		}
 		else {
@@ -373,27 +356,11 @@ public class Player extends Object implements Constantes {
 	private void getKey(Key key) {
 		gainHealth(1);
 		// Kill the loop in the thread
-		key.setActive(false);
+		key.getKey();
+		//key.setActive(false);
+		key.playGetKeySound();
 		// Add key to inventory
 		carrying.add(key);
-		// Stop the thread
-		try {
-			getEscenario().getCanvas().getThreads().get(key).join();
-		}
-		catch (InterruptedException e) {
-			logger.warning(e.getMessage());
-		}
-		// Play sound
-		Sound keySound = getEscenario().getSounds().get(Sound.SoundType.GET_KEY);
-		try {
-			if (keySound.isPlaying()) {
-				keySound.stop();
-			}
-			keySound.play();
-		}
-		catch (SoundException e) {
-			logger.warning(e.getMessage());
-		}
 	}
 
 	/**
@@ -402,24 +369,13 @@ public class Player extends Object implements Constantes {
 	private void interact() {
 		int x = getX();
 		int y = getY();
-		logger.info("Space bar pressed");
-		if (getEscenario().getCeldas()[x][y].getAnimation().getCurrentDirection() == Animation.Direction.UP) {
-			if (getEscenario().getCeldas()[x][y - 1].getType() == Celda.Type.CHEST) {
+		getLogger().info("Space bar pressed");
+		if (getAnimation().getCurrentDirection() == Animation.Direction.UP) {
+			if (getEscenario().getCeldas()[x][y - 1].getObject() instanceof Chest) {
 				if (hasKey()) {
-					logger.info("Player opened chest");
+					getLogger().info("Player opened chest");
 
-					Sound chestSound = getEscenario().getSounds().get(Sound.SoundType.OPEN_CHEST);
-					try {
-						if (chestSound.isPlaying()) {
-							chestSound.stop();
-						}
-						chestSound.play();
-					}
-					catch (SoundException e) {
-						logger.warning(e.getMessage());
-					}
-
-					gainHealth(1);
+					gainHealth(2);
 
 					int openedChests = 0;
 					for (Chest chest : getEscenario().getCanvas().getChests()) {
@@ -434,7 +390,7 @@ public class Player extends Object implements Constantes {
 						}
 					}
 
-					// All chests are opened, active portal
+					// All chests are opened, activate portal
 					if (openedChests == getEscenario().getCanvas().getChests().size()) {
 						getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 					}
@@ -458,27 +414,13 @@ public class Player extends Object implements Constantes {
 	}
 
 	/**
-	 * Check how many keys the player has
-	 *
-	 * @return Returns the number of key in the inventory
-	 */
-	public int keyCount() {
-		int i = 0;
-		for (Object object : carrying) {
-			if (object instanceof Key) {
-				i++;
-			}
-		}
-		return i;
-	}
-
-	/**
 	 * Removes a key from the player inventory
 	 */
 	private void useKey() {
 		for (Object object : carrying) {
 			if (object instanceof Key) {
-				logger.info("Used key");
+				getLogger().info("Used key");
+				((Key) object).setState(Key.State.USED);
 				carrying.remove(object);
 				return;
 			}
@@ -501,10 +443,10 @@ public class Player extends Object implements Constantes {
 	 */
 	public void loseHealth(int amount) {
 		if (health > 0) {
-			logger.info("Lose " + amount + " health");
+			getLogger().info("Lose " + amount + " health");
 			health = health - amount;
 			if (health < 0) {
-				logger.info("Player is dead");
+				getLogger().info("Player is dead");
 				health = 0;
 			}
 		}
@@ -517,7 +459,7 @@ public class Player extends Object implements Constantes {
 	 */
 	private void gainHealth(int amount) {
 		if (health < MAX_HEALTH) {
-			logger.info("Gain " + amount + " health");
+			getLogger().info("Gain " + amount + " health");
 			health = health + amount;
 			if (health > MAX_HEALTH) {
 				health = MAX_HEALTH;
@@ -536,7 +478,7 @@ public class Player extends Object implements Constantes {
 				Thread.sleep(5000);
 			}
 			catch (InterruptedException e) {
-				logger.info(e.getMessage());
+				getLogger().info(e.getMessage());
 			}
 			synchronized (this) {
 				loseHealth(1);

@@ -90,11 +90,7 @@ public interface Constantes {
 	/**
 	 * The amount of margin to the left and right of cells
 	 */
-	int LEFT_MARGIN = 40;
-	/**
-	 * The screen size
-	 */
-	Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+	int LEFT_MARGIN = 50;
 	/**
 	 * The amount of chests to draw
 	 */
@@ -142,7 +138,7 @@ public interface Constantes {
 	/**
 	 * Use pretty JSON if true
 	 */
-	boolean PRETTY_JSON = false;
+	boolean PRETTY_JSON = true;
 	/**
 	 * The normal font to use
 	 */
@@ -217,7 +213,6 @@ public interface Constantes {
 		SOUND(Level.WARNING),
 		ANIMATION(Level.WARNING),
 		SHEET(Level.WARNING),
-		CELDA(Level.WARNING),
 		KEY(Level.WARNING),
 		JSON(Level.WARNING),
 		PORTAL(Level.WARNING);

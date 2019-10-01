@@ -15,6 +15,8 @@
 
 package cl.cromer.azaraka;
 
+import cl.cromer.azaraka.object.Object;
+
 /**
  * This class is used to save locations of random cells for enemies, obstacles, chests, etc
  */
@@ -28,20 +30,20 @@ public class RandomPositionList {
 	 */
 	private int y;
 	/**
-	 * The type
+	 * The object
 	 */
-	private Celda.Type type;
+	private Object object;
 
 	/**
 	 * Initialize the position and type of the list
 	 * @param x The x position
 	 * @param y The y position
-	 * @param type The type
+	 * @param object The object
 	 */
-	public RandomPositionList(int x, int y, Celda.Type type) {
+	public RandomPositionList(int x, int y, Object object) {
 		this.x = x;
 		this.y = y;
-		this.type = type;
+		this.object = object;
 	}
 
 	/**
@@ -65,8 +67,8 @@ public class RandomPositionList {
 	 * Get the type of object that will be stored at the cell position
 	 * @return Returns the cell type
 	 */
-	public Celda.Type getType() {
-		return type;
+	public Object getObject() {
+		return object;
 	}
 
 	/**
@@ -75,7 +77,7 @@ public class RandomPositionList {
 	 * @return Returns true if they are the same
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(java.lang.Object o) {
 		if (this == o) {
 			return true;
 		}

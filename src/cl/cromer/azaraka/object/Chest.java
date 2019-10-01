@@ -18,9 +18,12 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.sound.Sound;
+import cl.cromer.azaraka.sound.SoundException;
+import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
-
-import java.util.logging.Logger;
+import cl.cromer.azaraka.sprite.Sheet;
+import cl.cromer.azaraka.sprite.SheetException;
 
 /**
  * This class handles the chests
@@ -31,9 +34,9 @@ public class Chest extends Object implements Constantes {
 	 */
 	private State state = State.CLOSED;
 	/**
-	 * The logger
+	 * The open chest sound
 	 */
-	private Logger logger;
+	private Sound sound;
 
 	/**
 	 * Initialize the chest
@@ -42,7 +45,41 @@ public class Chest extends Object implements Constantes {
 	 */
 	public Chest(Escenario escenario, Celda celda) {
 		super(escenario, celda);
-		logger = getLogger(this.getClass(), LogLevel.CHEST);
+		setLogger(getLogger(this.getClass(), LogLevel.CHEST));
+
+		loadChestAnimation();
+		loadChestOpenSound();
+	}
+
+	/**
+	 * Load the chest open sound
+	 */
+	private void loadChestOpenSound() {
+		try {
+			sound = new Sound("/snd/OpenChest.wav");
+		}
+		catch (SoundException e) {
+			getLogger().warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * Load the chest animation
+	 */
+	private void loadChestAnimation() {
+		Sheet chestSheet = new Sheet("/img/chest/chests.png", 54, 63);
+		try {
+			Animation animation = new Animation();
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(54));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(66));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(78));
+			animation.addImage(Animation.Direction.NONE, chestSheet.getTexture(80));
+			animation.setYOffset(0);
+			setAnimation(animation);
+		}
+		catch (SheetException e) {
+			getLogger().warning(e.getMessage());
+		}
 	}
 
 	/**
@@ -55,6 +92,19 @@ public class Chest extends Object implements Constantes {
 	}
 
 	/**
+	 * Play the chest opening sound
+	 */
+	private void playChestOpenSound() {
+		try {
+			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.play();
+		}
+		catch (SoundException e) {
+			getLogger().warning(e.getMessage());
+		}
+	}
+
+	/**
 	 * Sets the state of the chest
 	 *
 	 * @param state The new state of the chest
@@ -62,18 +112,19 @@ public class Chest extends Object implements Constantes {
 	public void setState(State state) {
 		this.state = state;
 		if (state == State.OPENING) {
-			logger.info("Chest is opening");
+			getLogger().info("Chest is opening");
+			playChestOpenSound();
 		}
 		else if (state == State.OPENED) {
-			logger.info("Chest is opened");
+			getLogger().info("Chest is opened");
 		}
 		else if (state == State.CLOSED) {
-			logger.info("Chest is closed");
+			getLogger().info("Chest is closed");
 			try {
-				getCelda().getAnimation().setCurrentFrame(0);
+				getAnimation().setCurrentFrame(0);
 			}
 			catch (AnimationException e) {
-				logger.warning(e.getMessage());
+				getLogger().warning(e.getMessage());
 			}
 			getEscenario().getCanvas().repaint();
 		}
@@ -84,13 +135,13 @@ public class Chest extends Object implements Constantes {
 	 */
 	private void animate() {
 		try {
-			getCelda().getAnimation().getNextFrame();
-			if (getCelda().getAnimation().getCurrentFrame() == getCelda().getAnimation().getFrameCount() - 1) {
+			getAnimation().getNextFrame();
+			if (getAnimation().getCurrentFrame() == getAnimation().getFrameCount() - 1) {
 				setState(State.OPENED);
 			}
 		}
 		catch (AnimationException e) {
-			logger.warning(e.getMessage());
+			getLogger().warning(e.getMessage());
 		}
 	}
 
@@ -105,7 +156,7 @@ public class Chest extends Object implements Constantes {
 				Thread.sleep(200);
 			}
 			catch (InterruptedException e) {
-				logger.info(e.getMessage());
+				getLogger().info(e.getMessage());
 			}
 			synchronized (this) {
 				if (state == State.OPENING) {

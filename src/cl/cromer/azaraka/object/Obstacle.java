@@ -13,33 +13,22 @@
  *
  */
 
-package cl.cromer.azaraka.sprite;
+package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Constantes;
-
-import java.util.HashMap;
-import java.util.logging.Logger;
+import cl.cromer.azaraka.Celda;
+import cl.cromer.azaraka.Escenario;
 
 /**
- * This class is used to copy the sprite into a new sprite object so that the sprite doesn't get passed by reference
- * This is important because 2 cells share the same sprite, but not the same frame of animation
+ * This class handles the obstacles
  */
-public class AnimationMap extends HashMap<Animation.SpriteType, Animation> implements Constantes {
+public class Obstacle extends Object {
 	/**
-	 * Clone the sprite object when returning
+	 * Initialize the obstacle
 	 *
-	 * @param key The key used to get the object
-	 * @return Return the clone of the sprite
+	 * @param escenario The scene the object is in
+	 * @param celda     The cell the object is in
 	 */
-	@Override
-	public Animation get(Object key) {
-		try {
-			return (Animation) super.get(key).clone();
-		}
-		catch (CloneNotSupportedException e) {
-			Logger logger = getLogger(this.getClass(), LogLevel.ANIMATION);
-			logger.warning(e.getMessage());
-		}
-		return null;
+	public Obstacle(Escenario escenario, Celda celda) {
+		super(escenario, celda);
 	}
 }

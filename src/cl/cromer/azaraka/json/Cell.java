@@ -15,8 +15,6 @@
 
 package cl.cromer.azaraka.json;
 
-import cl.cromer.azaraka.Celda;
-
 import java.util.ArrayList;
 
 /**
@@ -26,7 +24,7 @@ public class Cell {
 	/**
 	 * The type of cell, e.g. player, chest, enemy, etc
 	 */
-	public Celda.Type type;
+	public String type;
 	/**
 	 * A list of the textures to apply to the cell
 	 */
