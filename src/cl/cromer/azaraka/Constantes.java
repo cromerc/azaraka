@@ -90,7 +90,7 @@ public interface Constantes {
 	/**
 	 * The amount of margin to the left and right of cells
 	 */
-	int LEFT_MARGIN = 50;
+	int LEFT_MARGIN = 40;
 	/**
 	 * The amount of chests to draw
 	 */
@@ -126,7 +126,7 @@ public interface Constantes {
 	/**
 	 * The default volume
 	 */
-	int DEFAULT_VOLUME = 100;
+	int DEFAULT_VOLUME = 0;
 	/**
 	 * Generates the scene manually instead of from the JSON file if true
 	 */

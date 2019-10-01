@@ -131,12 +131,6 @@ public class Lienzo extends Canvas implements Constantes {
 			logger.warning(e.getMessage());
 		}
 
-		// Load the hearts
-		heartAnimation = new Animation();
-		for (int i = 0; i < 5; i++) {
-			heartAnimation.addImage(Animation.Direction.NONE, "/img/heart/heart" + i + ".png");
-		}
-
 		// Load the game over
 		gameOverAnimation = new Animation();
 		gameOverAnimation.addImage(Animation.Direction.NONE, "/img/gameover/gameover.png");
@@ -247,25 +241,16 @@ public class Lienzo extends Canvas implements Constantes {
 			gameOver = true;
 		}
 		int hearts = Player.MAX_HEALTH / 4;
+		if (heartAnimation == null) {
+			heartAnimation = new Animation();
+			for (int i = 0; i < 5; i++) {
+				heartAnimation.addImage(Animation.Direction.NONE, "/img/heart/heart" + i + ".png");
+			}
+		}
 		for (int i = 0; i < hearts; i++) {
-			if (health >= 4) {
-				try {
-					heartAnimation.setCurrentFrame(4);
-				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-			}
-			else {
-				try {
-					heartAnimation.setCurrentFrame(health);
-				}
-				catch (AnimationException e) {
-					logger.warning(e.getMessage());
-				}
-			}
 			try {
-				int x = ((HORIZONTAL_CELLS) * CELL_PIXELS) + LEFT_MARGIN - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
+				heartAnimation.setCurrentFrame(Math.min(health, 4));
+				int x = (HORIZONTAL_CELLS * CELL_PIXELS) + LEFT_MARGIN - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
 				graphicBuffer.drawImage(heartAnimation.getFrame(), x, 8, null);
 			}
 			catch (AnimationException e) {
@@ -312,7 +297,6 @@ public class Lienzo extends Canvas implements Constantes {
 			escenario.paintComponent(graphicBuffer);
 		}
 
-		g.drawImage(imageBuffer, 0, 0, null);
 		if (!gameStarted) {
 			gameStarted = true;
 			try {
@@ -326,6 +310,8 @@ public class Lienzo extends Canvas implements Constantes {
 				logger.warning(e.getMessage());
 			}
 		}
+
+		g.drawImage(imageBuffer, 0, 0, null);
 	}
 
 	/**

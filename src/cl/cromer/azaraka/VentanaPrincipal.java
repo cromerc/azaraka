@@ -39,6 +39,7 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 		logger.info("Create panels");
 
 		setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
 		setTitle(TITLE);
 		String icon = "/img/icon.png";
