@@ -126,7 +126,7 @@ public interface Constantes {
 	/**
 	 * The default volume
 	 */
-	int DEFAULT_VOLUME = 0;
+	int DEFAULT_VOLUME = 100;
 	/**
 	 * Generates the scene manually instead of from the JSON file if true
 	 */

@@ -30,8 +30,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 /**
@@ -139,6 +137,51 @@ public class Lienzo extends Canvas implements Constantes {
 		setBackground(Color.black);
 		setSize(escenario.width, escenario.height);
 
+		Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
+
+		ArrayList<Object> objectList = escenario.generateRandomObjects();
+		for (Object object : objectList) {
+			object.getCelda().setObject(object);
+			if (object instanceof Player) {
+				player = (Player) object;
+				threads.put(object, new Thread(object));
+			}
+			else if (object instanceof Enemy) {
+				((Enemy) object).setDirection(enemyDirection);
+				if (enemyDirection == Enemy.Direction.UP) {
+					enemyDirection = Enemy.Direction.DOWN;
+				}
+				else if (enemyDirection == Enemy.Direction.DOWN) {
+					enemyDirection = Enemy.Direction.LEFT;
+				}
+				else if (enemyDirection == Enemy.Direction.LEFT) {
+					enemyDirection = Enemy.Direction.RIGHT;
+				}
+				else {
+					enemyDirection = Enemy.Direction.UP;
+				}
+				enemies.add((Enemy) object);
+				threads.put(object, new Thread(object));
+			}
+			else if (object instanceof Chest) {
+				chests.add((Chest) object);
+				threads.put(object, new Thread(object));
+			}
+			else if (object instanceof Key) {
+				keys.add((Key) object);
+				threads.put(object, new Thread(object));
+			}
+			else if (object instanceof Portal) {
+				portal = (Portal) object;
+				threads.put(object, new Thread(object));
+			}
+		}
+
+		for (Map.Entry<Object, Thread> entry : threads.entrySet()) {
+			Thread thread = entry.getValue();
+			thread.start();
+		}
+
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent event) {
@@ -149,56 +192,6 @@ public class Lienzo extends Canvas implements Constantes {
 				}
 			}
 		});
-
-		player = new Player(escenario, escenario.getPlayer());
-		escenario.getPlayer().setObject(player);
-		threads.put(player, new Thread(player));
-
-		final Lock lock = new ReentrantLock(true);
-
-		Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
-		for (Celda celda : escenario.getEnemies()) {
-			Enemy enemy = new Enemy(escenario, celda, lock);
-			celda.setObject(enemy);
-			enemy.setDirection(enemyDirection);
-			if (enemyDirection == Enemy.Direction.UP) {
-				enemyDirection = Enemy.Direction.DOWN;
-			}
-			else if (enemyDirection == Enemy.Direction.DOWN) {
-				enemyDirection = Enemy.Direction.LEFT;
-			}
-			else if (enemyDirection == Enemy.Direction.LEFT) {
-				enemyDirection = Enemy.Direction.RIGHT;
-			}
-			else {
-				enemyDirection = Enemy.Direction.UP;
-			}
-			enemies.add(enemy);
-			threads.put(enemy, new Thread(enemy));
-		}
-
-		for (Celda celda : escenario.getKeys()) {
-			Key key = new Key(escenario, celda);
-			celda.setObject(key);
-			keys.add(key);
-			threads.put(key, new Thread(key));
-		}
-
-		for (Celda celda : escenario.getChests()) {
-			Chest chest = new Chest(escenario, celda);
-			celda.setObject(chest);
-			chests.add(chest);
-			threads.put(chest, new Thread(chest));
-		}
-
-		portal = new Portal(escenario, escenario.getPortal());
-		escenario.getPortal().setObject(portal);
-		threads.put(portal, new Thread(portal));
-
-		for (Map.Entry<Object, Thread> entry : threads.entrySet()) {
-			Thread thread = entry.getValue();
-			thread.start();
-		}
 	}
 
 	/**
@@ -226,40 +219,39 @@ public class Lienzo extends Canvas implements Constantes {
 		graphicBuffer.fillRect(0, 0, this.getWidth(), this.getHeight());
 
 		int xKey = LEFT_MARGIN;
-		for (int i = 0; i < keys.size(); i++) {
-			Key key = keys.get(i);
+		for (Key key : keys) {
 			if (key.getState() == Key.State.HELD) {
-				// Set a still frame of the key
-				//key.setAnimationFrame(4);
 				key.drawAnimation(graphicBuffer, xKey, 8);
-				xKey = xKey + ((key.getAnimationWidth() + 5) * (i + 1));
+				xKey = xKey + 3 + (key.getAnimationWidth());
 			}
 		}
 
-		int health = player.getHealth();
-		if (health == 0) {
-			gameOver = true;
-		}
-		int hearts = Player.MAX_HEALTH / 4;
-		if (heartAnimation == null) {
-			heartAnimation = new Animation();
-			for (int i = 0; i < 5; i++) {
-				heartAnimation.addImage(Animation.Direction.NONE, "/img/heart/heart" + i + ".png");
+		if (player != null) {
+			int health = player.getHealth();
+			if (health == 0) {
+				gameOver = true;
 			}
-		}
-		for (int i = 0; i < hearts; i++) {
-			try {
-				heartAnimation.setCurrentFrame(Math.min(health, 4));
-				int x = (HORIZONTAL_CELLS * CELL_PIXELS) + LEFT_MARGIN - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
-				graphicBuffer.drawImage(heartAnimation.getFrame(), x, 8, null);
+			int hearts = Player.MAX_HEALTH / 4;
+			if (heartAnimation == null) {
+				heartAnimation = new Animation();
+				for (int i = 0; i < 5; i++) {
+					heartAnimation.addImage(Animation.Direction.NONE, "/img/heart/heart" + i + ".png");
+				}
 			}
-			catch (AnimationException e) {
-				logger.warning(e.getMessage());
-			}
-			if (health > 0) {
-				health = health - 4;
-				if (health < 0) {
-					health = 0;
+			for (int i = 0; i < hearts; i++) {
+				try {
+					heartAnimation.setCurrentFrame(Math.min(health, 4));
+					int x = (HORIZONTAL_CELLS * CELL_PIXELS) + LEFT_MARGIN - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
+					graphicBuffer.drawImage(heartAnimation.getFrame(), x, 8, null);
+				}
+				catch (AnimationException e) {
+					logger.warning(e.getMessage());
+				}
+				if (health > 0) {
+					health = health - 4;
+					if (health < 0) {
+						health = 0;
+					}
 				}
 			}
 		}
@@ -441,14 +433,5 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	public ArrayList<Chest> getChests() {
 		return chests;
-	}
-
-	/**
-	 * Get the threads that have been created
-	 *
-	 * @return Returns the threads that run in the background
-	 */
-	public HashMap<Object, Thread> getThreads() {
-		return threads;
 	}
 }

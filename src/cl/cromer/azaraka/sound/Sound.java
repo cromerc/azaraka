@@ -53,33 +53,19 @@ public class Sound implements Constantes {
 		if (inputStream == null) {
 			throw new SoundException("Could not load sound: " + path);
 		}
-		AudioInputStream audioInputStream = null;
 		try {
-			audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(inputStream));
-		}
-		catch (UnsupportedAudioFileException | IOException e) {
-			logger.warning(e.getMessage());
-		}
-		try {
-			DataLine.Info info = null;
-			if (audioInputStream != null) {
-				info = new DataLine.Info(Clip.class, audioInputStream.getFormat());
-			}
+			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(inputStream));
+			DataLine.Info info = new DataLine.Info(Clip.class, audioInputStream.getFormat());
 			sound = (Clip) AudioSystem.getLine(info);
+			sound.open(audioInputStream);
+			audioInputStream.close();
 		}
-		catch (LineUnavailableException e) {
+		catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 			logger.warning(e.getMessage());
 		}
-		try {
-			if (audioInputStream != null) {
-				sound.open(audioInputStream);
-				sound.stop();
-			}
+		finally {
+			sound.stop();
 		}
-		catch (LineUnavailableException | IOException e) {
-			logger.warning(e.getMessage());
-		}
-
 		logger.info("Opened sound: " + path);
 	}
 

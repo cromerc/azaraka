@@ -176,6 +176,15 @@ public class Key extends Object implements Constantes {
 				getEscenario().getCanvas().repaint();
 			}
 		}
+		// The thread was killed, set the animation to frame 4
+		try {
+			if (getAnimation().getCurrentFrame() != 4) {
+				getAnimation().setCurrentFrame(4);
+			}
+		}
+		catch (AnimationException e) {
+			getLogger().warning(e.getMessage());
+		}
 	}
 
 	/**

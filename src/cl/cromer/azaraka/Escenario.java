@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 /**
@@ -53,26 +55,6 @@ public class Escenario extends JComponent implements Constantes {
 	 * The cells of the game
 	 */
 	private Celda[][] celdas;
-	/**
-	 * The cell that contains the player
-	 */
-	private Celda player;
-	/**
-	 * The magic portal
-	 */
-	private Celda portal;
-	/**
-	 * The enemies
-	 */
-	private ArrayList<Celda> enemies = new ArrayList<>();
-	/**
-	 * The chests
-	 */
-	private ArrayList<Celda> chests = new ArrayList<>();
-	/**
-	 * The keys
-	 */
-	private ArrayList<Celda> keys = new ArrayList<>();
 	/**
 	 * A collection of tiles that can be used in the scene
 	 */
@@ -122,8 +104,6 @@ public class Escenario extends JComponent implements Constantes {
 			Json json = new Json();
 			json.exportScene(celdas);
 		}
-
-		generateRandomObjects();
 	}
 
 	/**
@@ -142,7 +122,6 @@ public class Escenario extends JComponent implements Constantes {
 
 				if (cells[x][y].type.equals(Player.class.getName())) {
 					celdas[x][y].setObject(new Player(null, celdas[x][y]));
-					player = celdas[x][y];
 				}
 				else if (cells[x][y].type.equals(Enemy.class.getName())) {
 					celdas[x][y].setObject(new Enemy(null, celdas[x][y], null));
@@ -177,91 +156,83 @@ public class Escenario extends JComponent implements Constantes {
 
 	/**
 	 * Generate random objects in the scene
+	 *
+	 * @return Returns a list of objects that where generated
 	 */
-	private void generateRandomObjects() {
+	public ArrayList<Object> generateRandomObjects() {
 		final int cells = (HORIZONTAL_CELLS * VERTICAL_CELLS);
 		final int obstacles = (int) Math.floor((double) cells * 0.05);
 
-		int random_x;
-		int random_y;
-		ArrayList<RandomPositionList> arrayList = new ArrayList<>();
+		int[] random;
+		ArrayList<Object> objectArrayList = new ArrayList<>();
+
+		// The player has a fixed position
+		celdas[2][1].setObject(new Player(this, celdas[2][1]));
+		objectArrayList.add(celdas[2][1].getObject());
+
+		final Lock lock = new ReentrantLock(true);
+
+		for (int i = 0; i < obstacles; i++) {
+			random = randomCoordinates();
+			celdas[random[0]][random[1]].setObject(new Obstacle(this, celdas[random[0]][random[1]]));
+			try {
+				celdas[random[0]][random[1]].addTexture(textureSheet.getTexture(30), 30);
+			}
+			catch (SheetException e) {
+				logger.warning(e.getMessage());
+			}
+		}
 
 		for (int i = 0; i < ENEMIES; i++) {
-			random_x = random(0, HORIZONTAL_CELLS - 1);
-			random_y = random(0, VERTICAL_CELLS - 1);
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Enemy(null, celdas[random_x][random_y], null))) || celdas[random_x][random_y].getObject() != null) {
-				random_x = random(0, HORIZONTAL_CELLS - 1);
-				random_y = random(0, VERTICAL_CELLS - 1);
-			}
-			arrayList.add(new RandomPositionList(random_x, random_y, new Enemy(null, celdas[random_x][random_y], null)));
-		}
-		for (int i = 0; i < obstacles; i++) {
-			random_x = random(0, HORIZONTAL_CELLS - 1);
-			random_y = random(0, VERTICAL_CELLS - 1);
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Obstacle(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null) {
-				random_x = random(0, HORIZONTAL_CELLS - 1);
-				random_y = random(0, VERTICAL_CELLS - 1);
-			}
-			arrayList.add(new RandomPositionList(random_x, random_y, new Obstacle(null, celdas[random_x][random_y])));
+			random = randomCoordinates();
+			celdas[random[0]][random[1]].setObject(new Enemy(this, celdas[random[0]][random[1]], lock));
+			objectArrayList.add(celdas[random[0]][random[1]].getObject());
 		}
 
-		random_x = random(0, HORIZONTAL_CELLS - 1);
-		random_y = random(0, VERTICAL_CELLS - 1);
-		while (arrayList.contains(new RandomPositionList(random_x, random_y, new Portal(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null) {
-			random_x = random(0, HORIZONTAL_CELLS - 1);
-			random_y = random(0, VERTICAL_CELLS - 1);
-		}
-		arrayList.add(new RandomPositionList(random_x, random_y, new Portal(null, celdas[random_x][random_y])));
+		random = randomCoordinates();
+		celdas[random[0]][random[1]].setObject(new Portal(this, celdas[random[0]][random[1]]));
+		objectArrayList.add(celdas[random[0]][random[1]].getObject());
 
 		// Generate enough keys for the chests that will exist
 		for (int i = 0; i < CHESTS; i++) {
-			random_x = random(0, HORIZONTAL_CELLS - 1);
-			random_y = random(0, VERTICAL_CELLS - 1);
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Key(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null) {
-				random_x = random(0, HORIZONTAL_CELLS - 1);
-				random_y = random(0, VERTICAL_CELLS - 1);
-			}
-			arrayList.add(new RandomPositionList(random_x, random_y, new Key(null, celdas[random_x][random_y])));
+			random = randomCoordinates();
+			celdas[random[0]][random[1]].setObject(new Key(this, celdas[random[0]][random[1]]));
+			objectArrayList.add(celdas[random[0]][random[1]].getObject());
 		}
 
 		// Chests need to be last to make sure they are openable
 		for (int i = 0; i < CHESTS; i++) {
-			random_x = random(0, HORIZONTAL_CELLS - 1);
-			random_y = random(0, VERTICAL_CELLS - 1);
+			int random_x = random(0, HORIZONTAL_CELLS - 1);
+			int random_y = random(0, VERTICAL_CELLS - 1);
 			// Don't put a chest if it can't be opened
-			while (arrayList.contains(new RandomPositionList(random_x, random_y, new Chest(null, celdas[random_x][random_y]))) || arrayList.contains(new RandomPositionList(random_x, random_y + 1, new Chest(null, celdas[random_x][random_y]))) || celdas[random_x][random_y].getObject() != null || celdas[random_x][random_y + 1].getObject() != null || celdas[random_x][random_y - 1].getObject() != null) {
+			while (random_y + 1 == VERTICAL_CELLS ||
+					celdas[random_x][random_y].getObject() != null ||
+					celdas[random_x][random_y + 1].getObject() != null ||
+					celdas[random_x][random_y - 1].getObject() != null) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
 			}
-			arrayList.add(new RandomPositionList(random_x, random_y, new Chest(null, celdas[random_x][random_y])));
+			celdas[random_x][random_y].setObject(new Chest(this, celdas[random_x][random_y]));
+			objectArrayList.add(celdas[random_x][random_y].getObject());
 		}
 
-		for (RandomPositionList randomList : arrayList) {
-			int x = randomList.getX();
-			int y = randomList.getY();
-			Object object = randomList.getObject();
-			celdas[x][y].setObject(object);
-			if (object instanceof Enemy) {
-				enemies.add(celdas[x][y]);
-			}
-			else if (object instanceof Chest) {
-				chests.add(celdas[x][y]);
-			}
-			else if (object instanceof Key) {
-				keys.add(celdas[x][y]);
-			}
-			else if (object instanceof Portal) {
-				portal = celdas[x][y];
-			}
-			else if (object instanceof Obstacle) {
-				try {
-					celdas[x][y].addTexture(textureSheet.getTexture(30), 30);
-				}
-				catch (SheetException e) {
-					logger.warning(e.getMessage());
-				}
-			}
+		return objectArrayList;
+	}
+
+	/**
+	 * Get random x and y coordinates
+	 *
+	 * @return Returns an array with the coordinates
+	 */
+	private int[] randomCoordinates() {
+		int[] random = new int[2];
+		random[0] = random(0, HORIZONTAL_CELLS - 1);
+		random[1] = random(0, VERTICAL_CELLS - 1);
+		while (celdas[random[0]][random[1]].getObject() != null) {
+			random[0] = random(0, HORIZONTAL_CELLS - 1);
+			random[1] = random(0, VERTICAL_CELLS - 1);
 		}
+		return random;
 	}
 
 	/**
@@ -281,7 +252,7 @@ public class Escenario extends JComponent implements Constantes {
 
 				if (x == 0 && y == 0) {
 					// Top left corner
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(33), 33);
 					}
@@ -291,7 +262,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1 && y == 0) {
 					// Top right corner
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(37), 37);
 					}
@@ -301,7 +272,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == 0 && y == VERTICAL_CELLS - 1) {
 					// Bottom left corner
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(97), 97);
 					}
@@ -311,7 +282,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1 && y == VERTICAL_CELLS - 1) {
 					// Bottom right corner
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					try {
 						celdas[x][y].addTexture(textureSheet.getTexture(101), 101);
 					}
@@ -321,7 +292,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (y == 0) {
 					// Top wall
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					if (x == 1) {
 						// Left door frame
 						try {
@@ -380,7 +351,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == 0) {
 					// Left wall
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					if (y % 2 == 0) {
 						try {
 							celdas[x][y].addTexture(textureSheet.getTexture(49), 49);
@@ -401,7 +372,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1) {
 					// Right wall
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					if (y % 2 == 0) {
 						try {
 							celdas[x][y].addTexture(textureSheet.getTexture(53), 53);
@@ -422,7 +393,7 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (y == VERTICAL_CELLS - 1) {
 					// Bottom wall
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
 					if (x % 2 == 0) {
 						try {
 							celdas[x][y].addTexture(textureSheet.getTexture(98), 98);
@@ -443,10 +414,9 @@ public class Escenario extends JComponent implements Constantes {
 				}
 
 				// The player starts at the door
-				if (x == 2 && y == 1) {
-					celdas[x][y].setObject(new Player(null, celdas[x][y]));
-					player = celdas[x][y];
-				}
+				/*if (x == 2 && y == 1) {
+					celdas[x][y].setObject(new Player(this, celdas[x][y]));
+				}*/
 			}
 		}
 	}
@@ -489,51 +459,6 @@ public class Escenario extends JComponent implements Constantes {
 				celdas[i][j].paintComponent(g);
 			}
 		}
-	}
-
-	/**
-	 * Get the player cell
-	 *
-	 * @return Returns a cell that contains the player
-	 */
-	public Celda getPlayer() {
-		return player;
-	}
-
-	/**
-	 * Get the portal
-	 *
-	 * @return Returns the cell contain the portal
-	 */
-	public Celda getPortal() {
-		return portal;
-	}
-
-	/**
-	 * Get the enemies
-	 *
-	 * @return Returns an array list containing the enemies
-	 */
-	public ArrayList<Celda> getEnemies() {
-		return enemies;
-	}
-
-	/**
-	 * Get the chests
-	 *
-	 * @return Returns an array list containing the chests
-	 */
-	public ArrayList<Celda> getChests() {
-		return chests;
-	}
-
-	/**
-	 * Get the keys
-	 *
-	 * @return Returns an array list containing the keys
-	 */
-	public ArrayList<Celda> getKeys() {
-		return keys;
 	}
 
 	/**
