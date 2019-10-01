@@ -50,6 +50,7 @@ class PlayerTest {
 	@BeforeEach
 	void setUp() {
 		lienzo = new Lienzo();
+		lienzo.changeVolume(0);
 		escenario = new Escenario(lienzo);
 		player = new Player(escenario, escenario.getPlayer());
 	}
