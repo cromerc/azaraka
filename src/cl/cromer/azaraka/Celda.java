@@ -29,27 +29,27 @@ public class Celda extends JComponent implements Constantes {
 	/**
 	 * The x graphical coordinate of the cell
 	 */
-	private int xPixels;
+	private final int xPixels;
 	/**
 	 * The y graphical coordinate of the cell
 	 */
-	private int yPixels;
+	private final int yPixels;
 	/**
 	 * The x coordinate of the cell
 	 */
-	private int x;
+	private final int x;
 	/**
 	 * The y coordinate of the cell
 	 */
-	private int y;
+	private final int y;
 	/**
 	 * The textures to show in this cell
 	 */
-	private ArrayList<BufferedImage> textures = new ArrayList<>();
+	private final ArrayList<BufferedImage> textures = new ArrayList<>();
 	/**
 	 * The texture numbers
 	 */
-	private ArrayList<Integer> textureNumbers = new ArrayList<>();
+	private final ArrayList<Integer> textureNumbers = new ArrayList<>();
 	/**
 	 * The object in the cell
 	 */

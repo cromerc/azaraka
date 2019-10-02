@@ -29,12 +29,11 @@ public class Config extends JPanel implements Constantes {
 	/**
 	 * The game panel to modify with the new configuration
 	 */
-	private Game gamePanel;
-
+	private final Game gamePanel;
 	/**
 	 * The logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 
 	/**
 	 * The game panel used to modify with the new config

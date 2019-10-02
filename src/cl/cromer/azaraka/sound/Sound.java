@@ -34,11 +34,11 @@ public class Sound implements Constantes {
 	/**
 	 * The path to the sound
 	 */
-	private String path;
+	private final String path;
 	/**
 	 * The logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 
 	/**
 	 * Load the sound

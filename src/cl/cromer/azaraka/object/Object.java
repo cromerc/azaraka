@@ -40,7 +40,7 @@ public class Object implements Runnable {
 	/**
 	 * The scene the object is in
 	 */
-	private Escenario escenario;
+	private final Escenario escenario;
 	/**
 	 * The cell the object is in
 	 */
@@ -68,7 +68,7 @@ public class Object implements Runnable {
 	 * @param escenario The scene the object is in
 	 * @param celda     The cell the object is in
 	 */
-	public Object(Escenario escenario, Celda celda) {
+	protected Object(Escenario escenario, Celda celda) {
 		this.escenario = escenario;
 		this.celda = celda;
 		this.x = celda.getX();
@@ -80,7 +80,7 @@ public class Object implements Runnable {
 	 *
 	 * @return Returns the x coordinate
 	 */
-	public int getX() {
+	protected int getX() {
 		return x;
 	}
 
@@ -89,7 +89,7 @@ public class Object implements Runnable {
 	 *
 	 * @param x The new x coordinate
 	 */
-	public void setX(int x) {
+	protected void setX(int x) {
 		this.x = x;
 	}
 
@@ -98,7 +98,7 @@ public class Object implements Runnable {
 	 *
 	 * @return Returns the y coordinate
 	 */
-	public int getY() {
+	protected int getY() {
 		return y;
 	}
 
@@ -107,7 +107,7 @@ public class Object implements Runnable {
 	 *
 	 * @param y The new y coordinate
 	 */
-	public void setY(int y) {
+	protected void setY(int y) {
 		this.y = y;
 	}
 
@@ -116,7 +116,7 @@ public class Object implements Runnable {
 	 *
 	 * @return Returns the scene
 	 */
-	public Escenario getEscenario() {
+	protected Escenario getEscenario() {
 		return escenario;
 	}
 
@@ -134,7 +134,7 @@ public class Object implements Runnable {
 	 *
 	 * @return Returns an animation
 	 */
-	public Animation getAnimation() {
+	protected Animation getAnimation() {
 		return animation;
 	}
 
@@ -143,7 +143,7 @@ public class Object implements Runnable {
 	 *
 	 * @param animation The new animation
 	 */
-	public void setAnimation(Animation animation) {
+	protected void setAnimation(Animation animation) {
 		this.animation = animation;
 	}
 
@@ -152,7 +152,7 @@ public class Object implements Runnable {
 	 *
 	 * @param useOffset If true the animation will use an offset to help center it
 	 */
-	public void setUseOffset(boolean useOffset) {
+	protected void setUseOffset(boolean useOffset) {
 		this.useOffset = useOffset;
 	}
 
@@ -162,7 +162,7 @@ public class Object implements Runnable {
 	 * @param path      The path to the image
 	 * @param character The character number
 	 */
-	public void loadCharacter(String path, int character) {
+	protected void loadCharacter(String path, int character) {
 		Sheet characterSheet = new Sheet(path, 54, 39);
 		try {
 			Animation animation = new Animation();
@@ -217,7 +217,7 @@ public class Object implements Runnable {
 	 *
 	 * @param celda The cell
 	 */
-	public void setCelda(Celda celda) {
+	protected void setCelda(Celda celda) {
 		this.celda = celda;
 	}
 
@@ -226,7 +226,7 @@ public class Object implements Runnable {
 	 *
 	 * @return Returns a logger
 	 */
-	public Logger getLogger() {
+	protected Logger getLogger() {
 		return logger;
 	}
 
@@ -235,7 +235,7 @@ public class Object implements Runnable {
 	 *
 	 * @param logger The logger to set
 	 */
-	public void setLogger(Logger logger) {
+	protected void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 
@@ -244,7 +244,7 @@ public class Object implements Runnable {
 	 *
 	 * @return Returns true if the object is active or false otherwise
 	 */
-	public boolean getActive() {
+	protected boolean getActive() {
 		return active;
 	}
 

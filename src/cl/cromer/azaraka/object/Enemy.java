@@ -41,7 +41,7 @@ public class Enemy extends Object implements Constantes {
 	/**
 	 * The lock helps prevent race conditions when checking positioning
 	 */
-	private Lock lock;
+	private final Lock lock;
 	/**
 	 * The enemy attack sound
 	 */

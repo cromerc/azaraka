@@ -39,7 +39,7 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * The game scene
 	 */
-	private Escenario escenario;
+	private final Escenario escenario;
 	/**
 	 * The graphics buffer
 	 */
@@ -51,7 +51,7 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * The threads for the objects
 	 */
-	private HashMap<Object, Thread> threads = new HashMap<>();
+	private final HashMap<Object, Thread> threads = new HashMap<>();
 	/**
 	 * The player
 	 */
@@ -59,15 +59,15 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * The enemies
 	 */
-	private ArrayList<Enemy> enemies = new ArrayList<>();
+	private final ArrayList<Enemy> enemies = new ArrayList<>();
 	/**
 	 * The keys
 	 */
-	private ArrayList<Key> keys = new ArrayList<>();
+	private final ArrayList<Key> keys = new ArrayList<>();
 	/**
 	 * The chests
 	 */
-	private ArrayList<Chest> chests = new ArrayList<>();
+	private final ArrayList<Chest> chests = new ArrayList<>();
 	/**
 	 * The magic portal
 	 */
@@ -75,11 +75,11 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * The logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 	/**
 	 * The game over animation
 	 */
-	private Animation gameOverAnimation;
+	private final Animation gameOverAnimation;
 	/**
 	 * The hearts animation
 	 */

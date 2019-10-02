@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * This class handles loading the images and subimages
+ * This class handles loading the images and sub-images
  */
 public class Sheet implements Constantes {
 	/**
 	 * A list of all the textures in the collection
 	 */
-	private ArrayList<BufferedImage> images;
+	private final ArrayList<BufferedImage> images;
 
 	/**
 	 * Initialize the texture collection

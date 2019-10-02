@@ -50,13 +50,4 @@ public class Gem extends Object {
 	public Gem(Escenario escenario, Celda celda) {
 		super(escenario, celda);
 	}
-
-	/**
-	 * `
-	 * This method is run when the thread starts
-	 */
-	@Override
-	public void run() {
-		super.run();
-	}
 }

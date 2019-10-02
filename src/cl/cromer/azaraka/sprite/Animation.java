@@ -48,11 +48,11 @@ public class Animation implements Cloneable, Constantes {
 	/**
 	 * The collection of all the images that make up the object
 	 */
-	private HashMap<Direction, ArrayList<BufferedImage>> imageHash;
+	private final HashMap<Direction, ArrayList<BufferedImage>> imageHash;
 	/**
 	 * The logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 
 	/**
 	 * Initialize the sprite
@@ -70,7 +70,8 @@ public class Animation implements Cloneable, Constantes {
 	 * @param height The new height
 	 * @return Returns the scaled image
 	 */
-	static public BufferedImage scaleImage(BufferedImage image, int width, int height) {
+	@SuppressWarnings("unused")
+	public static BufferedImage scaleImage(BufferedImage image, int width, int height) {
 		Image tmpImage = image.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH);
 		BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics2D = resized.createGraphics();

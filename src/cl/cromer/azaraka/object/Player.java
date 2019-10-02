@@ -39,7 +39,7 @@ public class Player extends Object implements Constantes {
 	/**
 	 * Objects that the player is carrying
 	 */
-	private ArrayList<Object> carrying = new ArrayList<>();
+	private final ArrayList<Object> carrying = new ArrayList<>();
 
 	/**
 	 * Initialize the player

@@ -42,19 +42,19 @@ public class Escenario extends JComponent implements Constantes {
 	/**
 	 * The width of the scene
 	 */
-	protected int width = CELL_PIXELS * HORIZONTAL_CELLS;
+	protected final int width = CELL_PIXELS * HORIZONTAL_CELLS;
 	/**
 	 * The height of the scene
 	 */
-	protected int height = CELL_PIXELS * VERTICAL_CELLS;
+	protected final int height = CELL_PIXELS * VERTICAL_CELLS;
 	/**
 	 * The canvas
 	 */
-	private Lienzo canvas;
+	private final Lienzo canvas;
 	/**
 	 * The cells of the game
 	 */
-	private Celda[][] celdas;
+	private final Celda[][] celdas;
 	/**
 	 * A collection of tiles that can be used in the scene
 	 */
@@ -66,7 +66,7 @@ public class Escenario extends JComponent implements Constantes {
 	/**
 	 * The logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 
 	/**
 	 * Initialize the scene

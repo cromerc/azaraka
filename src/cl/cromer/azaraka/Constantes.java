@@ -202,25 +202,25 @@ public interface Constantes {
 	 */
 	enum LogLevel {
 		GLOBAL(Level.WARNING),
-		MAIN(Level.WARNING),
-		VENTANA_PRINCIPAL(Level.WARNING),
-		LIENZO(Level.WARNING),
-		ESCENARIO(Level.WARNING),
+		MAIN(Level.INFO),
+		VENTANA_PRINCIPAL(Level.INFO),
+		LIENZO(Level.INFO),
+		ESCENARIO(Level.INFO),
 		PLAYER(Level.WARNING),
 		ENEMY(Level.WARNING),
-		CHEST(Level.WARNING),
-		CONFIG(Level.WARNING),
-		SOUND(Level.WARNING),
-		ANIMATION(Level.WARNING),
-		SHEET(Level.WARNING),
-		KEY(Level.WARNING),
-		JSON(Level.WARNING),
-		PORTAL(Level.WARNING);
+		CHEST(Level.INFO),
+		CONFIG(Level.INFO),
+		SOUND(Level.INFO),
+		ANIMATION(Level.INFO),
+		SHEET(Level.INFO),
+		KEY(Level.INFO),
+		JSON(Level.INFO),
+		PORTAL(Level.INFO);
 
 		/**
 		 * The level of log for the enum
 		 */
-		private Level level;
+		private final Level level;
 
 		/**
 		 * Initialize the log level enum
@@ -236,7 +236,7 @@ public interface Constantes {
 		 *
 		 * @return Returns the level
 		 */
-		public Level getLevel() {
+		protected Level getLevel() {
 			return this.level;
 		}
 	}

@@ -28,7 +28,7 @@ public class Game extends JPanel implements Constantes {
 	/**
 	 * The canvas
 	 */
-	private Lienzo canvas;
+	private final Lienzo canvas;
 
 	/**
 	 * Initialize the game panel

@@ -32,7 +32,7 @@ public class Json implements Constantes {
 	/**
 	 * The logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 
 	/**
 	 * Initialize the JSON object
