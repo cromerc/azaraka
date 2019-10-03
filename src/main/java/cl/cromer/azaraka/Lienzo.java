@@ -41,21 +41,9 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private final Escenario escenario;
 	/**
-	 * The graphics buffer
-	 */
-	private Graphics graphicBuffer;
-	/**
-	 * The image buffer
-	 */
-	private Image imageBuffer;
-	/**
 	 * The threads for the objects
 	 */
 	private final HashMap<Object, Thread> threads = new HashMap<>();
-	/**
-	 * The player
-	 */
-	private Player player;
 	/**
 	 * The enemies
 	 */
@@ -69,10 +57,6 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private final ArrayList<Chest> chests = new ArrayList<>();
 	/**
-	 * The magic portal
-	 */
-	private Portal portal;
-	/**
 	 * The logger
 	 */
 	private final Logger logger;
@@ -80,6 +64,22 @@ public class Lienzo extends Canvas implements Constantes {
 	 * The game over animation
 	 */
 	private final Animation gameOverAnimation;
+	/**
+	 * The graphics buffer
+	 */
+	private Graphics graphicBuffer;
+	/**
+	 * The image buffer
+	 */
+	private Image imageBuffer;
+	/**
+	 * The player
+	 */
+	private Player player;
+	/**
+	 * The magic portal
+	 */
+	private Portal portal;
 	/**
 	 * The hearts animation
 	 */
@@ -196,6 +196,7 @@ public class Lienzo extends Canvas implements Constantes {
 
 	/**
 	 * Override the paint method of Canvas to paint all the scene components
+	 *
 	 * @param g The graphics object to paint
 	 */
 	@Override

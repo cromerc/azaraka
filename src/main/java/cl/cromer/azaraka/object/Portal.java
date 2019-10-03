@@ -42,7 +42,7 @@ public class Portal extends Object implements Constantes {
 	 * Initialize the portal
 	 *
 	 * @param escenario The scene that contains the portal
-	 * @param celda The cell the portal is in
+	 * @param celda     The cell the portal is in
 	 */
 	public Portal(Escenario escenario, Celda celda) {
 		super(escenario, celda);

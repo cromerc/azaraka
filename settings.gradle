@@ -13,41 +13,5 @@
  *
  */
 
-package cl.cromer.azaraka.object;
+rootProject.name = 'azaraka'
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Escenario;
-
-/**
- * This class contains the gem
- */
-public class Gem extends Object {
-	/**
-	 * The current state of the gem
-	 */
-	private State state = State.TAINTED;
-
-	/**
-	 * The possible states of the gem
-	 */
-	private enum State {
-		/**
-		 * The gem is tainted
-		 */
-		TAINTED,
-		/**
-		 * The gem has been purified
-		 */
-		PURIFIED
-	}
-
-	/**
-	 * Initialize the gem object
-	 *
-	 * @param escenario The scene the gem is in
-	 * @param celda     The cell the gem is in
-	 */
-	public Gem(Escenario escenario, Celda celda) {
-		super(escenario, celda);
-	}
-}

@@ -30,6 +30,14 @@ import java.util.logging.Logger;
  */
 public class Animation implements Cloneable, Constantes {
 	/**
+	 * The collection of all the images that make up the object
+	 */
+	private final HashMap<Direction, ArrayList<BufferedImage>> imageHash;
+	/**
+	 * The logger
+	 */
+	private final Logger logger;
+	/**
 	 * The current frame the sprite should be showing
 	 */
 	private int currentFrame = 0;
@@ -45,14 +53,6 @@ public class Animation implements Cloneable, Constantes {
 	 * The direction of the image to show
 	 */
 	private Direction currentDirection = Direction.NONE;
-	/**
-	 * The collection of all the images that make up the object
-	 */
-	private final HashMap<Direction, ArrayList<BufferedImage>> imageHash;
-	/**
-	 * The logger
-	 */
-	private final Logger logger;
 
 	/**
 	 * Initialize the sprite
@@ -65,8 +65,8 @@ public class Animation implements Cloneable, Constantes {
 	/**
 	 * Scale an image
 	 *
-	 * @param image The image to scale
-	 * @param width The new width
+	 * @param image  The image to scale
+	 * @param width  The new width
 	 * @param height The new height
 	 * @return Returns the scaled image
 	 */
@@ -141,7 +141,7 @@ public class Animation implements Cloneable, Constantes {
 	 * Add an image to the animation
 	 *
 	 * @param direction The direction to add the image to
-	 * @param path The path to the sprite e.g. res/player/image.png
+	 * @param path      The path to the sprite e.g. res/player/image.png
 	 */
 	public void addImage(Direction direction, String path) {
 		try {
@@ -157,7 +157,7 @@ public class Animation implements Cloneable, Constantes {
 	/**
 	 * Add an image to the animation
 	 *
-	 * @param direction The direction to add the image to
+	 * @param direction     The direction to add the image to
 	 * @param bufferedImage The path to the sprite e.g. res/player/image.png
 	 */
 	public void addImage(Direction direction, BufferedImage bufferedImage) {

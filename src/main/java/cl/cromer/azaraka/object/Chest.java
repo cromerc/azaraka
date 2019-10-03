@@ -40,8 +40,9 @@ public class Chest extends Object implements Constantes {
 
 	/**
 	 * Initialize the chest
+	 *
 	 * @param escenario The scene the chest is in
-	 * @param celda The cell that contains the chest
+	 * @param celda     The cell that contains the chest
 	 */
 	public Chest(Escenario escenario, Celda celda) {
 		super(escenario, celda);
@@ -92,19 +93,6 @@ public class Chest extends Object implements Constantes {
 	}
 
 	/**
-	 * Play the chest opening sound
-	 */
-	private void playChestOpenSound() {
-		try {
-			sound.setVolume(getEscenario().getCanvas().getVolume());
-			sound.play();
-		}
-		catch (SoundException e) {
-			getLogger().warning(e.getMessage());
-		}
-	}
-
-	/**
 	 * Sets the state of the chest
 	 *
 	 * @param state The new state of the chest
@@ -127,6 +115,19 @@ public class Chest extends Object implements Constantes {
 				getLogger().warning(e.getMessage());
 			}
 			getEscenario().getCanvas().repaint();
+		}
+	}
+
+	/**
+	 * Play the chest opening sound
+	 */
+	private void playChestOpenSound() {
+		try {
+			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.play();
+		}
+		catch (SoundException e) {
+			getLogger().warning(e.getMessage());
 		}
 	}
 

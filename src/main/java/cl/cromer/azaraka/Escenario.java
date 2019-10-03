@@ -56,6 +56,10 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	private final Celda[][] celdas;
 	/**
+	 * The logger
+	 */
+	private final Logger logger;
+	/**
 	 * A collection of tiles that can be used in the scene
 	 */
 	private Sheet textureSheet;
@@ -63,10 +67,6 @@ public class Escenario extends JComponent implements Constantes {
 	 * Whether or not the door is closed yet
 	 */
 	private boolean doorClosed = false;
-	/**
-	 * The logger
-	 */
-	private final Logger logger;
 
 	/**
 	 * Initialize the scene
@@ -463,6 +463,7 @@ public class Escenario extends JComponent implements Constantes {
 
 	/**
 	 * Get the parent canvas of this scene
+	 *
 	 * @return Returns the parent canvas
 	 */
 	public Lienzo getCanvas() {

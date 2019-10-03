@@ -33,13 +33,13 @@ public class Player extends Object implements Constantes {
 	 */
 	public final static int MAX_HEALTH = 8;
 	/**
-	 * The current health of the player
-	 */
-	private int health = MAX_HEALTH;
-	/**
 	 * Objects that the player is carrying
 	 */
 	private final ArrayList<Object> carrying = new ArrayList<>();
+	/**
+	 * The current health of the player
+	 */
+	private int health = MAX_HEALTH;
 
 	/**
 	 * Initialize the player

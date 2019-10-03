@@ -28,10 +28,6 @@ import java.util.logging.Logger;
  */
 public class Sound implements Constantes {
 	/**
-	 * The sound clip to play
-	 */
-	private Clip sound;
-	/**
 	 * The path to the sound
 	 */
 	private final String path;
@@ -39,6 +35,10 @@ public class Sound implements Constantes {
 	 * The logger
 	 */
 	private final Logger logger;
+	/**
+	 * The sound clip to play
+	 */
+	private Clip sound;
 
 	/**
 	 * Load the sound
@@ -71,6 +71,7 @@ public class Sound implements Constantes {
 
 	/**
 	 * Play the sound
+	 *
 	 * @throws SoundException Thrown if the sound clip is null
 	 */
 	public void play() throws SoundException {
@@ -104,6 +105,7 @@ public class Sound implements Constantes {
 
 	/**
 	 * Stop the sound
+	 *
 	 * @throws SoundException Thrown if the sound clip is null
 	 */
 	public void stop() throws SoundException {
@@ -119,6 +121,7 @@ public class Sound implements Constantes {
 
 	/**
 	 * Set the number of loops to play
+	 *
 	 * @param loops The number of loops, should be n-1
 	 * @throws SoundException Thrown if the sound is null
 	 */

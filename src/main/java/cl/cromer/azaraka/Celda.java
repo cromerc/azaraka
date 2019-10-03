@@ -57,10 +57,11 @@ public class Celda extends JComponent implements Constantes {
 
 	/**
 	 * Initialize the cell with its coordinates
+	 *
 	 * @param xPixels The x graphical coordinate
 	 * @param yPixels The y graphical coordinate
-	 * @param x The x coordinate of the cell
-	 * @param y The y coordinate of the cell
+	 * @param x       The x coordinate of the cell
+	 * @param y       The y coordinate of the cell
 	 */
 	public Celda(int xPixels, int yPixels, int x, int y) {
 		this.xPixels = xPixels;
@@ -135,6 +136,7 @@ public class Celda extends JComponent implements Constantes {
 
 	/**
 	 * Override the paintComponent method of JComponent to paint the cell based on type
+	 *
 	 * @param g The graphics object to paint
 	 */
 	@Override
@@ -144,6 +146,7 @@ public class Celda extends JComponent implements Constantes {
 
 	/**
 	 * Override the update method of JComponent to do double buffering
+	 *
 	 * @param g The graphics object to paint
 	 */
 	@Override

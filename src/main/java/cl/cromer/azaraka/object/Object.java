@@ -30,6 +30,10 @@ import java.util.logging.Logger;
  */
 public class Object implements Runnable {
 	/**
+	 * The scene the object is in
+	 */
+	private final Escenario escenario;
+	/**
 	 * The current x position of the object
 	 */
 	private int x;
@@ -37,10 +41,6 @@ public class Object implements Runnable {
 	 * The current y position of the object
 	 */
 	private int y;
-	/**
-	 * The scene the object is in
-	 */
-	private final Escenario escenario;
 	/**
 	 * The cell the object is in
 	 */
@@ -130,6 +130,15 @@ public class Object implements Runnable {
 	}
 
 	/**
+	 * Get the cell the object is in
+	 *
+	 * @param celda The cell
+	 */
+	protected void setCelda(Celda celda) {
+		this.celda = celda;
+	}
+
+	/**
 	 * Get the current animation
 	 *
 	 * @return Returns an animation
@@ -210,15 +219,6 @@ public class Object implements Runnable {
 		catch (AnimationException e) {
 			logger.warning(e.getMessage());
 		}
-	}
-
-	/**
-	 * Get the cell the object is in
-	 *
-	 * @param celda The cell
-	 */
-	protected void setCelda(Celda celda) {
-		this.celda = celda;
 	}
 
 	/**

@@ -31,6 +31,10 @@ import java.util.concurrent.locks.Lock;
  */
 public class Enemy extends Object implements Constantes {
 	/**
+	 * The lock helps prevent race conditions when checking positioning
+	 */
+	private final Lock lock;
+	/**
 	 * The current direction the enemy is facing
 	 */
 	private Direction direction = Direction.LEFT;
@@ -38,10 +42,6 @@ public class Enemy extends Object implements Constantes {
 	 * The speed of the enemy
 	 */
 	private int speed = 500;
-	/**
-	 * The lock helps prevent race conditions when checking positioning
-	 */
-	private final Lock lock;
 	/**
 	 * The enemy attack sound
 	 */
@@ -51,8 +51,8 @@ public class Enemy extends Object implements Constantes {
 	 * Initialize the enemy
 	 *
 	 * @param escenario The scene the enemy is in
-	 * @param celda The cell this enemy is in
-	 * @param lock The lock used to prevent the threads from conflicting
+	 * @param celda     The cell this enemy is in
+	 * @param lock      The lock used to prevent the threads from conflicting
 	 */
 	public Enemy(Escenario escenario, Celda celda, Lock lock) {
 		super(escenario, celda);

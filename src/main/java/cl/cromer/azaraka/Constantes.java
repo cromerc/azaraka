@@ -34,35 +34,6 @@ public interface Constantes {
 	 * The name of the game
 	 */
 	String TITLE = "La Aventura de Azaraka";
-
-	/**
-	 * Get a logger object to use for debugging
-	 *
-	 * @param logClass The class that is in need of a logger
-	 * @param logLevel    What log level to use
-	 * @return Returns the logger
-	 */
-	default Logger getLogger(Class logClass, LogLevel logLevel) {
-		String className = logClass.getName();
-		Logger logger;
-		if (GLOBAL_LOG) {
-			logger = Logger.getGlobal();
-		}
-		else {
-			logger = Logger.getLogger(className);
-		}
-		if (logger.getHandlers().length == 0) {
-			initializeLogger(logClass);
-		}
-		if (GLOBAL_LOG) {
-			logger.setLevel(LogLevel.GLOBAL.getLevel());
-		}
-		else {
-			logger.setLevel(logLevel.getLevel());
-		}
-		return logger;
-	}
-
 	/**
 	 * Use a global log if true or individual logs if false
 	 */
@@ -143,6 +114,34 @@ public interface Constantes {
 	 * The normal font to use
 	 */
 	Font FONT = new Font("monospaced", Font.PLAIN, FONT_SIZE);
+
+	/**
+	 * Get a logger object to use for debugging
+	 *
+	 * @param logClass The class that is in need of a logger
+	 * @param logLevel What log level to use
+	 * @return Returns the logger
+	 */
+	default Logger getLogger(Class logClass, LogLevel logLevel) {
+		String className = logClass.getName();
+		Logger logger;
+		if (GLOBAL_LOG) {
+			logger = Logger.getGlobal();
+		}
+		else {
+			logger = Logger.getLogger(className);
+		}
+		if (logger.getHandlers().length == 0) {
+			initializeLogger(logClass);
+		}
+		if (GLOBAL_LOG) {
+			logger.setLevel(LogLevel.GLOBAL.getLevel());
+		}
+		else {
+			logger.setLevel(logLevel.getLevel());
+		}
+		return logger;
+	}
 
 	/**
 	 * Generate a random number between given min and max

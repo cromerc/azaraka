@@ -1,4 +1,4 @@
-/out/
+/.gradle/
+/build/
 /javadoc/
 /log/
-/lib/
