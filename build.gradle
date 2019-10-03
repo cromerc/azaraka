@@ -51,5 +51,8 @@ task copyDependencies(type: Copy) {
     into "$buildDir/libs"
 }
 
-build.dependsOn(copyDependencies)
+build {
+    dependsOn copyDependencies
+}
+
 jar.dependsOn(copyDependencies)
