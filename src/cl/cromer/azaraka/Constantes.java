@@ -201,20 +201,65 @@ public interface Constantes {
 	 * This enum contains all the levels used for logging
 	 */
 	enum LogLevel {
+		/**
+		 * The global log level is used if the individual log levels are not
+		 */
 		GLOBAL(Level.WARNING),
+		/**
+		 * The main log level
+		 */
 		MAIN(Level.INFO),
+		/**
+		 * The ventana principal log level
+		 */
 		VENTANA_PRINCIPAL(Level.INFO),
+		/**
+		 * The lienzo log level
+		 */
 		LIENZO(Level.INFO),
+		/**
+		 * The escenario log level
+		 */
 		ESCENARIO(Level.INFO),
+		/**
+		 * The player log level
+		 */
 		PLAYER(Level.WARNING),
+		/**
+		 * The enemy log level
+		 */
 		ENEMY(Level.WARNING),
+		/**
+		 * The chest log level
+		 */
 		CHEST(Level.INFO),
+		/**
+		 * The config log level
+		 */
 		CONFIG(Level.INFO),
+		/**
+		 * The sound log level
+		 */
 		SOUND(Level.INFO),
+		/**
+		 * The animation log level
+		 */
 		ANIMATION(Level.INFO),
+		/**
+		 * The sheet log level
+		 */
 		SHEET(Level.INFO),
+		/**
+		 * The key log level
+		 */
 		KEY(Level.INFO),
+		/**
+		 * The json log level
+		 */
 		JSON(Level.INFO),
+		/**
+		 * The portal log level
+		 */
 		PORTAL(Level.INFO);
 
 		/**
