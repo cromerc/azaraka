@@ -21,7 +21,10 @@ plugins {
 group 'cl.cromer.azaraka'
 version '1.0.0'
 
+// These are used, so ignore the inspections
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
+//noinspection GroovyUnusedAssignment
 targetCompatibility = 1.8
 
 mainClassName = "cl.cromer.azaraka.Main"
