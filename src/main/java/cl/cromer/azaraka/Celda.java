@@ -160,6 +160,8 @@ public class Celda extends JComponent implements Constantes {
 
 	/**
 	 * Remove the texture from the map
+	 *
+	 * @param texture The texture to remove
 	 */
 	public void removeTexture(int texture) {
 		textures.remove(texture);
