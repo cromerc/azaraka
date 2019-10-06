@@ -110,15 +110,6 @@ public class Portal extends Object implements Constantes {
 	}
 
 	/**
-	 * Get the current status of the portal
-	 *
-	 * @return Returns the status
-	 */
-	public State getState() {
-		return state;
-	}
-
-	/**
 	 * Sets a new status for the portal
 	 *
 	 * @param state The new status

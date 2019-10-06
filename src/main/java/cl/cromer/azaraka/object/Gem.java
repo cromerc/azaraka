@@ -25,10 +25,6 @@ import cl.cromer.azaraka.sprite.AnimationException;
  */
 public class Gem extends Object {
 	/**
-	 * The type of gem
-	 */
-	private Type type = null;
-	/**
 	 * The current state of the gem
 	 */
 	private State state = State.TAINTED;
@@ -92,7 +88,6 @@ public class Gem extends Object {
 	 * @param type The type of gem
 	 */
 	public void setType(Type type) {
-		this.type = type;
 		loadGemAnimation(type);
 	}
 

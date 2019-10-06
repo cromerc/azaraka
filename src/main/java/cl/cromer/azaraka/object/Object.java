@@ -126,7 +126,7 @@ public class Object implements Runnable, Constantes {
 	 *
 	 * @param x The amount of pixels to scale
 	 */
-	public void setXScale(int x) {
+	protected void setXScale(@SuppressWarnings("SameParameterValue") int x) {
 		this.xScale = x;
 	}
 
@@ -135,7 +135,7 @@ public class Object implements Runnable, Constantes {
 	 *
 	 * @param y The amount of pixels to scale
 	 */
-	public void setYScale(int y) {
+	protected void setYScale(@SuppressWarnings("SameParameterValue") int y) {
 		this.yScale = y;
 	}
 

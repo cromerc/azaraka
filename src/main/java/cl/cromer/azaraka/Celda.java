@@ -95,15 +95,6 @@ public class Celda extends JComponent implements Constantes {
 	}
 
 	/**
-	 * Get the top object
-	 *
-	 * @return Returns the top object
-	 */
-	public Object getObjectOnTop() {
-		return objectOnTop;
-	}
-
-	/**
 	 * Set a top object
 	 *
 	 * @param object The top object
