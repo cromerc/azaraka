@@ -52,6 +52,8 @@ public class Gem extends Object {
 
 	/**
 	 * Load the gem animations
+	 *
+	 * @param type The type of gem to load the animation for
 	 */
 	private void loadGemAnimation(Type type) {
 		if (type == null) {
@@ -165,7 +167,13 @@ public class Gem extends Object {
 	 * The type of gem
 	 */
 	public enum Type {
+		/**
+		 * The life gem which should be blue
+		 */
 		LIFE,
+		/**
+		 * The death gem which should be red
+		 */
 		DEATH
 	}
 
