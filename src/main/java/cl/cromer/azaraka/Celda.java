@@ -21,6 +21,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This class is a cell that will contain a game element such as a player, enemy, prize, etc
@@ -43,17 +45,21 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	private final int y;
 	/**
-	 * The textures to show in this cell
+	 * A map containing the textures used in the cell, LinkedHashMap is used to maintain the order of images
 	 */
-	private final ArrayList<BufferedImage> textures = new ArrayList<>();
-	/**
-	 * The texture numbers
-	 */
-	private final ArrayList<Integer> textureNumbers = new ArrayList<>();
+	private final LinkedHashMap<Integer, BufferedImage> textures = new LinkedHashMap<>();
 	/**
 	 * The object in the cell
 	 */
 	private Object object = null;
+	/**
+	 * An object that doesn't collide and is drawn on top of the other sprites
+	 */
+	private Object objectOnTop = null;
+	/**
+	 * An object that doesn't collide and is drawn below the other sprites
+	 */
+	private Object objectOnBottom = null;
 
 	/**
 	 * Initialize the cell with its coordinates
@@ -89,6 +95,51 @@ public class Celda extends JComponent implements Constantes {
 	}
 
 	/**
+	 * Get the top object
+	 *
+	 * @return Returns the top object
+	 */
+	public Object getObjectOnTop() {
+		return objectOnTop;
+	}
+
+	/**
+	 * Set a top object
+	 *
+	 * @param object The top object
+	 */
+	public void setObjectOnTop(Object object) {
+		this.objectOnTop = object;
+	}
+
+	/**
+	 * Get a bottom object
+	 *
+	 * @return Returns the bottom object
+	 */
+	public Object getObjectOnBottom() {
+		return objectOnBottom;
+	}
+
+	/**
+	 * Set a bottom object
+	 *
+	 * @param object The object
+	 */
+	public void setObjectOnBottom(Object object) {
+		this.objectOnBottom = object;
+	}
+
+	/**
+	 * Check if cell contains an object
+	 *
+	 * @return Returns true if it contains an object or false otherwise
+	 */
+	public boolean containsObject() {
+		return (object != null || objectOnTop != null || objectOnBottom != null);
+	}
+
+	/**
 	 * Get the x coordinate of the cell
 	 *
 	 * @return Returns the x coordinate
@@ -113,25 +164,27 @@ public class Celda extends JComponent implements Constantes {
 	 * @param textureNumber The texture's number
 	 */
 	public void addTexture(BufferedImage texture, int textureNumber) {
-		textures.add(texture);
-		textureNumbers.add(textureNumber);
+		textures.put(textureNumber, texture);
 	}
 
 	/**
-	 * Remove the texture that is on the top of the stack
+	 * Remove the texture from the map
 	 */
-	public void removeTopTexture() {
-		textures.remove(textures.size() - 1);
-		textureNumbers.remove(textureNumbers.size() - 1);
+	public void removeTexture(int texture) {
+		textures.remove(texture);
 	}
 
 	/**
-	 * Get the numbers of the textures
+	 * Get an array list of the texture numbers used
 	 *
-	 * @return Returns an array list containing the texture numbers
+	 * @return Returns an array list of texture numbers
 	 */
 	public ArrayList<Integer> getTextureNumbers() {
-		return textureNumbers;
+		ArrayList<Integer> arrayList = new ArrayList<>();
+		for (Map.Entry<Integer, BufferedImage> entry : textures.entrySet()) {
+			arrayList.add(entry.getKey());
+		}
+		return arrayList;
 	}
 
 	/**
@@ -151,18 +204,27 @@ public class Celda extends JComponent implements Constantes {
 	 */
 	@Override
 	public void update(Graphics g) {
-		// Don't replace with foreach because it can cause a race condition
-		//noinspection ForLoopReplaceableByForEach
-		for (int i = 0; i < textures.size(); i++) {
-			BufferedImage texture = textures.get(i);
+		// Draw the textures in the cell
+		for (Map.Entry<Integer, BufferedImage> entry : textures.entrySet()) {
+			BufferedImage texture = entry.getValue();
 			if (texture != null) {
 				g.drawImage(texture, xPixels, yPixels, null);
 			}
 		}
 
+		// Draw the bottom sprite
+		if (objectOnBottom != null) {
+			objectOnBottom.drawAnimation(g, xPixels, yPixels);
+		}
+
 		// Draw a sprite in the cell if needed
 		if (object != null) {
 			object.drawAnimation(g, xPixels, yPixels);
+		}
+
+		// Draw the top sprite
+		if (objectOnTop != null) {
+			objectOnTop.drawAnimation(g, xPixels, yPixels);
 		}
 	}
 }

@@ -101,6 +101,18 @@ public class Enemy extends Object implements Constantes {
 	 */
 	public void setDirection(Direction direction) {
 		this.direction = direction;
+		if (direction == Direction.UP) {
+			getAnimation().setCurrentDirection(Animation.Direction.UP);
+		}
+		else if (direction == Direction.DOWN) {
+			getAnimation().setCurrentDirection(Animation.Direction.DOWN);
+		}
+		else if (direction == Direction.LEFT) {
+			getAnimation().setCurrentDirection(Animation.Direction.LEFT);
+		}
+		else if (direction == Direction.RIGHT) {
+			getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
+		}
 	}
 
 	/**

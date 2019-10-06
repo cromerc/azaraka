@@ -22,6 +22,7 @@ group 'cl.cromer.azaraka'
 version '1.0.0'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 mainClassName = "cl.cromer.azaraka.Main"
 
@@ -37,7 +38,9 @@ dependencies {
 jar {
     manifest {
         attributes "Main-Class": "$mainClassName",
-                'Class-Path': configurations.default.files.collect { "$it.name" }.join(' ')
+                'Class-Path': configurations.default.files.collect { "$it.name" }.join(' '),
+                "Implementation-Title": "Gradle",
+                "Implementation-Version": "$gradle.gradleVersion"
     }
 
     // This adds the libs into the jar

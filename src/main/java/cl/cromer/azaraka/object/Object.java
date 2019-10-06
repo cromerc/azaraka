@@ -16,6 +16,7 @@
 package cl.cromer.azaraka.object;
 
 import cl.cromer.azaraka.Celda;
+import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
@@ -23,12 +24,13 @@ import cl.cromer.azaraka.sprite.Sheet;
 import cl.cromer.azaraka.sprite.SheetException;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
 /**
  * All game objects extend this class
  */
-public class Object implements Runnable {
+public class Object implements Runnable, Constantes {
 	/**
 	 * The scene the object is in
 	 */
@@ -61,6 +63,14 @@ public class Object implements Runnable {
 	 * Whether or not the run loop of the object is active
 	 */
 	private boolean active;
+	/**
+	 * x scale
+	 */
+	private int xScale = 0;
+	/**
+	 * y scale
+	 */
+	private int yScale = 0;
 
 	/**
 	 * Initialize the object
@@ -112,6 +122,24 @@ public class Object implements Runnable {
 	}
 
 	/**
+	 * Scale the image to x pixels
+	 *
+	 * @param x The amount of pixels to scale
+	 */
+	public void setXScale(int x) {
+		this.xScale = x;
+	}
+
+	/**
+	 * Scale the image to y pixels
+	 *
+	 * @param y The amount of pixels to scale
+	 */
+	public void setYScale(int y) {
+		this.yScale = y;
+	}
+
+	/**
 	 * Get the scene the object is in
 	 *
 	 * @return Returns the scene
@@ -134,7 +162,7 @@ public class Object implements Runnable {
 	 *
 	 * @param celda The cell
 	 */
-	protected void setCelda(Celda celda) {
+	public void setCelda(Celda celda) {
 		this.celda = celda;
 	}
 
@@ -208,11 +236,45 @@ public class Object implements Runnable {
 	public void drawAnimation(Graphics graphics, int x, int y) {
 		try {
 			if (animation != null && animation.getFrame() != null) {
+				BufferedImage frame = animation.getFrame();
+				if (frame == null) {
+					// No animation, so don't draw anything
+					return;
+				}
+
+				int xOffset = animation.getXOffset();
+				int yOffset = animation.getYOffset();
+
+				// Check if scale is needed
+				if (xScale != 0 || yScale != 0) {
+					if (xScale == 0) {
+						xScale = frame.getWidth();
+					}
+					else if (yScale == 0) {
+						yScale = frame.getHeight();
+					}
+					frame = Animation.scaleImage(frame, xScale, yScale);
+
+					if (frame.getWidth() == CELL_PIXELS) {
+						xOffset = 0;
+					}
+					else {
+						xOffset = (CELL_PIXELS - frame.getWidth()) / 2;
+					}
+
+					if (frame.getHeight() == CELL_PIXELS) {
+						yOffset = 0;
+					}
+					else {
+						yOffset = (CELL_PIXELS - frame.getHeight()) / 2;
+					}
+				}
+
 				if (useOffset) {
-					graphics.drawImage(animation.getFrame(), x + animation.getXOffset(), y + animation.getYOffset(), null);
+					graphics.drawImage(frame, x + xOffset, y + yOffset, null);
 				}
 				else {
-					graphics.drawImage(animation.getFrame(), x, y, null);
+					graphics.drawImage(frame, x, y, null);
 				}
 			}
 		}

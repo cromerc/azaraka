@@ -17,15 +17,29 @@ package cl.cromer.azaraka.object;
 
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.sprite.Animation;
+import cl.cromer.azaraka.sprite.AnimationException;
 
 /**
  * This class contains the gem
  */
 public class Gem extends Object {
 	/**
+	 * The type of gem
+	 */
+	private Type type = null;
+	/**
 	 * The current state of the gem
 	 */
 	private State state = State.TAINTED;
+	/**
+	 *
+	 */
+	private Animation taintedAnimation;
+	/**
+	 * The animation to use when the gem is purified
+	 */
+	private Animation purifiedAnimation;
 
 	/**
 	 * Initialize the gem object
@@ -35,12 +49,135 @@ public class Gem extends Object {
 	 */
 	public Gem(Escenario escenario, Celda celda) {
 		super(escenario, celda);
+		setLogger(getLogger(this.getClass(), LogLevel.GEM));
+		loadGemAnimation(null);
+		setAnimation(taintedAnimation);
+	}
+
+	/**
+	 * Load the gem animations
+	 */
+	private void loadGemAnimation(Type type) {
+		if (type == null) {
+			taintedAnimation = new Animation();
+			for (int i = 0; i <= 6; i++) {
+				String string = i + ".png";
+				taintedAnimation.addImage(Animation.Direction.NONE, "/img/gem/gray/" + string);
+			}
+			taintedAnimation.setYOffset(32);
+		}
+		else {
+			switch (type) {
+				case LIFE:
+					purifiedAnimation = new Animation();
+					for (int i = 0; i <= 6; i++) {
+						String string = i + ".png";
+						purifiedAnimation.addImage(Animation.Direction.NONE, "/img/gem/blue/" + string);
+					}
+					break;
+				case DEATH:
+					purifiedAnimation = new Animation();
+					for (int i = 0; i <= 6; i++) {
+						String string = i + ".png";
+						purifiedAnimation.addImage(Animation.Direction.NONE, "/img/gem/red/" + string);
+					}
+					break;
+			}
+		}
+	}
+
+	/**
+	 * Set the gem type
+	 *
+	 * @param type The type of gem
+	 */
+	public void setType(Type type) {
+		this.type = type;
+		loadGemAnimation(type);
+	}
+
+	/**
+	 * Get the current state of the gem
+	 *
+	 * @return Returns the state of the gem
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
+	 * Set the state of the gem
+	 *
+	 * @param state The new state
+	 */
+	public void setState(State state) {
+		this.state = state;
+		switch (state) {
+			case PURIFIED:
+				try {
+					purifiedAnimation.setCurrentFrame(0);
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+				setAnimation(purifiedAnimation);
+				break;
+			case TAINTED:
+				try {
+					taintedAnimation.setCurrentFrame(0);
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+				setAnimation(taintedAnimation);
+				break;
+		}
+	}
+
+	/**
+	 * This method animates the gem
+	 */
+	private void animate() {
+		try {
+			getAnimation().getNextFrame();
+		}
+		catch (AnimationException e) {
+			getLogger().warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * This method is run when the thread starts
+	 */
+	@Override
+	public void run() {
+		super.run();
+		while (getActive()) {
+			try {
+				Thread.sleep(60);
+			}
+			catch (InterruptedException e) {
+				getLogger().info(e.getMessage());
+			}
+			synchronized (this) {
+				animate();
+				getEscenario().getCanvas().repaint();
+			}
+		}
+	}
+
+	/**
+	 * The type of gem
+	 */
+	public enum Type {
+		LIFE,
+		DEATH
 	}
 
 	/**
 	 * The possible states of the gem
 	 */
-	private enum State {
+	public enum State {
 		/**
 		 * The gem is tainted
 		 */

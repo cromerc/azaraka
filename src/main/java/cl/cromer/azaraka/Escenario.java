@@ -190,14 +190,14 @@ public class Escenario extends JComponent implements Constantes {
 		}
 
 		random = randomCoordinates();
-		celdas[random[0]][random[1]].setObject(new Portal(this, celdas[random[0]][random[1]]));
-		objectArrayList.add(celdas[random[0]][random[1]].getObject());
+		celdas[random[0]][random[1]].setObjectOnBottom(new Portal(this, celdas[random[0]][random[1]]));
+		objectArrayList.add(celdas[random[0]][random[1]].getObjectOnBottom());
 
 		// Generate enough keys for the chests that will exist
 		for (int i = 0; i < CHESTS; i++) {
 			random = randomCoordinates();
-			celdas[random[0]][random[1]].setObject(new Key(this, celdas[random[0]][random[1]]));
-			objectArrayList.add(celdas[random[0]][random[1]].getObject());
+			celdas[random[0]][random[1]].setObjectOnBottom(new Key(this, celdas[random[0]][random[1]]));
+			objectArrayList.add(celdas[random[0]][random[1]].getObjectOnBottom());
 		}
 
 		// Chests need to be last to make sure they are openable
@@ -206,14 +206,14 @@ public class Escenario extends JComponent implements Constantes {
 			int random_y = random(0, VERTICAL_CELLS - 1);
 			// Don't put a chest if it can't be opened
 			while (random_y + 1 == VERTICAL_CELLS ||
-					celdas[random_x][random_y].getObject() != null ||
-					celdas[random_x][random_y + 1].getObject() != null ||
-					celdas[random_x][random_y - 1].getObject() != null) {
+					celdas[random_x][random_y].containsObject() ||
+					celdas[random_x][random_y + 1].containsObject() ||
+					celdas[random_x][random_y - 1].containsObject()) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
 			}
-			celdas[random_x][random_y].setObject(new Chest(this, celdas[random_x][random_y]));
-			objectArrayList.add(celdas[random_x][random_y].getObject());
+			celdas[random_x][random_y].setObjectOnBottom(new Chest(this, celdas[random_x][random_y]));
+			objectArrayList.add(celdas[random_x][random_y].getObjectOnBottom());
 		}
 
 		return objectArrayList;
@@ -228,7 +228,7 @@ public class Escenario extends JComponent implements Constantes {
 		int[] random = new int[2];
 		random[0] = random(0, HORIZONTAL_CELLS - 1);
 		random[1] = random(0, VERTICAL_CELLS - 1);
-		while (celdas[random[0]][random[1]].getObject() != null) {
+		while (celdas[random[0]][random[1]].containsObject()) {
 			random[0] = random(0, HORIZONTAL_CELLS - 1);
 			random[1] = random(0, VERTICAL_CELLS - 1);
 		}
@@ -486,16 +486,18 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	public void setDoorClosed(boolean doorClosed) {
 		if (doorClosed && !isDoorClosed()) {
+			celdas[2][0].setObject(new Obstacle(this, celdas[2][0]));
 			try {
 				celdas[2][0].addTexture(textureSheet.getTexture(193), 193);
 			}
 			catch (SheetException e) {
-				e.printStackTrace();
+				logger.warning(e.getMessage());
 			}
 			this.doorClosed = true;
 		}
 		else if (!doorClosed && isDoorClosed()) {
-			celdas[2][0].removeTopTexture();
+			celdas[2][0].removeTexture(193);
+			celdas[2][0].setObject(null);
 			this.doorClosed = false;
 		}
 	}

@@ -21,6 +21,8 @@ import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
+import java.util.ArrayList;
+
 /**
  * This class handles the portal functionality
  */
@@ -47,15 +49,15 @@ public class Portal extends Object implements Constantes {
 	public Portal(Escenario escenario, Celda celda) {
 		super(escenario, celda);
 		setLogger(getLogger(this.getClass(), LogLevel.PORTAL));
-		loadPortalAnimation();
+		loadPortalAnimations();
 	}
 
 	/**
 	 * Load the portal animation
 	 */
-	private void loadPortalAnimation() {
+	private void loadPortalAnimations() {
 		activeAnimation = new Animation();
-		for (int i = 0; i < 120; i++) {
+		for (int i = 0; i <= 119; i++) {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(i);
 			while (stringBuilder.length() < 3) {
@@ -66,7 +68,7 @@ public class Portal extends Object implements Constantes {
 		}
 
 		inactiveAnimation = new Animation();
-		for (int i = 0; i < 120; i++) {
+		for (int i = 0; i <= 119; i++) {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append(i);
 			while (stringBuilder.length() < 3) {
@@ -77,6 +79,22 @@ public class Portal extends Object implements Constantes {
 		}
 
 		setAnimation(inactiveAnimation);
+	}
+
+	/**
+	 * Purify the gems the player is carrying
+	 */
+	public void purifyGems() {
+		if (state == State.ACTIVE) {
+			ArrayList<Gem> gems = getEscenario().getCanvas().getPlayer().getInventoryGems();
+			for (Gem gem : gems) {
+				gem.setState(Gem.State.PURIFIED);
+			}
+			setState(State.INACTIVE);
+			if (gems.size() == 2) {
+				getEscenario().setDoorClosed(false);
+			}
+		}
 	}
 
 	/**

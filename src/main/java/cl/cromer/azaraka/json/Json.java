@@ -79,7 +79,7 @@ public class Json implements Constantes {
 		Gson gson = gsonBuilder.create();
 		String json = gson.toJson(cells);
 
-		File file = new File("res/scene.json");
+		File file = new File("src/main/resources/scene.json");
 		try {
 			FileOutputStream fileOutputStream = new FileOutputStream(file);
 			fileOutputStream.write(json.getBytes());

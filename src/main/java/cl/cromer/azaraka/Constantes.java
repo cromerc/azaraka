@@ -203,7 +203,7 @@ public interface Constantes {
 		/**
 		 * The global log level is used if the individual log levels are not
 		 */
-		GLOBAL(Level.WARNING),
+		GLOBAL(Level.SEVERE),
 		/**
 		 * The main log level
 		 */
@@ -256,6 +256,10 @@ public interface Constantes {
 		 * The json log level
 		 */
 		JSON(Level.INFO),
+		/**
+		 * The gem log level
+		 */
+		GEM(Level.INFO),
 		/**
 		 * The portal log level
 		 */

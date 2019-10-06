@@ -67,7 +67,17 @@ public class Player extends Object implements Constantes {
 	 */
 	public void keyPressed(KeyEvent event) {
 		if (!getEscenario().isDoorClosed()) {
-			getEscenario().setDoorClosed(true);
+			ArrayList<Gem> gems = getInventoryGems();
+			if (gems.size() < 2) {
+				getEscenario().setDoorClosed(true);
+			}
+			else {
+				for (Gem gem : gems) {
+					if (gem.getState() == Gem.State.TAINTED) {
+						getEscenario().setDoorClosed(true);
+					}
+				}
+			}
 		}
 		switch (event.getKeyCode()) {
 			case KeyEvent.VK_UP:
@@ -95,10 +105,14 @@ public class Player extends Object implements Constantes {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Up key pressed");
-		if (y > 0) {
+		if (x == 2 && y == 0) {
+			getEscenario().getCanvas().win();
+		}
+		else if (y > 0) {
 			Object type = getEscenario().getCeldas()[x][y - 1].getObject();
-			if (type == null || type instanceof Key) {
-				if (type != null) {
+			if (type == null) {
+				Object typeBottom = getEscenario().getCeldas()[x][y - 1].getObjectOnBottom();
+				if (typeBottom instanceof Key) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x, y - 1)) {
 							// Get the key
@@ -106,6 +120,9 @@ public class Player extends Object implements Constantes {
 							break;
 						}
 					}
+				}
+				else if (typeBottom instanceof Portal) {
+					getEscenario().getCanvas().getPortal().purifyGems();
 				}
 
 				getCelda().setObject(null);
@@ -122,9 +139,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setY(getY() - 1);
-			}
-			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
-				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.UP)) {
@@ -156,10 +170,11 @@ public class Player extends Object implements Constantes {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Down key pressed");
-		Object type = getEscenario().getCeldas()[x][y + 1].getObject();
 		if (y < (VERTICAL_CELLS - 1)) {
-			if (type == null || type instanceof Key) {
-				if (type != null) {
+			Object type = getEscenario().getCeldas()[x][y + 1].getObject();
+			if (type == null) {
+				Object typeBottom = getEscenario().getCeldas()[x][y + 1].getObjectOnBottom();
+				if (typeBottom instanceof Key) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x, y + 1)) {
 							// Get the key
@@ -167,6 +182,9 @@ public class Player extends Object implements Constantes {
 							break;
 						}
 					}
+				}
+				else if (typeBottom instanceof Portal) {
+					getEscenario().getCanvas().getPortal().purifyGems();
 				}
 
 				getCelda().setObject(null);
@@ -183,9 +201,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setY(getY() + 1);
-			}
-			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
-				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.DOWN)) {
@@ -219,8 +234,9 @@ public class Player extends Object implements Constantes {
 		getLogger().info("Left key pressed");
 		if (x > 0) {
 			Object type = getEscenario().getCeldas()[x - 1][y].getObject();
-			if (type == null || type instanceof Key) {
-				if (type != null) {
+			if (type == null) {
+				Object typeBottom = getEscenario().getCeldas()[x - 1][y].getObjectOnBottom();
+				if (typeBottom instanceof Key) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x - 1, y)) {
 							// Get the key
@@ -228,6 +244,9 @@ public class Player extends Object implements Constantes {
 							break;
 						}
 					}
+				}
+				else if (typeBottom instanceof Portal) {
+					getEscenario().getCanvas().getPortal().purifyGems();
 				}
 
 				getCelda().setObject(null);
@@ -244,9 +263,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setX(getX() - 1);
-			}
-			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
-				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.LEFT)) {
@@ -278,10 +294,11 @@ public class Player extends Object implements Constantes {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Right key pressed");
-		Object type = getEscenario().getCeldas()[x + 1][y].getObject();
 		if (x < (HORIZONTAL_CELLS - 1)) {
-			if (type == null || type instanceof Key) {
-				if (type != null) {
+			Object type = getEscenario().getCeldas()[x + 1][y].getObject();
+			if (type == null) {
+				Object typeBottom = getEscenario().getCeldas()[x + 1][y].getObjectOnBottom();
+				if (typeBottom instanceof Key) {
 					for (Key key : getEscenario().getCanvas().getKeys()) {
 						if (key.checkPosition(x + 1, y)) {
 							// Get the key
@@ -289,6 +306,9 @@ public class Player extends Object implements Constantes {
 							break;
 						}
 					}
+				}
+				else if (typeBottom instanceof Portal) {
+					getEscenario().getCanvas().getPortal().purifyGems();
 				}
 
 				getCelda().setObject(null);
@@ -305,9 +325,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setX(getX() + 1);
-			}
-			else if (type instanceof Portal && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
-				getEscenario().getCanvas().win();
 			}
 			else {
 				if (changeDirection(Animation.Direction.RIGHT)) {
@@ -377,22 +394,16 @@ public class Player extends Object implements Constantes {
 
 					gainHealth(2);
 
-					int openedChests = 0;
 					for (Chest chest : getEscenario().getCanvas().getChests()) {
 						if (chest.checkPosition(x, y - 1)) {
 							if (chest.getState() == Chest.State.CLOSED) {
 								chest.setState(Chest.State.OPENING);
+								Gem gem = chest.getGem();
+								gem.getCelda().setObjectOnTop(gem);
 								useKey();
+								break;
 							}
 						}
-						if (chest.getState() == Chest.State.OPENED || chest.getState() == Chest.State.OPENING) {
-							openedChests++;
-						}
-					}
-
-					// All chests are opened, activate portal
-					if (openedChests == getEscenario().getCanvas().getChests().size()) {
-						getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 					}
 				}
 			}
@@ -434,6 +445,30 @@ public class Player extends Object implements Constantes {
 	 */
 	public int getHealth() {
 		return health;
+	}
+
+	/**
+	 * Add an object to player inventory
+	 *
+	 * @param object The object to add
+	 */
+	public void addInventory(Object object) {
+		carrying.add(object);
+	}
+
+	/**
+	 * Get the gems the player has
+	 *
+	 * @return Returns an array of the gems the player is carrying
+	 */
+	public ArrayList<Gem> getInventoryGems() {
+		ArrayList<Gem> gems = new ArrayList<>();
+		for (Object object : carrying) {
+			if (object instanceof Gem) {
+				gems.add((Gem) object);
+			}
+		}
+		return gems;
 	}
 
 	/**

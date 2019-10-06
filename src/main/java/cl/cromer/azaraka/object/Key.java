@@ -118,7 +118,7 @@ public class Key extends Object implements Constantes {
 	 */
 	public void getKey() {
 		// Remove the key from the cell
-		getCelda().setObject(null);
+		getCelda().setObjectOnBottom(null);
 		setState(State.HELD);
 	}
 

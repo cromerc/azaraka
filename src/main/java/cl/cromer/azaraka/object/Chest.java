@@ -37,6 +37,14 @@ public class Chest extends Object implements Constantes {
 	 * The open chest sound
 	 */
 	private Sound sound;
+	/**
+	 * The gem contained in the chest
+	 */
+	private Gem gem = null;
+	/**
+	 * The number of loops before the gem should move to inventory
+	 */
+	private int gemLoops = 3;
 
 	/**
 	 * Initialize the chest
@@ -119,6 +127,24 @@ public class Chest extends Object implements Constantes {
 	}
 
 	/**
+	 * Get the gem from the chest
+	 *
+	 * @return The gem in the chest
+	 */
+	public Gem getGem() {
+		return gem;
+	}
+
+	/**
+	 * Put a gem in the chest
+	 *
+	 * @param gem The gem
+	 */
+	public void setGem(Gem gem) {
+		this.gem = gem;
+	}
+
+	/**
 	 * Play the chest opening sound
 	 */
 	private void playChestOpenSound() {
@@ -160,7 +186,21 @@ public class Chest extends Object implements Constantes {
 				getLogger().info(e.getMessage());
 			}
 			synchronized (this) {
-				if (state == State.OPENING) {
+				if (state == State.OPENED) {
+					if (gemLoops > 0) {
+						gemLoops--;
+					}
+					else if (gemLoops == 0) {
+						gem.getCelda().setObjectOnTop(null);
+						gem.setYScale(24);
+						gem.setXScale(24);
+						gem.setUseOffset(false);
+						getEscenario().getCanvas().getPlayer().addInventory(gem);
+						getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+						gemLoops--;
+					}
+				}
+				else if (state == State.OPENING) {
 					animate();
 					getEscenario().getCanvas().repaint();
 				}

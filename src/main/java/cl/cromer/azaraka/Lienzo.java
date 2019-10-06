@@ -139,15 +139,24 @@ public class Lienzo extends Canvas implements Constantes {
 
 		Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
 
+		// Create the gems and later place them in 2 of the chests
+		ArrayList<Gem> gems = new ArrayList<>();
+		Gem lifeGem = new Gem(escenario, new Celda(0, 0, 0, 0));
+		lifeGem.setType(Gem.Type.LIFE);
+		Gem deathGem = new Gem(escenario, new Celda(0, 0, 0, 0));
+		deathGem.setType(Gem.Type.DEATH);
+		gems.add(lifeGem);
+		gems.add(deathGem);
+
 		ArrayList<Object> objectList = escenario.generateRandomObjects();
 		for (Object object : objectList) {
-			object.getCelda().setObject(object);
 			if (object instanceof Player) {
+				object.getCelda().setObject(object);
 				player = (Player) object;
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Enemy) {
-				((Enemy) object).setDirection(enemyDirection);
+				object.getCelda().setObject(object);
 				if (enemyDirection == Enemy.Direction.UP) {
 					enemyDirection = Enemy.Direction.DOWN;
 				}
@@ -160,18 +169,30 @@ public class Lienzo extends Canvas implements Constantes {
 				else {
 					enemyDirection = Enemy.Direction.UP;
 				}
+				((Enemy) object).setDirection(enemyDirection);
 				enemies.add((Enemy) object);
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Chest) {
+				object.getCelda().setObject(object);
+				if (gems.size() > 0) {
+					Gem gem = gems.get(0);
+					// Place the gem in the cell above the chest, but don't add it to object2 until we are ready to draw it
+					gem.setCelda(escenario.getCeldas()[object.getCelda().getX()][object.getCelda().getY() - 1]);
+					threads.put(gem, new Thread(gem));
+					((Chest) object).setGem(gem);
+					gems.remove(gem);
+				}
 				chests.add((Chest) object);
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Key) {
+				object.getCelda().setObjectOnBottom(object);
 				keys.add((Key) object);
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Portal) {
+				object.getCelda().setObjectOnBottom(object);
 				portal = (Portal) object;
 				threads.put(object, new Thread(object));
 			}
@@ -225,6 +246,12 @@ public class Lienzo extends Canvas implements Constantes {
 				key.drawAnimation(graphicBuffer, xKey, 8);
 				xKey = xKey + 3 + (key.getAnimationWidth());
 			}
+		}
+
+		ArrayList<Gem> gems = player.getInventoryGems();
+		for (Gem gem : gems) {
+			gem.drawAnimation(graphicBuffer, xKey, 8);
+			xKey = xKey + 27;
 		}
 
 		if (player != null) {
