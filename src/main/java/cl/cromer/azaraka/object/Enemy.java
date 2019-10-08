@@ -227,6 +227,7 @@ public class Enemy extends Object implements Constantes {
 	 */
 	private void attackPlayer(int x, int y) {
 		if (getEscenario().getCanvas().getPlayer().getHealth() > 0) {
+
 			getLogger().info("Attacked player at x: " + x + " y: " + y);
 
 			playAttackSound();
@@ -237,6 +238,23 @@ public class Enemy extends Object implements Constantes {
 			}
 			catch (SheetException e) {
 				getLogger().warning(e.getMessage());
+			}
+
+			if (direction == Direction.UP) {
+				getAnimation().setCurrentDirection(Animation.Direction.LEFT);
+				direction = Direction.LEFT;
+			}
+			else if (direction == Direction.DOWN) {
+				getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
+				direction = Direction.RIGHT;
+			}
+			else if (direction == Direction.LEFT) {
+				getAnimation().setCurrentDirection(Animation.Direction.UP);
+				direction = Direction.UP;
+			}
+			else {
+				getAnimation().setCurrentDirection(Animation.Direction.DOWN);
+				direction = Direction.DOWN;
 			}
 		}
 	}

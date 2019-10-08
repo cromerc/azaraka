@@ -18,6 +18,7 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.ai.BreadthFirstSearch;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
@@ -40,6 +41,10 @@ public class Player extends Object implements Constantes {
 	 * The current health of the player
 	 */
 	private int health = MAX_HEALTH;
+	/**
+	 * The artificial intelligence of the player
+	 */
+	private BreadthFirstSearch ai;
 
 	/**
 	 * Initialize the player
@@ -66,6 +71,16 @@ public class Player extends Object implements Constantes {
 	 * @param event The event from the keyboard
 	 */
 	public void keyPressed(KeyEvent event) {
+		keyPressed(event.getKeyCode());
+	}
+
+	/**
+	 * Handle keys being pressed in the game
+	 *
+	 * @param keyCode The key code to handle
+	 * @return Returns true if player moved
+	 */
+	public boolean keyPressed(int keyCode) {
 		if (!getEscenario().isDoorClosed()) {
 			ArrayList<Gem> gems = getInventoryGems();
 			if (gems.size() < 2) {
@@ -79,29 +94,28 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
-		switch (event.getKeyCode()) {
+		switch (keyCode) {
 			case KeyEvent.VK_UP:
-				moveUp();
-				break;
+				return moveUp();
 			case KeyEvent.VK_DOWN:
-				moveDown();
-				break;
+				return moveDown();
 			case KeyEvent.VK_LEFT:
-				moveLeft();
-				break;
+				return moveLeft();
 			case KeyEvent.VK_RIGHT:
-				moveRight();
-				break;
+				return moveRight();
 			case KeyEvent.VK_SPACE:
 				interact();
-				break;
+				return false;
 		}
+		return false;
 	}
 
 	/**
 	 * Move the player up
+	 *
+	 * @return Returns true if player moved
 	 */
-	private void moveUp() {
+	private boolean moveUp() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Up key pressed");
@@ -139,6 +153,7 @@ public class Player extends Object implements Constantes {
 				}
 
 				setY(getY() - 1);
+				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.UP)) {
@@ -161,12 +176,15 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
 	 * Move the player down
+	 *
+	 * @return Returns true if player moved
 	 */
-	private void moveDown() {
+	private boolean moveDown() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Down key pressed");
@@ -201,6 +219,7 @@ public class Player extends Object implements Constantes {
 				}
 
 				setY(getY() + 1);
+				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.DOWN)) {
@@ -223,12 +242,15 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
 	 * Move the player to the left
+	 *
+	 * @return Returns true if player moved
 	 */
-	private void moveLeft() {
+	private boolean moveLeft() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Left key pressed");
@@ -263,6 +285,7 @@ public class Player extends Object implements Constantes {
 				}
 
 				setX(getX() - 1);
+				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.LEFT)) {
@@ -285,12 +308,15 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
 	 * Move the player to the right
+	 *
+	 * @return Returns true if player moved
 	 */
-	private void moveRight() {
+	private boolean moveRight() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Right key pressed");
@@ -325,6 +351,7 @@ public class Player extends Object implements Constantes {
 				}
 
 				setX(getX() + 1);
+				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.RIGHT)) {
@@ -347,6 +374,7 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -383,7 +411,7 @@ public class Player extends Object implements Constantes {
 	/**
 	 * Interact with an object in the game
 	 */
-	private void interact() {
+	public void interact() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Space bar pressed");
@@ -401,6 +429,7 @@ public class Player extends Object implements Constantes {
 								Gem gem = chest.getGem();
 								gem.getCelda().setObjectOnTop(gem);
 								useKey();
+								getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 								break;
 							}
 						}
@@ -415,7 +444,7 @@ public class Player extends Object implements Constantes {
 	 *
 	 * @return Returns true if the player has a key or false if they have no keys
 	 */
-	private boolean hasKey() {
+	public boolean hasKey() {
 		for (Object object : carrying) {
 			if (object instanceof Key) {
 				return true;
@@ -457,6 +486,22 @@ public class Player extends Object implements Constantes {
 	}
 
 	/**
+	 * Get the AI in use by the player
+	 *
+	 * @return Returns the current AI in use
+	 */
+	public BreadthFirstSearch getAi() {
+		return ai;
+	}
+
+	/**
+	 * Reset the AI state to start looking for a new objective
+	 */
+	public void resetAi() {
+		ai = new BreadthFirstSearch(getEscenario());
+	}
+
+	/**
 	 * Get the gems the player has
 	 *
 	 * @return Returns an array of the gems the player is carrying
@@ -492,7 +537,7 @@ public class Player extends Object implements Constantes {
 	 *
 	 * @param amount The amount of health to gain
 	 */
-	private void gainHealth(int amount) {
+	public void gainHealth(int amount) {
 		if (health < MAX_HEALTH) {
 			getLogger().info("Gain " + amount + " health");
 			health = health + amount;

@@ -170,8 +170,6 @@ public class Escenario extends JComponent implements Constantes {
 		celdas[2][1].setObject(new Player(this, celdas[2][1]));
 		objectArrayList.add(celdas[2][1].getObject());
 
-		final Lock lock = new ReentrantLock(true);
-
 		for (int i = 0; i < obstacles; i++) {
 			random = randomCoordinates();
 			celdas[random[0]][random[1]].setObject(new Obstacle(this, celdas[random[0]][random[1]]));
@@ -183,6 +181,7 @@ public class Escenario extends JComponent implements Constantes {
 			}
 		}
 
+		final Lock lock = new ReentrantLock(false);
 		for (int i = 0; i < ENEMIES; i++) {
 			random = randomCoordinates();
 			celdas[random[0]][random[1]].setObject(new Enemy(this, celdas[random[0]][random[1]], lock));

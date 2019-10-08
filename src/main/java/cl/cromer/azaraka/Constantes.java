@@ -35,6 +35,10 @@ public interface Constantes {
 	 */
 	String TITLE = "La Aventura de Azaraka";
 	/**
+	 * Whether or not the player should be controlled by AI
+	 */
+	boolean PLAYER_AI = true;
+	/**
 	 * Use a global log if true or individual logs if false
 	 */
 	boolean GLOBAL_LOG = true;
@@ -203,7 +207,7 @@ public interface Constantes {
 		/**
 		 * The global log level is used if the individual log levels are not
 		 */
-		GLOBAL(Level.SEVERE),
+		GLOBAL(Level.ALL),
 		/**
 		 * The main log level
 		 */
@@ -260,6 +264,10 @@ public interface Constantes {
 		 * The gem log level
 		 */
 		GEM(Level.INFO),
+		/**
+		 * The AI log level
+		 */
+		AI(Level.INFO),
 		/**
 		 * The portal log level
 		 */

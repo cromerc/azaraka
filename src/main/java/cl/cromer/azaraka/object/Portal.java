@@ -88,7 +88,10 @@ public class Portal extends Object implements Constantes {
 		if (state == State.ACTIVE) {
 			ArrayList<Gem> gems = getEscenario().getCanvas().getPlayer().getInventoryGems();
 			for (Gem gem : gems) {
-				gem.setState(Gem.State.PURIFIED);
+				if (gem.getState() == Gem.State.TAINTED) {
+					gem.setState(Gem.State.PURIFIED);
+					getEscenario().getCanvas().getPlayer().gainHealth(2);
+				}
 			}
 			setState(State.INACTIVE);
 			if (gems.size() == 2) {
@@ -142,6 +145,15 @@ public class Portal extends Object implements Constantes {
 				getLogger().warning(e.getMessage());
 			}
 		}
+	}
+
+	/**
+	 * Get the current state of the portal
+	 *
+	 * @return Returns the state of the portal
+	 */
+	public State getState() {
+		return state;
 	}
 
 	/**
