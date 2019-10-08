@@ -103,7 +103,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 		}
 
 		if (success) {
-			logger.info("Route to objective calculated!");
+			logger.info("Route to objective found!");
 		}
 		else {
 			logger.info("Route to objective not possible!");
