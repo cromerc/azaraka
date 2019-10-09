@@ -95,7 +95,7 @@ public class Portal extends Object implements Constantes {
 			}
 			setState(State.INACTIVE);
 			if (gems.size() == 2) {
-				getEscenario().setDoorClosed(false);
+				getEscenario().openDoor(true);
 			}
 		}
 	}

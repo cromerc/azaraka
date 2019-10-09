@@ -16,6 +16,7 @@
 package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.ai.AI;
+import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.object.Object;
 import cl.cromer.azaraka.object.*;
 import cl.cromer.azaraka.sound.Sound;
@@ -28,9 +29,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -209,7 +208,7 @@ public class Lienzo extends Canvas implements Constantes {
 		}
 
 		if (PLAYER_AI) {
-			playerAiLauncher();
+			setupPlayerAI();
 		}
 		else {
 			addKeyListener(new KeyAdapter() {
@@ -226,66 +225,26 @@ public class Lienzo extends Canvas implements Constantes {
 	}
 
 	/**
-	 * Launch a new player AI task
+	 * Set up the player AI
 	 */
-	public void playerAiLauncher() {
-		player.resetAi();
-		Thread aiThread = aiThreads.get(player.getAi());
-		if (aiThread != null) {
-			if (aiThread.isAlive()) {
-				aiThread.interrupt();
-			}
-			try {
-				aiThread.join();
-			}
-			catch (InterruptedException e) {
-				logger.info(e.getMessage());
-			}
-		}
-		if (!player.hasKey()) {
-			for (Key key : keys) {
-				if (key.getState() == Key.State.UNUSED) {
-					player.getAi().search(player.getCelda().getX(), player.getCelda().getY(), key.getCelda().getX(), key.getCelda().getY());
-					player.getAi().calculateRoute();
-					Thread thread = new Thread(player.getAi());
-					thread.start();
-					aiThreads.put(player.getAi(), thread);
-					return;
-				}
-			}
-		}
+	public void setupPlayerAI() {
+		player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null));
 
-		if (portal.getState() == Portal.State.ACTIVE) {
-			player.getAi().search(player.getCelda().getX(), player.getCelda().getY(), portal.getCelda().getX(), portal.getCelda().getY());
-			player.getAi().calculateRoute();
-			Thread thread = new Thread(player.getAi());
-			thread.start();
-			aiThreads.put(player.getAi(), thread);
-			return;
-		}
+		//player.getAi().addDestination(new State(portal.getCelda().getX(), portal.getCelda().getY(), State.Type.PORTAL, null));
 
+		// Shuffle the chests so that the AI doesn't open the correct chests on the first go
+		Collections.shuffle(chests, new Random(23));
 		for (Chest chest : chests) {
-			if (chest.getState() == Chest.State.CLOSED) {
-				player.getAi().search(player.getCelda().getX(), player.getCelda().getY(), chest.getCelda().getX(), chest.getCelda().getY() + 1);
-				player.getAi().calculateRoute();
-				player.getAi().setInteract(true);
-				Thread thread = new Thread(player.getAi());
-				thread.start();
-				aiThreads.put(player.getAi(), thread);
-				return;
-			}
+			player.getAi().addDestination(new State(chest.getCelda().getX(), chest.getCelda().getY() + 1, State.Type.CHEST, null));
 		}
 
-		if (!escenario.isDoorClosed()) {
-			if (player.getCelda().getX() == 2 && player.getCelda().getY() == 0) {
-				player.keyPressed(KeyEvent.VK_UP);
-			}
-			player.getAi().search(player.getCelda().getX(), player.getCelda().getY(), 2, 0);
-			player.getAi().calculateRoute();
-			Thread thread = new Thread(player.getAi());
-			thread.start();
-			aiThreads.put(player.getAi(), thread);
+		for (Key key : keys) {
+			player.getAi().addDestination(new State(key.getCelda().getX(), key.getCelda().getY(), State.Type.KEY, null));
 		}
+
+		Thread thread = new Thread(player.getAi());
+		thread.start();
+		aiThreads.put(player.getAi(), thread);
 	}
 
 	/**
@@ -462,6 +421,7 @@ public class Lienzo extends Canvas implements Constantes {
 	 * Called when the game is won
 	 */
 	public void win() {
+		stopThreads();
 		stopBackgroundMusic();
 
 		try {
@@ -472,7 +432,6 @@ public class Lienzo extends Canvas implements Constantes {
 			logger.warning(e.getMessage());
 		}
 
-		stopThreads();
 		JOptionPane.showMessageDialog(null, "Ganaste!");
 		System.exit(0);
 	}

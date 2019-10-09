@@ -39,6 +39,10 @@ public interface Constantes {
 	 */
 	boolean PLAYER_AI = true;
 	/**
+	 * Move the player to the portal if attacked
+	 */
+	boolean TRANSPORT_PLAYER_ON_ATTACK = false;
+	/**
 	 * Use a global log if true or individual logs if false
 	 */
 	boolean GLOBAL_LOG = true;
@@ -69,7 +73,7 @@ public interface Constantes {
 	/**
 	 * The amount of chests to draw
 	 */
-	int CHESTS = 2;
+	int CHESTS = 5;
 	/**
 	 * The amount of enemies to draw
 	 */
@@ -207,7 +211,7 @@ public interface Constantes {
 		/**
 		 * The global log level is used if the individual log levels are not
 		 */
-		GLOBAL(Level.ALL),
+		GLOBAL(Level.SEVERE),
 		/**
 		 * The main log level
 		 */

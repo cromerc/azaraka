@@ -18,22 +18,12 @@ package cl.cromer.azaraka.ai;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
- * This is an implementation of the Breadth-First search algorithm
+ * This is an implementation of the Breadth-First search algorithm with multiple objectives
  */
 public class BreadthFirstSearch extends AI implements Constantes {
-	/**
-	 * The logger
-	 */
-	private final Logger logger;
-	/**
-	 * The scene the AI needs to search
-	 */
-	private final Escenario escenario;
 	/**
 	 * The queued states to check
 	 */
@@ -45,52 +35,47 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	/**
 	 * The steps to get to the objective
 	 */
-	private final ArrayList<State.Direction> steps = new ArrayList<>();
+	private final ArrayList<State.Type> steps = new ArrayList<>();
 	/**
-	 * Which step the object is on
+	 * The destinations the player should visit
 	 */
-	private int stepIndex = 0;
+	private final ArrayList<State> destinations = new ArrayList<>();
 	/**
-	 * The state of the objective
+	 * The state of the search objective
 	 */
-	private State objective;
+	private State searchObjective;
 	/**
 	 * If the search was successful or not
 	 */
 	private boolean success = false;
 	/**
-	 * Interact with object once the objective is reached
+	 * The subInitial point to start searching from
 	 */
-	private boolean interact = false;
+	private State initial;
 
 	/**
 	 * Initialize the algorithm
 	 *
 	 * @param escenario The scene the AI is in
 	 */
-	public BreadthFirstSearch(Escenario escenario) {
-		this.escenario = escenario;
-		logger = getLogger(this.getClass(), LogLevel.AI);
+	protected BreadthFirstSearch(Escenario escenario) {
+		super(escenario);
+		setLogger(getLogger(this.getClass(), LogLevel.AI));
 	}
 
 	/**
-	 * Search for a path that gets from the start point to the end point
+	 * Find a path to the objective
 	 *
-	 * @param startX The start x coordinate
-	 * @param startY The start y coordinate
-	 * @param endX   The end x coordinate
-	 * @param endY   The end y coordinate
+	 * @param searchInitial The start point
+	 * @param searchObjective The objective
+	 * @return Returns true if a path was found or false otherwise
 	 */
-	public void search(int startX, int startY, int endX, int endY) {
-		State initial = new State(startX, startY, State.Direction.START, null);
-		objective = new State(endX, endY, State.Direction.END, null);
+	private boolean search(State searchInitial, State searchObjective) {
+		queuedStates.add(searchInitial);
+		history.add(searchInitial);
+		this.searchObjective = searchObjective;
 
-		queuedStates.add(initial);
-		history.add(initial);
-
-		if (initial.equals(objective)) {
-			success = true;
-		}
+		success = searchInitial.equals(searchObjective);
 
 		while (!queuedStates.isEmpty() && !success) {
 			State temp = queuedStates.get(0);
@@ -103,10 +88,13 @@ public class BreadthFirstSearch extends AI implements Constantes {
 		}
 
 		if (success) {
-			logger.info("Route to objective found!");
+			getLogger().info("Route to objective found!");
+			calculateRoute();
+			return true;
 		}
 		else {
-			logger.info("Route to objective not possible!");
+			getLogger().info("Route to objective not found!");
+			return false;
 		}
 	}
 
@@ -117,14 +105,14 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveUp(State state) {
 		if (state.getY() > 0) {
-			if (escenario.getCeldas()[state.getX()][state.getY() - 1].getObject() == null) {
-				State up = new State(state.getX(), state.getY() - 1, State.Direction.UP, state);
+			if (getEscenario().getCeldas()[state.getX()][state.getY() - 1].getObject() == null) {
+				State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state);
 				if (!history.contains(up)) {
 					queuedStates.add(up);
 					history.add(up);
 
-					if (up.equals(objective)) {
-						objective = up;
+					if (up.equals(searchObjective)) {
+						searchObjective = up;
 						success = true;
 					}
 				}
@@ -139,14 +127,14 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveDown(State state) {
 		if (state.getY() < VERTICAL_CELLS - 1) {
-			if (escenario.getCeldas()[state.getX()][state.getY() + 1].getObject() == null) {
-				State down = new State(state.getX(), state.getY() + 1, State.Direction.DOWN, state);
+			if (getEscenario().getCeldas()[state.getX()][state.getY() + 1].getObject() == null) {
+				State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state);
 				if (!history.contains(down)) {
 					queuedStates.add(down);
 					history.add(down);
 
-					if (down.equals(objective)) {
-						objective = down;
+					if (down.equals(searchObjective)) {
+						searchObjective = down;
 						success = true;
 					}
 				}
@@ -161,14 +149,14 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveLeft(State state) {
 		if (state.getX() > 0) {
-			if (escenario.getCeldas()[state.getX() - 1][state.getY()].getObject() == null) {
-				State left = new State(state.getX() - 1, state.getY(), State.Direction.LEFT, state);
+			if (getEscenario().getCeldas()[state.getX() - 1][state.getY()].getObject() == null) {
+				State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state);
 				if (!history.contains(left)) {
 					queuedStates.add(left);
 					history.add(left);
 
-					if (left.equals(objective)) {
-						objective = left;
+					if (left.equals(searchObjective)) {
+						searchObjective = left;
 						success = true;
 					}
 				}
@@ -183,14 +171,14 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveRight(State state) {
 		if (state.getX() < HORIZONTAL_CELLS - 1) {
-			if (escenario.getCeldas()[state.getX() + 1][state.getY()].getObject() == null) {
-				State right = new State(state.getX() + 1, state.getY(), State.Direction.RIGHT, state);
+			if (getEscenario().getCeldas()[state.getX() + 1][state.getY()].getObject() == null) {
+				State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state);
 				if (!history.contains(right)) {
 					queuedStates.add(right);
 					history.add(right);
 
-					if (right.equals(objective)) {
-						objective = right;
+					if (right.equals(searchObjective)) {
+						searchObjective = right;
 						success = true;
 					}
 				}
@@ -201,24 +189,89 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	/**
 	 * Calculate the route to the object
 	 */
-	public void calculateRoute() {
-		logger.info("Calculate the route!");
-		State predecessor = objective;
+	private void calculateRoute() {
+		getLogger().info("Calculate the route!");
+		State predecessor = searchObjective;
 		do {
-			steps.add(predecessor.getOperation());
+			steps.add(0, predecessor.getOperation());
 			predecessor = predecessor.getPredecessor();
 		}
 		while (predecessor != null);
-		stepIndex = steps.size() - 1;
 	}
 
 	/**
-	 * Set whether or not the object should interact when it arrives at the destination
+	 * Add a destination to the AI
 	 *
-	 * @param interact Set to true to interact or false otherwise
+	 * @param state The new state to add
 	 */
-	public void setInteract(boolean interact) {
-		this.interact = interact;
+	public void addDestination(State state) {
+		destinations.add(state);
+	}
+
+	/**
+	 * Add a priority destination to the AI
+	 *
+	 * @param state The new state to add
+	 */
+	protected void addPriorityDestination(State state) {
+		destinations.add(0, state);
+	}
+
+	/**
+	 * This method is called when the player arrives at a destination
+	 *
+	 * @param subObjective The objective the player arrived at
+	 */
+	protected void destinationArrived(State subObjective) {
+		destinations.remove(subObjective);
+	}
+
+	/**
+	 * If the condition is true go to the objective
+	 *
+	 * @param subObjective The objective to check
+	 * @return Returns true or false based on whether the objective can be obtained
+	 */
+	protected boolean checkCondition(State subObjective) {
+		return true;
+	}
+
+	/**
+	 * Get the steps needed to arrive at the objective
+	 *
+	 * @return Returns an array of steps
+	 */
+	protected ArrayList<State.Type> getSteps() {
+		return steps;
+	}
+
+	/**
+	 * The child class should call this to set a new initial point
+	 *
+	 * @param initial The new state to start from
+	 */
+	protected void setInitial(State initial) {
+		this.initial = initial;
+	}
+
+	/**
+	 * The child class should override this to trigger a new initial state
+	 *
+	 * @throws AIException Thrown if the method is called via super
+	 */
+	protected void getNewInitial() throws AIException {
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		throw new AIException("Do not call " + methodName + "using super!");
+	}
+
+	/**
+	 * The child class should override this to do actions
+	 *
+	 * @throws AIException Thrown if the method is called via super
+	 */
+	protected void doAction() throws AIException {
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		throw new AIException("Do not call " + methodName + "using super!");
 	}
 
 	/**
@@ -228,51 +281,68 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	public void run() {
 		super.run();
 		while (getActive()) {
-			if (stepIndex >= 0) {
-				try {
-					Thread.sleep(500);
-				}
-				catch (InterruptedException e) {
-					logger.info(e.getMessage());
-				}
-				synchronized (this) {
-					boolean moved = false;
-					if (steps.size() - 1 >= stepIndex && stepIndex >= 0) {
-						switch (steps.get(stepIndex)) {
-							case UP:
-								moved = escenario.getCanvas().getPlayer().keyPressed(KeyEvent.VK_UP);
-								break;
-							case DOWN:
-								moved = escenario.getCanvas().getPlayer().keyPressed(KeyEvent.VK_DOWN);
-								break;
-							case LEFT:
-								moved = escenario.getCanvas().getPlayer().keyPressed(KeyEvent.VK_LEFT);
-								break;
-							case RIGHT:
-								moved = escenario.getCanvas().getPlayer().keyPressed(KeyEvent.VK_RIGHT);
-								break;
-							default:
-								stepIndex--;
-								break;
+			try {
+				Thread.sleep(500);
+			}
+			catch (InterruptedException e) {
+				getLogger().info(e.getMessage());
+			}
+			synchronized (this) {
+				queuedStates.clear();
+				history.clear();
+				steps.clear();
+
+				State objective;
+				boolean found;
+				int destinationIndex = 0;
+
+				do {
+					try {
+						getNewInitial();
+					}
+					catch (AIException e) {
+						getLogger().warning(e.getMessage());
+					}
+					objective = destinations.get(destinationIndex);
+
+					if (checkCondition(objective)) {
+						found = search(initial, objective);
+					}
+					else {
+						found = false;
+					}
+
+					if (initial.equals(objective)) {
+						destinationArrived(objective);
+						destinationIndex = 0;
+					}
+					else {
+						if (!found) {
+							queuedStates.clear();
+							history.clear();
+							steps.clear();
+							// Don't run this because the destination might return to be available again at some point
+							//destinationArrived(subObjective);
 						}
 					}
 
-					escenario.getCanvas().repaint();
-					if (moved) {
-						stepIndex--;
+					if (destinations.isEmpty()) {
+						getLogger().info("No more destinations!");
+						setActive(false);
+					}
+					destinationIndex++;
+					if (destinationIndex >= destinations.size()) {
+						destinationIndex = 0;
 					}
 				}
-			}
-			else {
-				setActive(false);
+				while (!found && !destinations.isEmpty());
 
-				if (interact) {
-					escenario.getCanvas().getPlayer().keyPressed(KeyEvent.VK_UP);
-					escenario.getCanvas().getPlayer().interact();
-					escenario.getCanvas().repaint();
+				try {
+					doAction();
 				}
-				// Launch the next objective
-				escenario.getCanvas().playerAiLauncher();
+				catch (AIException e) {
+					getLogger().warning(e.getMessage());
+				}
 			}
 		}
 	}

@@ -239,6 +239,7 @@ public class Enemy extends Object implements Constantes {
 			catch (SheetException e) {
 				getLogger().warning(e.getMessage());
 			}
+			getEscenario().getCanvas().getPlayer().attacked();
 
 			if (direction == Direction.UP) {
 				getAnimation().setCurrentDirection(Animation.Direction.LEFT);

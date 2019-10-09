@@ -30,7 +30,7 @@ public class State {
 	/**
 	 * The direction to move
 	 */
-	private final Direction operation;
+	private final Type operation;
 	/**
 	 * The previous step
 	 */
@@ -44,7 +44,7 @@ public class State {
 	 * @param operation   The operation to perform
 	 * @param predecessor The previous state
 	 */
-	public State(int x, int y, Direction operation, State predecessor) {
+	public State(int x, int y, Type operation, State predecessor) {
 		this.x = x;
 		this.y = y;
 		this.operation = operation;
@@ -74,7 +74,7 @@ public class State {
 	 *
 	 * @return The operation to perform
 	 */
-	public Direction getOperation() {
+	public Type getOperation() {
 		return operation;
 	}
 
@@ -108,17 +108,29 @@ public class State {
 	}
 
 	/**
-	 * The direction to move in and the start and end positions
+	 * The type of operation
 	 */
-	public enum Direction {
+	public enum Type {
 		/**
 		 * Where to start the search
 		 */
 		START,
 		/**
-		 * Where to end the search
+		 * Arrive at the key
 		 */
-		END,
+		KEY,
+		/**
+		 * Arrive at the chest
+		 */
+		CHEST,
+		/**
+		 * Arrive at the portal
+		 */
+		PORTAL,
+		/**
+		 * Arrive at the exit
+		 */
+		EXIT,
 		/**
 		 * Move up
 		 */

@@ -187,17 +187,19 @@ public class Chest extends Object implements Constantes {
 			}
 			synchronized (this) {
 				if (state == State.OPENED) {
-					if (gemLoops > 0) {
-						gemLoops--;
-					}
-					else if (gemLoops == 0) {
-						gem.getCelda().setObjectOnTop(null);
-						gem.setYScale(24);
-						gem.setXScale(24);
-						gem.setUseOffset(false);
-						getEscenario().getCanvas().getPlayer().addInventory(gem);
-						getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
-						gemLoops--;
+					if (gem != null) {
+						if (gemLoops > 0) {
+							gemLoops--;
+						}
+						else if (gemLoops == 0) {
+							gem.getCelda().setObjectOnTop(null);
+							gem.setYScale(24);
+							gem.setXScale(24);
+							gem.setUseOffset(false);
+							getEscenario().getCanvas().getPlayer().addInventory(gem);
+							getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+							gemLoops--;
+						}
 					}
 				}
 				else if (state == State.OPENING) {

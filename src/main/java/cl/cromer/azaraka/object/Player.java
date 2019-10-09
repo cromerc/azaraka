@@ -18,7 +18,7 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
-import cl.cromer.azaraka.ai.BreadthFirstSearch;
+import cl.cromer.azaraka.ai.PlayerAI;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
@@ -44,7 +44,7 @@ public class Player extends Object implements Constantes {
 	/**
 	 * The artificial intelligence of the player
 	 */
-	private BreadthFirstSearch ai;
+	private final PlayerAI ai;
 
 	/**
 	 * Initialize the player
@@ -56,6 +56,7 @@ public class Player extends Object implements Constantes {
 		super(escenario, celda);
 		setLogger(getLogger(this.getClass(), LogLevel.PLAYER));
 		loadPlayerAnimation();
+		ai = new PlayerAI(escenario, this);
 	}
 
 	/**
@@ -78,44 +79,44 @@ public class Player extends Object implements Constantes {
 	 * Handle keys being pressed in the game
 	 *
 	 * @param keyCode The key code to handle
-	 * @return Returns true if player moved
 	 */
-	public boolean keyPressed(int keyCode) {
-		if (!getEscenario().isDoorClosed()) {
+	public void keyPressed(int keyCode) {
+		if (getEscenario().isDoorOpen()) {
 			ArrayList<Gem> gems = getInventoryGems();
 			if (gems.size() < 2) {
-				getEscenario().setDoorClosed(true);
+				getEscenario().openDoor(false);
 			}
 			else {
 				for (Gem gem : gems) {
 					if (gem.getState() == Gem.State.TAINTED) {
-						getEscenario().setDoorClosed(true);
+						getEscenario().openDoor(false);
 					}
 				}
 			}
 		}
 		switch (keyCode) {
 			case KeyEvent.VK_UP:
-				return moveUp();
+				moveUp();
+				break;
 			case KeyEvent.VK_DOWN:
-				return moveDown();
+				moveDown();
+				break;
 			case KeyEvent.VK_LEFT:
-				return moveLeft();
+				moveLeft();
+				break;
 			case KeyEvent.VK_RIGHT:
-				return moveRight();
+				moveRight();
+				break;
 			case KeyEvent.VK_SPACE:
 				interact();
-				return false;
+				break;
 		}
-		return false;
 	}
 
 	/**
 	 * Move the player up
-	 *
-	 * @return Returns true if player moved
 	 */
-	private boolean moveUp() {
+	private void moveUp() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Up key pressed");
@@ -153,7 +154,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setY(getY() - 1);
-				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.UP)) {
@@ -176,15 +176,12 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
-		return false;
 	}
 
 	/**
 	 * Move the player down
-	 *
-	 * @return Returns true if player moved
 	 */
-	private boolean moveDown() {
+	private void moveDown() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Down key pressed");
@@ -219,7 +216,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setY(getY() + 1);
-				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.DOWN)) {
@@ -242,15 +238,12 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
-		return false;
 	}
 
 	/**
 	 * Move the player to the left
-	 *
-	 * @return Returns true if player moved
 	 */
-	private boolean moveLeft() {
+	private void moveLeft() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Left key pressed");
@@ -285,7 +278,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setX(getX() - 1);
-				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.LEFT)) {
@@ -308,15 +300,12 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
-		return false;
 	}
 
 	/**
 	 * Move the player to the right
-	 *
-	 * @return Returns true if player moved
 	 */
-	private boolean moveRight() {
+	private void moveRight() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Right key pressed");
@@ -351,7 +340,6 @@ public class Player extends Object implements Constantes {
 				}
 
 				setX(getX() + 1);
-				return true;
 			}
 			else {
 				if (changeDirection(Animation.Direction.RIGHT)) {
@@ -374,7 +362,6 @@ public class Player extends Object implements Constantes {
 				}
 			}
 		}
-		return false;
 	}
 
 	/**
@@ -427,9 +414,11 @@ public class Player extends Object implements Constantes {
 							if (chest.getState() == Chest.State.CLOSED) {
 								chest.setState(Chest.State.OPENING);
 								Gem gem = chest.getGem();
-								gem.getCelda().setObjectOnTop(gem);
+								if (gem != null) {
+									gem.getCelda().setObjectOnTop(gem);
+									getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+								}
 								useKey();
-								getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 								break;
 							}
 						}
@@ -454,6 +443,21 @@ public class Player extends Object implements Constantes {
 	}
 
 	/**
+	 * Get the number of gems the player has
+	 *
+	 * @return Returns the number of gems the player has
+	 */
+	public int getGemCount() {
+		int count = 0;
+		for (Object object : carrying) {
+			if (object instanceof Gem) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
 	 * Removes a key from the player inventory
 	 */
 	private void useKey() {
@@ -463,6 +467,26 @@ public class Player extends Object implements Constantes {
 				((Key) object).setState(Key.State.USED);
 				carrying.remove(object);
 				return;
+			}
+		}
+	}
+
+	/**
+	 * This is called when the player gets attacked
+	 */
+	public void attacked() {
+		if (TRANSPORT_PLAYER_ON_ATTACK) {
+			if (PLAYER_AI) {
+				ai.setActive(false);
+			}
+			getCelda().setObject(null);
+			getAnimation().setCurrentDirection(Animation.Direction.DOWN);
+			setCelda(getEscenario().getCanvas().getPortal().getCelda());
+			getCelda().setObject(this);
+			setX(getCelda().getX());
+			setY(getCelda().getY());
+			if (PLAYER_AI) {
+				getEscenario().getCanvas().setupPlayerAI();
 			}
 		}
 	}
@@ -490,15 +514,8 @@ public class Player extends Object implements Constantes {
 	 *
 	 * @return Returns the current AI in use
 	 */
-	public BreadthFirstSearch getAi() {
+	public PlayerAI getAi() {
 		return ai;
-	}
-
-	/**
-	 * Reset the AI state to start looking for a new objective
-	 */
-	public void resetAi() {
-		ai = new BreadthFirstSearch(getEscenario());
 	}
 
 	/**

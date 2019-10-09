@@ -64,9 +64,9 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	private Sheet textureSheet;
 	/**
-	 * Whether or not the door is closed yet
+	 * Whether or not the door is open
 	 */
-	private boolean doorClosed = false;
+	private boolean doorOpen = true;
 
 	/**
 	 * Initialize the scene
@@ -181,7 +181,7 @@ public class Escenario extends JComponent implements Constantes {
 			}
 		}
 
-		final Lock lock = new ReentrantLock(false);
+		final Lock lock = new ReentrantLock(true);
 		for (int i = 0; i < ENEMIES; i++) {
 			random = randomCoordinates();
 			celdas[random[0]][random[1]].setObject(new Enemy(this, celdas[random[0]][random[1]], lock));
@@ -470,21 +470,21 @@ public class Escenario extends JComponent implements Constantes {
 	}
 
 	/**
-	 * Check if door is closed or not
+	 * Check if door is open
 	 *
-	 * @return Returns true if closed or false if open
+	 * @return Returns true if open or false if closed
 	 */
-	public boolean isDoorClosed() {
-		return doorClosed;
+	public boolean isDoorOpen() {
+		return doorOpen;
 	}
 
 	/**
 	 * Change the state of the door
 	 *
-	 * @param doorClosed Set to true to the close the door or false to open it
+	 * @param doorOpen Set to true to open the door or false to close it
 	 */
-	public void setDoorClosed(boolean doorClosed) {
-		if (doorClosed && !isDoorClosed()) {
+	public void openDoor(boolean doorOpen) {
+		if (!doorOpen && isDoorOpen()) {
 			celdas[2][0].setObject(new Obstacle(this, celdas[2][0]));
 			try {
 				celdas[2][0].addTexture(textureSheet.getTexture(193), 193);
@@ -492,12 +492,12 @@ public class Escenario extends JComponent implements Constantes {
 			catch (SheetException e) {
 				logger.warning(e.getMessage());
 			}
-			this.doorClosed = true;
+			this.doorOpen = false;
 		}
-		else if (!doorClosed && isDoorClosed()) {
+		else if (doorOpen && !isDoorOpen()) {
 			celdas[2][0].removeTexture(193);
 			celdas[2][0].setObject(null);
-			this.doorClosed = false;
+			this.doorOpen = true;
 		}
 	}
 

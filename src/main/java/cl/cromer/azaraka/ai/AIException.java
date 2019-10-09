@@ -15,86 +15,16 @@
 
 package cl.cromer.azaraka.ai;
 
-import cl.cromer.azaraka.Escenario;
-
-import java.util.logging.Logger;
-
 /**
- * AI algorithms extends this class
+ * This class handles exceptions thrown by the AI
  */
-public class AI implements Runnable {
+public class AIException extends Exception {
 	/**
-	 * The scene of the game
-	 */
-	private final Escenario escenario;
-	/**
-	 * The logger
-	 */
-	private Logger logger;
-	/**
-	 * Whether or not the run loop of the AI is active
-	 */
-	private boolean active;
-
-	/**
-	 * Initialize the AI
+	 * Initialize the AI exception
 	 *
-	 * @param escenario The scene of the game
+	 * @param errorMessage The message thrown
 	 */
-	protected AI(Escenario escenario) {
-		this.escenario = escenario;
-	}
-
-	/**
-	 * Get teh scene
-	 *
-	 * @return Returns the scene
-	 */
-	protected Escenario getEscenario() {
-		return escenario;
-	}
-
-	/**
-	 * Get the active state of the AI
-	 *
-	 * @return Returns true if the AI is active or false otherwise
-	 */
-	protected boolean getActive() {
-		return active;
-	}
-
-	/**
-	 * Set the active state for the AI loop
-	 *
-	 * @param active Set to true to have the run method loop run indefinitely or false to stop the loop
-	 */
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	/**
-	 * Get the logger
-	 *
-	 * @return Returns a logger
-	 */
-	protected Logger getLogger() {
-		return logger;
-	}
-
-	/**
-	 * Set the logger
-	 *
-	 * @param logger The logger to set
-	 */
-	protected void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/**
-	 * The run method
-	 */
-	@Override
-	public void run() {
-		setActive(true);
+	public AIException(String errorMessage) {
+		super(errorMessage);
 	}
 }
