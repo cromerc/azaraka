@@ -48,19 +48,6 @@ public class Key extends Object implements Constantes {
 		super(escenario, celda);
 		setLogger(getLogger(this.getClass(), LogLevel.KEY));
 		loadKeyAnimation();
-		loadGetKeySound();
-	}
-
-	/**
-	 * Load the key sound
-	 */
-	private void loadGetKeySound() {
-		try {
-			sound = new Sound("/snd/GetKey.wav");
-		}
-		catch (SoundException e) {
-			getLogger().warning(e.getMessage());
-		}
 	}
 
 	/**
@@ -111,6 +98,15 @@ public class Key extends Object implements Constantes {
 		catch (SoundException e) {
 			getLogger().warning(e.getMessage());
 		}
+	}
+
+	/**
+	 * Set the sound the key object will use
+	 *
+	 * @param sound The sound to use
+	 */
+	public void setSound(Sound sound) {
+		this.sound = sound;
 	}
 
 	/**

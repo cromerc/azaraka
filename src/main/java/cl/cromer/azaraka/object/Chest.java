@@ -57,19 +57,6 @@ public class Chest extends Object implements Constantes {
 		setLogger(getLogger(this.getClass(), LogLevel.CHEST));
 
 		loadChestAnimation();
-		loadChestOpenSound();
-	}
-
-	/**
-	 * Load the chest open sound
-	 */
-	private void loadChestOpenSound() {
-		try {
-			sound = new Sound("/snd/OpenChest.wav");
-		}
-		catch (SoundException e) {
-			getLogger().warning(e.getMessage());
-		}
 	}
 
 	/**
@@ -155,6 +142,15 @@ public class Chest extends Object implements Constantes {
 		catch (SoundException e) {
 			getLogger().warning(e.getMessage());
 		}
+	}
+
+	/**
+	 * Set the chest open sound
+	 *
+	 * @param sound The sound to use
+	 */
+	public void setSound(Sound sound) {
+		this.sound = sound;
 	}
 
 	/**

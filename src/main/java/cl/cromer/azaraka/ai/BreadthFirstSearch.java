@@ -18,6 +18,7 @@ package cl.cromer.azaraka.ai;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 /**
@@ -58,7 +59,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 *
 	 * @param escenario The scene the AI is in
 	 */
-	protected BreadthFirstSearch(Escenario escenario) {
+	public BreadthFirstSearch(Escenario escenario) {
 		super(escenario);
 		setLogger(getLogger(this.getClass(), LogLevel.AI));
 	}
@@ -70,7 +71,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 * @param searchObjective The objective
 	 * @return Returns true if a path was found or false otherwise
 	 */
-	private boolean search(State searchInitial, State searchObjective) {
+	public boolean search(State searchInitial, State searchObjective) {
 		queuedStates.add(searchInitial);
 		history.add(searchInitial);
 		this.searchObjective = searchObjective;
@@ -106,7 +107,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	private void moveUp(State state) {
 		if (state.getY() > 0) {
 			if (getEscenario().getCeldas()[state.getX()][state.getY() - 1].getObject() == null) {
-				State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state);
+				State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state, state.getImportance());
 				if (!history.contains(up)) {
 					queuedStates.add(up);
 					history.add(up);
@@ -128,7 +129,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	private void moveDown(State state) {
 		if (state.getY() < VERTICAL_CELLS - 1) {
 			if (getEscenario().getCeldas()[state.getX()][state.getY() + 1].getObject() == null) {
-				State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state);
+				State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state, state.getImportance());
 				if (!history.contains(down)) {
 					queuedStates.add(down);
 					history.add(down);
@@ -150,7 +151,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	private void moveLeft(State state) {
 		if (state.getX() > 0) {
 			if (getEscenario().getCeldas()[state.getX() - 1][state.getY()].getObject() == null) {
-				State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state);
+				State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state, state.getImportance());
 				if (!history.contains(left)) {
 					queuedStates.add(left);
 					history.add(left);
@@ -172,7 +173,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	private void moveRight(State state) {
 		if (state.getX() < HORIZONTAL_CELLS - 1) {
 			if (getEscenario().getCeldas()[state.getX() + 1][state.getY()].getObject() == null) {
-				State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state);
+				State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state, state.getImportance());
 				if (!history.contains(right)) {
 					queuedStates.add(right);
 					history.add(right);
@@ -209,21 +210,42 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	}
 
 	/**
-	 * Add a priority destination to the AI
-	 *
-	 * @param state The new state to add
+	 * Sort the destinations by importance, if the importance is the same then sort them by distance
 	 */
-	protected void addPriorityDestination(State state) {
-		destinations.add(0, state);
+	protected void sortDestinations() {
+		destinations.sort((state1, state2) -> {
+			if (state1.getImportance() > state2.getImportance()) {
+				// The first state is more important
+				return -1;
+			}
+			else if (state1.getImportance() < state2.getImportance()) {
+				// The second state is more important
+				return 1;
+			}
+			else {
+				// The states have equal importance, so let's compare distances between them
+				if (initial != null) {
+					double state1Distance = Point2D.distance(initial.getX(), initial.getY(), state1.getX(), state1.getY());
+					double state2Distance = Point2D.distance(initial.getX(), initial.getY(), state2.getX(), state2.getY());
+					return Double.compare(state1Distance, state2Distance);
+				}
+				else {
+					return 0;
+				}
+			}
+		});
 	}
 
 	/**
 	 * This method is called when the player arrives at a destination
 	 *
-	 * @param subObjective The objective the player arrived at
+	 * @param objective The objective the player arrived at
+	 * @throws AIException Thrown if the method is called via super
+	 * @return Returns true if the destination condition is valid or false otherwise
 	 */
-	protected void destinationArrived(State subObjective) {
-		destinations.remove(subObjective);
+	protected boolean destinationArrived(State objective) throws AIException {
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		throw new AIException("Do not call " + methodName + "using super!");
 	}
 
 	/**
@@ -231,9 +253,11 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 *
 	 * @param subObjective The objective to check
 	 * @return Returns true or false based on whether the objective can be obtained
+	 * @throws AIException Thrown if the method is called via super
 	 */
-	protected boolean checkCondition(State subObjective) {
-		return true;
+	protected boolean checkCondition(State subObjective) throws AIException {
+		String methodName = new Throwable().getStackTrace()[0].getMethodName();
+		throw new AIException("Do not call " + methodName + "using super!");
 	}
 
 	/**
@@ -293,7 +317,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 				steps.clear();
 
 				State objective;
-				boolean found;
+				boolean found = false;
 				int destinationIndex = 0;
 
 				do {
@@ -305,16 +329,25 @@ public class BreadthFirstSearch extends AI implements Constantes {
 					}
 					objective = destinations.get(destinationIndex);
 
-					if (checkCondition(objective)) {
-						found = search(initial, objective);
+					try {
+						if (checkCondition(objective)) {
+							found = search(initial, objective);
+						}
 					}
-					else {
-						found = false;
+					catch (AIException e) {
+						getLogger().warning(e.getMessage());
 					}
 
 					if (initial.equals(objective)) {
-						destinationArrived(objective);
-						destinationIndex = 0;
+						try {
+							if (destinationArrived(objective)) {
+								destinations.remove(objective);
+								destinationIndex = 0;
+							}
+						}
+						catch (AIException e) {
+							getLogger().warning(e.getMessage());
+						}
 					}
 					else {
 						if (!found) {

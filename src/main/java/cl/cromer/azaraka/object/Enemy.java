@@ -39,10 +39,6 @@ public class Enemy extends Object implements Constantes {
 	 */
 	private Direction direction = Direction.LEFT;
 	/**
-	 * The speed of the enemy
-	 */
-	private int speed = 500;
-	/**
 	 * The enemy attack sound
 	 */
 	private Sound sound;
@@ -59,7 +55,6 @@ public class Enemy extends Object implements Constantes {
 		setLogger(getLogger(this.getClass(), LogLevel.ENEMY));
 		this.lock = lock;
 		loadEnemyAnimation();
-		loadAttackSound();
 	}
 
 	/**
@@ -70,15 +65,12 @@ public class Enemy extends Object implements Constantes {
 	}
 
 	/**
-	 * Load the attack sound
+	 * Set the enemy attack sound
+	 *
+	 * @param sound The sound
 	 */
-	private void loadAttackSound() {
-		try {
-			sound = new Sound("/snd/EnemyAttack.wav");
-		}
-		catch (SoundException e) {
-			getLogger().warning(e.getMessage());
-		}
+	public void setSound(Sound sound) {
+		this.sound = sound;
 	}
 
 	/**
@@ -267,7 +259,7 @@ public class Enemy extends Object implements Constantes {
 		super.run();
 		while (getActive()) {
 			try {
-				Thread.sleep(speed);
+				Thread.sleep(500);
 			}
 			catch (InterruptedException e) {
 				getLogger().info(e.getMessage());
@@ -279,15 +271,6 @@ public class Enemy extends Object implements Constantes {
 				lock.unlock();
 			}
 		}
-	}
-
-	/**
-	 * Set the speed of the enemy
-	 *
-	 * @param speed The new speed
-	 */
-	public void setSpeed(int speed) {
-		this.speed = speed;
 	}
 
 	/**

@@ -25,7 +25,6 @@ import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
 import javax.sound.sampled.Clip;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -37,9 +36,9 @@ import java.util.logging.Logger;
  */
 public class Lienzo extends Canvas implements Constantes {
 	/**
-	 * The game scene
+	 * The current volume
 	 */
-	private final Escenario escenario;
+	private final float volume = (float) VOLUME / 100;
 	/**
 	 * The threads for the objects
 	 */
@@ -85,9 +84,33 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private Animation heartAnimation;
 	/**
-	 * The background music of the game
+	 * The left margin of the game
 	 */
-	private Sound backgroundMusic;
+	private final int leftMargin;
+	/**
+	 * The top margin of the game
+	 */
+	private final int topMargin;
+	/**
+	 * The game scene
+	 */
+	private Escenario escenario;
+	/**
+	 * The sound played when a key is picked up
+	 */
+	private Sound getKeySound;
+	/**
+	 * The sound played when a chest is opened
+	 */
+	private Sound openChestSound;
+	/**
+	 * The sound the portal makes
+	 */
+	private Sound portalSound;
+	/**
+	 * The sound of the enemy attacking
+	 */
+	private Sound enemyAttackSound;
 	/**
 	 * The music played when game over shows
 	 */
@@ -109,25 +132,50 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	private boolean gameOverRan = false;
 	/**
-	 * The current volume
+	 * The sound of the door opening or closing
 	 */
-	private float volume = (float) DEFAULT_VOLUME / 100;
+	private Sound doorSound;
 	/**
 	 * The threads that control AI
 	 */
 	private final HashMap<AI, Thread> aiThreads = new HashMap<>();
+	/**
+	 * The sound when a gem is received
+	 */
+	private Sound getGemSound;
+	/**
+	 * The background music of the game
+	 */
+	private Sound backgroundMusic;
+	/**
+	 * Has the game been won
+	 */
+	private boolean won = false;
 
 	/**
 	 * Initialize the canvas
+	 *
+	 * @param width The width to set the canvas
+	 * @param height The width to set the canvas
 	 */
-	public Lienzo() {
+	public Lienzo(int width, int height) {
 		logger = getLogger(this.getClass(), LogLevel.LIENZO);
+
+		setSize(width, height);
+		leftMargin = (width - CELL_PIXELS * HORIZONTAL_CELLS) / 2;
+		topMargin = (height - CELL_PIXELS * VERTICAL_CELLS) / 2;
 
 		// Load the sounds
 		try {
 			backgroundMusic = new Sound("/snd/GameLoop.wav");
 			gameOverMusic = new Sound("/snd/GameOver.wav");
 			successSound = new Sound("/snd/Success.wav");
+			getKeySound = new Sound("/snd/GetKey.wav");
+			openChestSound = new Sound("/snd/OpenChest.wav");
+			portalSound = new Sound("/snd/Portal.wav");
+			enemyAttackSound = new Sound("/snd/EnemyAttack.wav");
+			doorSound = new Sound("/snd/Door.wav");
+			getGemSound = new Sound("/snd/GetGem.wav");
 		}
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
@@ -138,21 +186,29 @@ public class Lienzo extends Canvas implements Constantes {
 		gameOverAnimation.addImage(Animation.Direction.NONE, "/img/gameover/gameover.png");
 
 		escenario = new Escenario(this);
+
+		ArrayList<Object> objectList = escenario.generateRandomObjects();
+		while (objectList == null) {
+			escenario = new Escenario(this);
+			objectList = escenario.generateRandomObjects();
+		}
+
+		escenario.setDoorSound(doorSound);
 		setBackground(Color.black);
-		setSize(escenario.width, escenario.height);
 
 		Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
 
 		// Create the gems and later place them in 2 of the chests
 		ArrayList<Gem> gems = new ArrayList<>();
 		Gem lifeGem = new Gem(escenario, new Celda(0, 0, 0, 0));
+		lifeGem.setSound(getGemSound);
 		lifeGem.setType(Gem.Type.LIFE);
 		Gem deathGem = new Gem(escenario, new Celda(0, 0, 0, 0));
+		deathGem.setSound(getGemSound);
 		deathGem.setType(Gem.Type.DEATH);
 		gems.add(lifeGem);
 		gems.add(deathGem);
 
-		ArrayList<Object> objectList = escenario.generateRandomObjects();
 		for (Object object : objectList) {
 			if (object instanceof Player) {
 				object.getCelda().setObject(object);
@@ -174,11 +230,13 @@ public class Lienzo extends Canvas implements Constantes {
 					enemyDirection = Enemy.Direction.UP;
 				}
 				((Enemy) object).setDirection(enemyDirection);
+				((Enemy) object).setSound(enemyAttackSound);
 				enemies.add((Enemy) object);
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Chest) {
 				object.getCelda().setObject(object);
+				((Chest) object).setSound(openChestSound);
 				if (gems.size() > 0) {
 					Gem gem = gems.get(0);
 					// Place the gem in the cell above the chest, but don't add it to object2 until we are ready to draw it
@@ -192,12 +250,14 @@ public class Lienzo extends Canvas implements Constantes {
 			}
 			else if (object instanceof Key) {
 				object.getCelda().setObjectOnBottom(object);
+				((Key) object).setSound(getKeySound);
 				keys.add((Key) object);
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Portal) {
 				object.getCelda().setObjectOnBottom(object);
 				portal = (Portal) object;
+				portal.setSound(portalSound);
 				threads.put(object, new Thread(object));
 			}
 		}
@@ -227,19 +287,17 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * Set up the player AI
 	 */
-	public void setupPlayerAI() {
-		player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null));
-
-		//player.getAi().addDestination(new State(portal.getCelda().getX(), portal.getCelda().getY(), State.Type.PORTAL, null));
+	private void setupPlayerAI() {
+		player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null, 3));
 
 		// Shuffle the chests so that the AI doesn't open the correct chests on the first go
 		Collections.shuffle(chests, new Random(23));
 		for (Chest chest : chests) {
-			player.getAi().addDestination(new State(chest.getCelda().getX(), chest.getCelda().getY() + 1, State.Type.CHEST, null));
+			player.getAi().addDestination(new State(chest.getCelda().getX(), chest.getCelda().getY() + 1, State.Type.CHEST, null, 1));
 		}
 
 		for (Key key : keys) {
-			player.getAi().addDestination(new State(key.getCelda().getX(), key.getCelda().getY(), State.Type.KEY, null));
+			player.getAi().addDestination(new State(key.getCelda().getX(), key.getCelda().getY(), State.Type.KEY, null, 0));
 		}
 
 		Thread thread = new Thread(player.getAi());
@@ -272,18 +330,18 @@ public class Lienzo extends Canvas implements Constantes {
 		graphicBuffer.setColor(getBackground());
 		graphicBuffer.fillRect(0, 0, this.getWidth(), this.getHeight());
 
-		int xKey = LEFT_MARGIN;
+		int xPixels = leftMargin;
 		for (Key key : keys) {
 			if (key.getState() == Key.State.HELD) {
-				key.drawAnimation(graphicBuffer, xKey, 8);
-				xKey = xKey + 3 + (key.getAnimationWidth());
+				key.drawAnimation(graphicBuffer, xPixels, 8);
+				xPixels = xPixels + 3 + (key.getAnimationWidth());
 			}
 		}
 
 		ArrayList<Gem> gems = player.getInventoryGems();
 		for (Gem gem : gems) {
-			gem.drawAnimation(graphicBuffer, xKey, 8);
-			xKey = xKey + 27;
+			gem.drawAnimation(graphicBuffer, xPixels, 8);
+			xPixels = xPixels + 3 + (gem.getAnimationWidth());
 		}
 
 		if (player != null) {
@@ -301,7 +359,7 @@ public class Lienzo extends Canvas implements Constantes {
 			for (int i = 0; i < hearts; i++) {
 				try {
 					heartAnimation.setCurrentFrame(Math.min(health, 4));
-					int x = (HORIZONTAL_CELLS * CELL_PIXELS) + LEFT_MARGIN - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
+					int x = (HORIZONTAL_CELLS * CELL_PIXELS) + leftMargin - (heartAnimation.getFrame().getWidth() * hearts) + (heartAnimation.getFrame().getWidth() * i);
 					graphicBuffer.drawImage(heartAnimation.getFrame(), x, 8, null);
 				}
 				catch (AnimationException e) {
@@ -336,6 +394,12 @@ public class Lienzo extends Canvas implements Constantes {
 			// Place the game over image on the screen
 			graphicBuffer.setColor(Color.black);
 			graphicBuffer.drawRect(0, 0, getWidth(), getHeight());
+
+			int alpha = (255 * 75) / 100; // 75% transparent
+			Color transparentColor = new Color(0, 0, 0, alpha);
+			graphicBuffer.setColor(transparentColor);
+			graphicBuffer.fillRect(0, 0, getWidth(), getHeight());
+
 			try {
 				int x = (getWidth() - gameOverAnimation.getFrame().getWidth()) / 2;
 				int y = (getHeight() - gameOverAnimation.getFrame().getHeight()) / 2;
@@ -347,6 +411,23 @@ public class Lienzo extends Canvas implements Constantes {
 		}
 		else {
 			escenario.paintComponent(graphicBuffer);
+
+			if (won) {
+				int alpha = (255 * 75) / 100; // 75% transparent
+				Color transparentColor = new Color(0, 0, 0, alpha);
+				graphicBuffer.setColor(transparentColor);
+				graphicBuffer.fillRect(0, 0, getWidth(), getHeight());
+
+				// Write message at center of rectangle
+				graphicBuffer.setColor(Color.white);
+				String message = "Tomak ha sido derrotado y Azaraka ha sido liberado!";
+				graphicBuffer.setFont(FONT);
+				Rectangle rectangle = new Rectangle(0, 0, getWidth(), getHeight());
+				FontMetrics metrics = g.getFontMetrics(FONT);
+				int x = rectangle.x + (rectangle.width - metrics.stringWidth(message)) / 2;
+				int y = rectangle.y + ((rectangle.height - metrics.getHeight()) / 2) + metrics.getAscent();
+				graphicBuffer.drawString(message, x, y);
+			}
 		}
 
 		if (!gameStarted) {
@@ -432,23 +513,7 @@ public class Lienzo extends Canvas implements Constantes {
 			logger.warning(e.getMessage());
 		}
 
-		JOptionPane.showMessageDialog(null, "Ganaste!");
-		System.exit(0);
-	}
-
-	/**
-	 * Change the speed of the enemies
-	 *
-	 * @param speed The new speed
-	 */
-	public void changeSpeed(int speed) {
-		if (speed <= 0) {
-			speed = 1;
-		}
-		for (Enemy enemy : enemies) {
-			enemy.setSpeed(speed);
-		}
-		requestFocus();
+		won = true;
 	}
 
 	/**
@@ -458,22 +523,6 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	public float getVolume() {
 		return volume;
-	}
-
-	/**
-	 * Change the volume of the game background music
-	 *
-	 * @param volume The new volume
-	 */
-	public void changeVolume(float volume) {
-		this.volume = volume;
-		try {
-			backgroundMusic.setVolume(volume);
-		}
-		catch (SoundException e) {
-			logger.warning(e.getMessage());
-		}
-		requestFocus();
 	}
 
 	/**
@@ -510,5 +559,23 @@ public class Lienzo extends Canvas implements Constantes {
 	 */
 	public ArrayList<Chest> getChests() {
 		return chests;
+	}
+
+	/**
+	 * Get the left margin being used
+	 *
+	 * @return Returns the left margin
+	 */
+	public int getLeftMargin() {
+		return leftMargin;
+	}
+
+	/**
+	 * Get the top margin being used
+	 *
+	 * @return Returns the top margin
+	 */
+	public int getTopMargin() {
+		return topMargin;
 	}
 }

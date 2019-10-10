@@ -35,6 +35,10 @@ public class State {
 	 * The previous step
 	 */
 	private final State predecessor;
+	/**
+	 * The importance of the objective, higher is more important
+	 */
+	private int importance;
 
 	/**
 	 * Initialize the state
@@ -43,12 +47,14 @@ public class State {
 	 * @param y           The y position
 	 * @param operation   The operation to perform
 	 * @param predecessor The previous state
+	 * @param importance  The importance of the objective
 	 */
-	public State(int x, int y, Type operation, State predecessor) {
+	public State(int x, int y, Type operation, State predecessor, int importance) {
 		this.x = x;
 		this.y = y;
 		this.operation = operation;
 		this.predecessor = predecessor;
+		this.importance = importance;
 	}
 
 	/**
@@ -85,6 +91,15 @@ public class State {
 	 */
 	public State getPredecessor() {
 		return predecessor;
+	}
+
+	/**
+	 * Get the importance of the state
+	 *
+	 * @return Returns the importance
+	 */
+	public int getImportance() {
+		return importance;
 	}
 
 	/**

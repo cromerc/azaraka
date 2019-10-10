@@ -15,10 +15,14 @@
 
 package cl.cromer.azaraka;
 
+import cl.cromer.azaraka.ai.BreadthFirstSearch;
+import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.json.Cell;
 import cl.cromer.azaraka.json.Json;
 import cl.cromer.azaraka.object.Object;
 import cl.cromer.azaraka.object.*;
+import cl.cromer.azaraka.sound.Sound;
+import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Sheet;
 import cl.cromer.azaraka.sprite.SheetException;
 import com.google.gson.Gson;
@@ -40,14 +44,6 @@ import java.util.logging.Logger;
  */
 public class Escenario extends JComponent implements Constantes {
 	/**
-	 * The width of the scene
-	 */
-	protected final int width = CELL_PIXELS * HORIZONTAL_CELLS;
-	/**
-	 * The height of the scene
-	 */
-	protected final int height = CELL_PIXELS * VERTICAL_CELLS;
-	/**
 	 * The canvas
 	 */
 	private final Lienzo canvas;
@@ -67,6 +63,14 @@ public class Escenario extends JComponent implements Constantes {
 	 * Whether or not the door is open
 	 */
 	private boolean doorOpen = true;
+	/**
+	 * The sound the door makes
+	 */
+	private Sound doorSound;
+	/**
+	 * The amount of tries before giving up
+	 */
+	private int tries = 0;
 
 	/**
 	 * Initialize the scene
@@ -118,7 +122,7 @@ public class Escenario extends JComponent implements Constantes {
 
 		for (int x = 0; x < cells.length; x++) {
 			for (int y = 0; y < cells[x].length; y++) {
-				celdas[x][y] = new Celda((x * CELL_PIXELS) + LEFT_MARGIN, (y * CELL_PIXELS) + TOP_MARGIN, x, y);
+				celdas[x][y] = new Celda((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
 
 				if (cells[x][y].type.equals(Player.class.getName())) {
 					celdas[x][y].setObject(new Player(null, celdas[x][y]));
@@ -160,9 +164,6 @@ public class Escenario extends JComponent implements Constantes {
 	 * @return Returns a list of objects that where generated
 	 */
 	public ArrayList<Object> generateRandomObjects() {
-		final int cells = (HORIZONTAL_CELLS * VERTICAL_CELLS);
-		final int obstacles = (int) Math.floor((double) cells * 0.05);
-
 		int[] random;
 		ArrayList<Object> objectArrayList = new ArrayList<>();
 
@@ -170,8 +171,11 @@ public class Escenario extends JComponent implements Constantes {
 		celdas[2][1].setObject(new Player(this, celdas[2][1]));
 		objectArrayList.add(celdas[2][1].getObject());
 
-		for (int i = 0; i < obstacles; i++) {
-			random = randomCoordinates();
+		for (int i = 0; i < OBSTACLES; i++) {
+			random = randomCoordinates(false);
+			if (random[0] == -1 || random[1] == -1) {
+				return null;
+			}
 			celdas[random[0]][random[1]].setObject(new Obstacle(this, celdas[random[0]][random[1]]));
 			try {
 				celdas[random[0]][random[1]].addTexture(textureSheet.getTexture(30), 30);
@@ -183,33 +187,53 @@ public class Escenario extends JComponent implements Constantes {
 
 		final Lock lock = new ReentrantLock(true);
 		for (int i = 0; i < ENEMIES; i++) {
-			random = randomCoordinates();
+			random = randomCoordinates(true);
+			if (random[0] == -1 || random[1] == -1) {
+				return null;
+			}
 			celdas[random[0]][random[1]].setObject(new Enemy(this, celdas[random[0]][random[1]], lock));
 			objectArrayList.add(celdas[random[0]][random[1]].getObject());
 		}
 
-		random = randomCoordinates();
+		random = randomCoordinates(true);
+		if (random[0] == -1 || random[1] == -1) {
+			return null;
+		}
 		celdas[random[0]][random[1]].setObjectOnBottom(new Portal(this, celdas[random[0]][random[1]]));
 		objectArrayList.add(celdas[random[0]][random[1]].getObjectOnBottom());
 
 		// Generate enough keys for the chests that will exist
 		for (int i = 0; i < CHESTS; i++) {
-			random = randomCoordinates();
+			random = randomCoordinates(true);
+			if (random[0] == -1 || random[1] == -1) {
+				return null;
+			}
 			celdas[random[0]][random[1]].setObjectOnBottom(new Key(this, celdas[random[0]][random[1]]));
 			objectArrayList.add(celdas[random[0]][random[1]].getObjectOnBottom());
 		}
 
 		// Chests need to be last to make sure they are openable
 		for (int i = 0; i < CHESTS; i++) {
+			tries = 0;
 			int random_x = random(0, HORIZONTAL_CELLS - 1);
 			int random_y = random(0, VERTICAL_CELLS - 1);
 			// Don't put a chest if it can't be opened
 			while (random_y + 1 == VERTICAL_CELLS ||
 					celdas[random_x][random_y].containsObject() ||
 					celdas[random_x][random_y + 1].containsObject() ||
-					celdas[random_x][random_y - 1].containsObject()) {
+					celdas[random_x][random_y - 1].containsObject() ||
+					checkBreadthFirst(random_x, random_y + 1)) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
+				tries++;
+				if (tries == HORIZONTAL_CELLS) {
+					random[0] = -1;
+					random[1] = -1;
+					break;
+				}
+			}
+			if (random[0] == -1 || random[1] == -1) {
+				return null;
 			}
 			celdas[random_x][random_y].setObjectOnBottom(new Chest(this, celdas[random_x][random_y]));
 			objectArrayList.add(celdas[random_x][random_y].getObjectOnBottom());
@@ -221,17 +245,45 @@ public class Escenario extends JComponent implements Constantes {
 	/**
 	 * Get random x and y coordinates
 	 *
+	 * @param checkPath Check if the path can be reached using AI
 	 * @return Returns an array with the coordinates
 	 */
-	private int[] randomCoordinates() {
+	private int[] randomCoordinates(boolean checkPath) {
+		tries = 0;
 		int[] random = new int[2];
 		random[0] = random(0, HORIZONTAL_CELLS - 1);
 		random[1] = random(0, VERTICAL_CELLS - 1);
-		while (celdas[random[0]][random[1]].containsObject()) {
+		// If the cell is not empty look for another
+		// If the cell is not reachable by the player look for another
+		// If the player can't reach the bottom right corner look for another
+		while (celdas[random[0]][random[1]].containsObject() || (checkPath && checkBreadthFirst(random[0], random[1]))) {
 			random[0] = random(0, HORIZONTAL_CELLS - 1);
 			random[1] = random(0, VERTICAL_CELLS - 1);
+			tries++;
+			if (tries == VERTICAL_CELLS) {
+				random[0] = -1;
+				random[1] = -1;
+				break;
+			}
 		}
 		return random;
+	}
+
+	/**
+	 * Check the path using BreadFirst-Search
+	 *
+	 * @param x The x position to check
+	 * @param y The y position to check
+	 * @return Returns true if the object is reachable or false otherwise
+	 */
+	private boolean checkBreadthFirst(int x, int y) {
+		BreadthFirstSearch breadthFirstSearch = new BreadthFirstSearch(this);
+		return (!breadthFirstSearch.search(
+				new State(2, 1, State.Type.START, null, 0),
+				new State(x, y, State.Type.EXIT, null, 0)) ||
+				!breadthFirstSearch.search(
+						new State(2, 1, State.Type.START, null, 0),
+						new State(HORIZONTAL_CELLS - 2, VERTICAL_CELLS - 2, State.Type.EXIT, null, 0)));
 	}
 
 	/**
@@ -241,7 +293,7 @@ public class Escenario extends JComponent implements Constantes {
 		for (int x = 0; x < HORIZONTAL_CELLS; x++) {
 			for (int y = 0; y < VERTICAL_CELLS; y++) {
 				logger.info("Generate cell x: " + x + " y: " + y + " manually");
-				celdas[x][y] = new Celda((x * CELL_PIXELS) + LEFT_MARGIN, (y * CELL_PIXELS) + TOP_MARGIN, x, y);
+				celdas[x][y] = new Celda((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
 				try {
 					celdas[x][y].addTexture(textureSheet.getTexture(0), 0);
 				}
@@ -470,6 +522,28 @@ public class Escenario extends JComponent implements Constantes {
 	}
 
 	/**
+	 * Set the door sound
+	 *
+	 * @param doorSound The sound
+	 */
+	public void setDoorSound(Sound doorSound) {
+		this.doorSound = doorSound;
+	}
+
+	/**
+	 * Play the sound of the door
+	 */
+	private void playDoorSound() {
+		try {
+			doorSound.setVolume(canvas.getVolume());
+			doorSound.play();
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
 	 * Check if door is open
 	 *
 	 * @return Returns true if open or false if closed
@@ -493,11 +567,13 @@ public class Escenario extends JComponent implements Constantes {
 				logger.warning(e.getMessage());
 			}
 			this.doorOpen = false;
+			playDoorSound();
 		}
 		else if (doorOpen && !isDoorOpen()) {
 			celdas[2][0].removeTexture(193);
 			celdas[2][0].setObject(null);
 			this.doorOpen = true;
+			playDoorSound();
 		}
 	}
 

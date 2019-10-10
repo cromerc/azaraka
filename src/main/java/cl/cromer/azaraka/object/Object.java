@@ -171,7 +171,7 @@ public class Object implements Runnable, Constantes {
 	 *
 	 * @return Returns an animation
 	 */
-	protected Animation getAnimation() {
+	public Animation getAnimation() {
 		return animation;
 	}
 

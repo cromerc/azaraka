@@ -64,7 +64,9 @@ public class Sound implements Constantes {
 			logger.warning(e.getMessage());
 		}
 		finally {
-			sound.stop();
+			if (sound != null && isPlaying()) {
+				sound.stop();
+			}
 		}
 		logger.info("Opened sound: " + path);
 	}

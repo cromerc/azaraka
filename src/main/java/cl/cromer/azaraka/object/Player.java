@@ -415,6 +415,7 @@ public class Player extends Object implements Constantes {
 								chest.setState(Chest.State.OPENING);
 								Gem gem = chest.getGem();
 								if (gem != null) {
+									gem.playGemSound();
 									gem.getCelda().setObjectOnTop(gem);
 									getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 								}
@@ -440,6 +441,24 @@ public class Player extends Object implements Constantes {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Check if player has a tainted gem in his inventory
+	 *
+	 * @return Returns true if he has one or false otherwise
+	 */
+	public boolean hasTaintedGem() {
+		boolean has = false;
+		for (Object object : carrying) {
+			if (object instanceof Gem) {
+				if (((Gem) object).getState() == Gem.State.TAINTED) {
+					has = true;
+					break;
+				}
+			}
+		}
+		return has;
 	}
 
 	/**
@@ -474,21 +493,9 @@ public class Player extends Object implements Constantes {
 	/**
 	 * This is called when the player gets attacked
 	 */
+	@SuppressWarnings("EmptyMethod")
 	public void attacked() {
-		if (TRANSPORT_PLAYER_ON_ATTACK) {
-			if (PLAYER_AI) {
-				ai.setActive(false);
-			}
-			getCelda().setObject(null);
-			getAnimation().setCurrentDirection(Animation.Direction.DOWN);
-			setCelda(getEscenario().getCanvas().getPortal().getCelda());
-			getCelda().setObject(this);
-			setX(getCelda().getX());
-			setY(getCelda().getY());
-			if (PLAYER_AI) {
-				getEscenario().getCanvas().setupPlayerAI();
-			}
-		}
+		// TODO: what to do if the player gets attacked
 	}
 
 	/**
@@ -578,8 +585,13 @@ public class Player extends Object implements Constantes {
 				getLogger().info(e.getMessage());
 			}
 			synchronized (this) {
-				loseHealth(1);
-				getEscenario().getCanvas().repaint();
+				if (health > 0) {
+					loseHealth(1);
+					getEscenario().getCanvas().repaint();
+				}
+				else {
+					setActive(false);
+				}
 			}
 		}
 	}

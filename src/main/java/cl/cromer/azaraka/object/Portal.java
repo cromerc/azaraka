@@ -18,6 +18,8 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Constantes;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.sound.Sound;
+import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
@@ -39,6 +41,10 @@ public class Portal extends Object implements Constantes {
 	 * The inactive animation
 	 */
 	private Animation inactiveAnimation;
+	/**
+	 * The portal sound when a gem is purified
+	 */
+	private Sound sound;
 
 	/**
 	 * Initialize the portal
@@ -94,9 +100,32 @@ public class Portal extends Object implements Constantes {
 				}
 			}
 			setState(State.INACTIVE);
+			playPortalSound();
 			if (gems.size() == 2) {
 				getEscenario().openDoor(true);
 			}
+		}
+	}
+
+	/**
+	 * Set the portal sound
+	 *
+	 * @param sound The portal sound
+	 */
+	public void setSound(Sound sound) {
+		this.sound = sound;
+	}
+
+	/**
+	 * Play the portal sound
+	 */
+	private void playPortalSound() {
+		try {
+			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.play();
+		}
+		catch (SoundException e) {
+			getLogger().warning(e.getMessage());
 		}
 	}
 
@@ -118,6 +147,9 @@ public class Portal extends Object implements Constantes {
 	 * @param state The new status
 	 */
 	public void setState(State state) {
+		if (state == State.ACTIVE && this.state == State.INACTIVE) {
+			playPortalSound();
+		}
 		this.state = state;
 		int frame = 0;
 		try {

@@ -15,9 +15,6 @@
 
 package cl.cromer.azaraka;
 
-import cl.cromer.azaraka.panel.Config;
-import cl.cromer.azaraka.panel.Game;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +36,10 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 		logger.info("Create panels");
 
 		setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		setSize(Toolkit.getDefaultToolkit().getScreenSize());
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		setSize(screenSize);
+
+		setLayout(new BorderLayout());
 
 		setTitle(TITLE);
 		String icon = "/img/icon.png";
@@ -52,20 +52,9 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 			logger.warning(e.getMessage());
 		}
 
-		Container contentPane = getContentPane();
-		contentPane.setLayout(new BorderLayout());
-
-		JSplitPane panelSeparator = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		panelSeparator.setOneTouchExpandable(true);
-
-		Game gamePanel = new Game();
-		Config configPanel = new Config(gamePanel);
-
-		panelSeparator.setLeftComponent(gamePanel);
-		panelSeparator.setRightComponent(configPanel);
-		panelSeparator.setDividerLocation(gamePanel.getWidth() + (LEFT_MARGIN * 2));
-		panelSeparator.setDividerSize(0);
-
-		contentPane.add(panelSeparator, BorderLayout.CENTER);
+		Lienzo canvas = new Lienzo(screenSize.width, screenSize.height - 50);
+		canvas.setFocusable(true);
+		canvas.requestFocus();
+		add(canvas);
 	}
 }

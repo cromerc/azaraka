@@ -21,12 +21,12 @@ import java.util.logging.Logger;
 /**
  * The main class of the game
  */
-public class Main implements Constantes {
+public class Azaraka implements Constantes {
 
 	/**
 	 * Initialize the main class
 	 */
-	private Main() {
+	private Azaraka() {
 		Logger logger = getLogger(this.getClass(), LogLevel.MAIN);
 
 		logger.info("Load main window");
@@ -41,7 +41,7 @@ public class Main implements Constantes {
 	 * @param args The arguments passed to the application
 	 */
 	public static void main(String[] args) {
-		new Main();
+		new Azaraka();
 	}
 
 }

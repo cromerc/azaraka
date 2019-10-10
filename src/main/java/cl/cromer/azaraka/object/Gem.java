@@ -17,6 +17,8 @@ package cl.cromer.azaraka.object;
 
 import cl.cromer.azaraka.Celda;
 import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.sound.Sound;
+import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
@@ -36,6 +38,10 @@ public class Gem extends Object {
 	 * The animation to use when the gem is purified
 	 */
 	private Animation purifiedAnimation;
+	/**
+	 * The sound the gem makes
+	 */
+	private Sound sound;
 
 	/**
 	 * Initialize the gem object
@@ -81,6 +87,43 @@ public class Gem extends Object {
 					}
 					break;
 			}
+		}
+	}
+
+	/**
+	 * Get the width of the gem animation
+	 *
+	 * @return Returns the gem animation width
+	 */
+	public int getAnimationWidth() {
+		try {
+			return getAnimation().getFrame().getWidth();
+		}
+		catch (AnimationException e) {
+			getLogger().warning(e.getMessage());
+		}
+		return 0;
+	}
+
+	/**
+	 * Set the gem sound
+	 *
+	 * @param sound The gem sound
+	 */
+	public void setSound(Sound sound) {
+		this.sound = sound;
+	}
+
+	/**
+	 * Play the gem sound
+	 */
+	public void playGemSound() {
+		try {
+			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.play();
+		}
+		catch (SoundException e) {
+			getLogger().warning(e.getMessage());
 		}
 	}
 

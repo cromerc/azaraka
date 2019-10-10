@@ -39,9 +39,9 @@ public interface Constantes {
 	 */
 	boolean PLAYER_AI = true;
 	/**
-	 * Move the player to the portal if attacked
+	 * Make logs
 	 */
-	boolean TRANSPORT_PLAYER_ON_ATTACK = false;
+	boolean LOG_TO_FILE = false;
 	/**
 	 * Use a global log if true or individual logs if false
 	 */
@@ -55,61 +55,33 @@ public interface Constantes {
 	 */
 	int CELL_PIXELS = 64;
 	/**
-	 * The number of cells to draw horizontally
+	 * The number of cells to draw horizontally, minimum 8
 	 */
-	int HORIZONTAL_CELLS = 18;
+	int HORIZONTAL_CELLS = 16;
 	/**
-	 * The number of cells to draw vertically
+	 * The number of cells to draw vertically, minimum 8
 	 */
-	int VERTICAL_CELLS = 10;
+	int VERTICAL_CELLS = 9;
 	/**
-	 * The amount of margin before drawing the cells
+	 * The amount of chests to draw, if less then 2 the game cannot be won
 	 */
-	int TOP_MARGIN = 40;
-	/**
-	 * The amount of margin to the left and right of cells
-	 */
-	int LEFT_MARGIN = 40;
-	/**
-	 * The amount of chests to draw
-	 */
-	int CHESTS = 5;
+	int CHESTS = 4;
 	/**
 	 * The amount of enemies to draw
 	 */
 	int ENEMIES = 3;
 	/**
-	 * The font size to use
+	 * The amount of obstacles to draw on the screen
 	 */
-	int FONT_SIZE = 12;
+	int OBSTACLES = (int) Math.floor((double) (HORIZONTAL_CELLS * VERTICAL_CELLS) * 0.10);
 	/**
-	 * The minimum speed of the enemies
+	 * The default volume between 0 and 100
 	 */
-	int MINIMUM_SPEED = 100;
-	/**
-	 * The maximum speed of the enemies
-	 */
-	int MAXIMUM_SPEED = 500;
-	/**
-	 * The default speed of the enemies
-	 */
-	int DEFAULT_SPEED = 100;
-	/**
-	 * The minimum volume
-	 */
-	int MINIMUM_VOLUME = 0;
-	/**
-	 * The maximum volume
-	 */
-	int MAXIMUM_VOLUME = 100;
-	/**
-	 * The default volume
-	 */
-	int DEFAULT_VOLUME = 100;
+	int VOLUME = 100;
 	/**
 	 * Generates the scene manually instead of from the JSON file if true
 	 */
-	boolean GENERATE_SCENE = false;
+	boolean GENERATE_SCENE = true;
 	/**
 	 * Exports the scene to a JSON file if true
 	 */
@@ -119,9 +91,13 @@ public interface Constantes {
 	 */
 	boolean PRETTY_JSON = true;
 	/**
-	 * The normal font to use
+	 * The font size to use
 	 */
-	Font FONT = new Font("monospaced", Font.PLAIN, FONT_SIZE);
+	int FONT_SIZE = 20;
+	/**
+	 * The big font to use
+	 */
+	Font FONT = new Font("monospaced", Font.BOLD, FONT_SIZE);
 
 	/**
 	 * Get a logger object to use for debugging
@@ -177,30 +153,32 @@ public interface Constantes {
 		else {
 			logger = Logger.getLogger(className);
 		}
-		FileHandler fileHandler = null;
-		File directory = new File("log");
-		if (!directory.exists()) {
-			if (!directory.mkdir()) {
-				System.out.println("Could not make directory \"log\"");
+		if (LOG_TO_FILE) {
+			FileHandler fileHandler = null;
+			File directory = new File("log");
+			if (!directory.exists()) {
+				if (!directory.mkdir()) {
+					System.out.println("Could not make directory \"log\"");
+				}
 			}
-		}
-		try {
-			if (GLOBAL_LOG) {
-				fileHandler = new FileHandler("log/log.html", APPEND_LOGS);
+			try {
+				if (GLOBAL_LOG) {
+					fileHandler = new FileHandler("log/log.html", APPEND_LOGS);
+				}
+				else {
+					fileHandler = new FileHandler("log/" + className + ".html", APPEND_LOGS);
+				}
 			}
-			else {
-				fileHandler = new FileHandler("log/" + className + ".html", APPEND_LOGS);
+			catch (IOException e) {
+				e.printStackTrace();
 			}
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (fileHandler != null) {
-			logger.addHandler(fileHandler);
-		}
-		Formatter formatter = new HtmlFormatter();
-		if (fileHandler != null) {
-			fileHandler.setFormatter(formatter);
+			if (fileHandler != null) {
+				logger.addHandler(fileHandler);
+			}
+			Formatter formatter = new HtmlFormatter();
+			if (fileHandler != null) {
+				fileHandler.setFormatter(formatter);
+			}
 		}
 	}
 
@@ -240,10 +218,6 @@ public interface Constantes {
 		 * The chest log level
 		 */
 		CHEST(Level.INFO),
-		/**
-		 * The config log level
-		 */
-		CONFIG(Level.INFO),
 		/**
 		 * The sound log level
 		 */

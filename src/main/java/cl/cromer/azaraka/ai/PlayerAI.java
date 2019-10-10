@@ -18,6 +18,7 @@ package cl.cromer.azaraka.ai;
 import cl.cromer.azaraka.Escenario;
 import cl.cromer.azaraka.object.Player;
 import cl.cromer.azaraka.object.Portal;
+import cl.cromer.azaraka.sprite.Animation;
 
 import java.awt.event.KeyEvent;
 
@@ -47,28 +48,34 @@ public class PlayerAI extends BreadthFirstSearch {
 	 * @param objective The objective the player arrived at
 	 */
 	@Override
-	public void destinationArrived(State objective) {
+	public boolean destinationArrived(State objective) {
+		sortDestinations();
 		switch (objective.getOperation()) {
 			case CHEST:
 				if (player.hasKey()) {
-					player.keyPressed(KeyEvent.VK_UP);
+					if (player.getAnimation().getCurrentDirection() != Animation.Direction.UP) {
+						player.keyPressed(KeyEvent.VK_UP);
+					}
 					player.interact();
 					Portal portal = getEscenario().getCanvas().getPortal();
 					if (portal.getState() == Portal.State.ACTIVE) {
-						addPriorityDestination(new State(portal.getCelda().getX(), portal.getCelda().getY(), State.Type.PORTAL, null));
+						addDestination(new State(portal.getCelda().getX(), portal.getCelda().getY(), State.Type.PORTAL, null, 2));
 					}
-					// Only call parent method if player opened a chest
-					super.destinationArrived(objective);
+					return true;
 				}
 				break;
 			case EXIT:
-				super.destinationArrived(objective);
 				player.keyPressed(KeyEvent.VK_UP);
-				break;
-			default:
-				super.destinationArrived(objective);
+				return true;
+			case KEY:
+				return true;
+			case PORTAL:
+				if (player.hasTaintedGem() && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+					return true;
+				}
 				break;
 		}
+		return false;
 	}
 
 	/**
@@ -79,7 +86,6 @@ public class PlayerAI extends BreadthFirstSearch {
 	 */
 	@Override
 	public boolean checkCondition(State objective) {
-		super.checkCondition(objective);
 		switch (objective.getOperation()) {
 			case KEY:
 				// If the player doesn't have the gems yet, get keys
@@ -95,11 +101,12 @@ public class PlayerAI extends BreadthFirstSearch {
 				break;
 			case PORTAL:
 				// If the portal is active head towards it
-				if (getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				if (player.hasTaintedGem() && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 					return true;
 				}
 				break;
 			case EXIT:
+				// If the door is open head to it
 				if (getEscenario().isDoorOpen()) {
 					return true;
 				}
@@ -138,6 +145,6 @@ public class PlayerAI extends BreadthFirstSearch {
 	 */
 	@Override
 	public void getNewInitial() {
-		setInitial(new State(player.getCelda().getX(), player.getCelda().getY(), State.Type.START, null));
+		setInitial(new State(player.getCelda().getX(), player.getCelda().getY(), State.Type.START, null, 0));
 	}
 }
