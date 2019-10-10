@@ -61,6 +61,30 @@ build {
     dependsOn copyDependencies
 }
 
+plugins.withType(DistributionPlugin) {
+    distTar {
+        // This is a correct assignment and works as intended
+        //noinspection GroovyAssignabilityCheck
+        archiveExtension = "tar.gz"
+        compression = Compression.GZIP
+    }
+}
+
+task createDocs {
+    def docs = file("$buildDir/docs")
+    outputs.dir docs
+}
+
+distributions {
+    main {
+        contents {
+            from(createDocs) {
+                into 'docs'
+            }
+        }
+    }
+}
+
 jar.dependsOn(copyDependencies)
 
 tasks.withType(JavaCompile) {

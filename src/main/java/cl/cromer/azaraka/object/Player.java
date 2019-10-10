@@ -95,15 +95,19 @@ public class Player extends Object implements Constantes {
 			}
 		}
 		switch (keyCode) {
+			case KeyEvent.VK_W:
 			case KeyEvent.VK_UP:
 				moveUp();
 				break;
+			case KeyEvent.VK_S:
 			case KeyEvent.VK_DOWN:
 				moveDown();
 				break;
+			case KeyEvent.VK_A:
 			case KeyEvent.VK_LEFT:
 				moveLeft();
 				break;
+			case KeyEvent.VK_D:
 			case KeyEvent.VK_RIGHT:
 				moveRight();
 				break;

@@ -37,7 +37,7 @@ public interface Constantes {
 	/**
 	 * Whether or not the player should be controlled by AI
 	 */
-	boolean PLAYER_AI = true;
+	boolean PLAYER_AI = false;
 	/**
 	 * Make logs
 	 */
