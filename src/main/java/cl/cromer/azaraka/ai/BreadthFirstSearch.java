@@ -54,7 +54,7 @@ public class BreadthFirstSearch extends AI {
 	/**
 	 * Initialize the algorithm
 	 */
-	public BreadthFirstSearch() {
+	protected BreadthFirstSearch() {
 	}
 
 	/**

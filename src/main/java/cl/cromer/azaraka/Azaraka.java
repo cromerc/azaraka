@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 import java.util.logging.Logger;
 
 /**

@@ -17,18 +17,31 @@ package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.ai.AI;
 import cl.cromer.azaraka.ai.State;
+import cl.cromer.azaraka.object.Chest;
+import cl.cromer.azaraka.object.Enemy;
+import cl.cromer.azaraka.object.Gem;
+import cl.cromer.azaraka.object.Key;
 import cl.cromer.azaraka.object.Object;
-import cl.cromer.azaraka.object.*;
+import cl.cromer.azaraka.object.Player;
+import cl.cromer.azaraka.object.Portal;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
 import javax.sound.sampled.Clip;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 /**

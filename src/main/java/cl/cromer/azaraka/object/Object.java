@@ -23,7 +23,7 @@ import cl.cromer.azaraka.sprite.AnimationException;
 import cl.cromer.azaraka.sprite.Sheet;
 import cl.cromer.azaraka.sprite.SheetException;
 
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 

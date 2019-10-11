@@ -17,7 +17,7 @@ package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.logging.HtmlFormatter;
 
-import java.awt.*;
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;

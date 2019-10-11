@@ -18,7 +18,8 @@ package cl.cromer.azaraka.sprite;
 import cl.cromer.azaraka.Constants;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;

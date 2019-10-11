@@ -17,8 +17,8 @@ package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.object.Object;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
