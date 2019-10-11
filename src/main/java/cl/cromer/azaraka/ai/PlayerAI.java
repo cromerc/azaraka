@@ -15,6 +15,7 @@
 
 package cl.cromer.azaraka.ai;
 
+import cl.cromer.azaraka.Constants;
 import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.object.Player;
 import cl.cromer.azaraka.object.Portal;
@@ -25,11 +26,15 @@ import java.awt.event.KeyEvent;
 /**
  * This class handles player based interactions mixed with AI
  */
-public class PlayerAI extends BreadthFirstSearch {
+public class PlayerAI extends BreadthFirstSearch implements Constants {
 	/**
 	 * The player
 	 */
 	private final Player player;
+	/**
+	 * The scene the AI is in
+	 */
+	private final Scene scene;
 
 	/**
 	 * Initialize the algorithm
@@ -38,7 +43,9 @@ public class PlayerAI extends BreadthFirstSearch {
 	 * @param player    The player controlled by the AI
 	 */
 	public PlayerAI(Scene scene, Player player) {
-		super(scene);
+		super();
+		setLogger(getLogger(this.getClass(), LogLevel.AI));
+		this.scene = scene;
 		this.player = player;
 	}
 
@@ -57,7 +64,7 @@ public class PlayerAI extends BreadthFirstSearch {
 						player.keyPressed(KeyEvent.VK_UP);
 					}
 					player.interact();
-					Portal portal = getScene().getCanvas().getPortal();
+					Portal portal = scene.getCanvas().getPortal();
 					if (portal.getState() == Portal.State.ACTIVE) {
 						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 2));
 					}
@@ -70,7 +77,7 @@ public class PlayerAI extends BreadthFirstSearch {
 			case KEY:
 				return true;
 			case PORTAL:
-				if (player.hasTaintedGem() && getScene().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				if (player.hasTaintedGem() && scene.getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 					return true;
 				}
 				break;
@@ -101,13 +108,13 @@ public class PlayerAI extends BreadthFirstSearch {
 				break;
 			case PORTAL:
 				// If the portal is active head towards it
-				if (player.hasTaintedGem() && getScene().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				if (player.hasTaintedGem() && scene.getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 					return true;
 				}
 				break;
 			case EXIT:
 				// If the door is open head to it
-				if (getScene().isDoorOpen()) {
+				if (scene.isDoorOpen()) {
 					return true;
 				}
 				break;
@@ -137,7 +144,43 @@ public class PlayerAI extends BreadthFirstSearch {
 			}
 		}
 
-		getScene().getCanvas().repaint();
+		scene.getCanvas().repaint();
+	}
+
+	@Override
+	public void moveUp(State state) {
+		if (state.getY() > 0) {
+			if (scene.getCells()[state.getX()][state.getY() - 1].getObject() == null) {
+				super.moveUp(state);
+			}
+		}
+	}
+
+	@Override
+	public void moveDown(State state) {
+		if (state.getY() < VERTICAL_CELLS - 1) {
+			if (scene.getCells()[state.getX()][state.getY() + 1].getObject() == null) {
+				super.moveDown(state);
+			}
+		}
+	}
+
+	@Override
+	public void moveLeft(State state) {
+		if (state.getX() > 0) {
+			if (scene.getCells()[state.getX() - 1][state.getY()].getObject() == null) {
+				super.moveLeft(state);
+			}
+		}
+	}
+
+	@Override
+	public void moveRight(State state) {
+		if (state.getX() < HORIZONTAL_CELLS - 1) {
+			if (scene.getCells()[state.getX() + 1][state.getY()].getObject() == null) {
+				super.moveRight(state);
+			}
+		}
 	}
 
 	/**

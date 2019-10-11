@@ -15,18 +15,12 @@
 
 package cl.cromer.azaraka.ai;
 
-import cl.cromer.azaraka.Scene;
-
 import java.util.logging.Logger;
 
 /**
  * AI algorithms extends this class
  */
 public class AI implements Runnable {
-	/**
-	 * The scene of the game
-	 */
-	private final Scene scene;
 	/**
 	 * The logger
 	 */
@@ -38,20 +32,8 @@ public class AI implements Runnable {
 
 	/**
 	 * Initialize the AI
-	 *
-	 * @param scene The scene of the game
 	 */
-	protected AI(Scene scene) {
-		this.scene = scene;
-	}
-
-	/**
-	 * Get teh scene
-	 *
-	 * @return Returns the scene
-	 */
-	protected Scene getScene() {
-		return scene;
+	protected AI() {
 	}
 
 	/**

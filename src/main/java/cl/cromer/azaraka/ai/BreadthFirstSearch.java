@@ -15,16 +15,13 @@
 
 package cl.cromer.azaraka.ai;
 
-import cl.cromer.azaraka.Constants;
-import cl.cromer.azaraka.Scene;
-
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 /**
  * This is an implementation of the Breadth-First search algorithm with multiple objectives
  */
-public class BreadthFirstSearch extends AI implements Constants {
+public class BreadthFirstSearch extends AI {
 	/**
 	 * The queued states to check
 	 */
@@ -56,12 +53,8 @@ public class BreadthFirstSearch extends AI implements Constants {
 
 	/**
 	 * Initialize the algorithm
-	 *
-	 * @param scene The scene the AI is in
 	 */
-	public BreadthFirstSearch(Scene scene) {
-		super(scene);
-		setLogger(getLogger(this.getClass(), LogLevel.AI));
+	public BreadthFirstSearch() {
 	}
 
 	/**
@@ -99,26 +92,20 @@ public class BreadthFirstSearch extends AI implements Constants {
 		}
 	}
 
-	// TODO: remove escenario from the algorithm
-
 	/**
 	 * Move up if possible
 	 *
 	 * @param state The previous state
 	 */
-	private void moveUp(State state) {
-		if (state.getY() > 0) {
-			if (getScene().getCells()[state.getX()][state.getY() - 1].getObject() == null) {
-				State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state, state.getImportance());
-				if (!history.contains(up)) {
-					queuedStates.add(up);
-					history.add(up);
+	protected void moveUp(State state) {
+		State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state, state.getImportance());
+		if (!history.contains(up)) {
+			queuedStates.add(up);
+			history.add(up);
 
-					if (up.equals(searchObjective)) {
-						searchObjective = up;
-						success = true;
-					}
-				}
+			if (up.equals(searchObjective)) {
+				searchObjective = up;
+				success = true;
 			}
 		}
 	}
@@ -128,19 +115,15 @@ public class BreadthFirstSearch extends AI implements Constants {
 	 *
 	 * @param state The previous state
 	 */
-	private void moveDown(State state) {
-		if (state.getY() < VERTICAL_CELLS - 1) {
-			if (getScene().getCells()[state.getX()][state.getY() + 1].getObject() == null) {
-				State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state, state.getImportance());
-				if (!history.contains(down)) {
-					queuedStates.add(down);
-					history.add(down);
+	protected void moveDown(State state) {
+		State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state, state.getImportance());
+		if (!history.contains(down)) {
+			queuedStates.add(down);
+			history.add(down);
 
-					if (down.equals(searchObjective)) {
-						searchObjective = down;
-						success = true;
-					}
-				}
+			if (down.equals(searchObjective)) {
+				searchObjective = down;
+				success = true;
 			}
 		}
 	}
@@ -150,19 +133,15 @@ public class BreadthFirstSearch extends AI implements Constants {
 	 *
 	 * @param state The previous state
 	 */
-	private void moveLeft(State state) {
-		if (state.getX() > 0) {
-			if (getScene().getCells()[state.getX() - 1][state.getY()].getObject() == null) {
-				State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state, state.getImportance());
-				if (!history.contains(left)) {
-					queuedStates.add(left);
-					history.add(left);
+	protected void moveLeft(State state) {
+		State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state, state.getImportance());
+		if (!history.contains(left)) {
+			queuedStates.add(left);
+			history.add(left);
 
-					if (left.equals(searchObjective)) {
-						searchObjective = left;
-						success = true;
-					}
-				}
+			if (left.equals(searchObjective)) {
+				searchObjective = left;
+				success = true;
 			}
 		}
 	}
@@ -172,19 +151,15 @@ public class BreadthFirstSearch extends AI implements Constants {
 	 *
 	 * @param state The previous state
 	 */
-	private void moveRight(State state) {
-		if (state.getX() < HORIZONTAL_CELLS - 1) {
-			if (getScene().getCells()[state.getX() + 1][state.getY()].getObject() == null) {
-				State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state, state.getImportance());
-				if (!history.contains(right)) {
-					queuedStates.add(right);
-					history.add(right);
+	protected void moveRight(State state) {
+		State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state, state.getImportance());
+		if (!history.contains(right)) {
+			queuedStates.add(right);
+			history.add(right);
 
-					if (right.equals(searchObjective)) {
-						searchObjective = right;
-						success = true;
-					}
-				}
+			if (right.equals(searchObjective)) {
+				searchObjective = right;
+				success = true;
 			}
 		}
 	}
@@ -214,7 +189,7 @@ public class BreadthFirstSearch extends AI implements Constants {
 	/**
 	 * Sort the destinations by importance, if the importance is the same then sort them by distance
 	 */
-	protected void sortDestinations() {
+	public void sortDestinations() {
 		destinations.sort((state1, state2) -> {
 			if (state1.getImportance() > state2.getImportance()) {
 				// The first state is more important

@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka;
 
-import cl.cromer.azaraka.ai.BreadthFirstSearch;
+import cl.cromer.azaraka.ai.PlayerAI;
 import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.json.Json;
 import cl.cromer.azaraka.json.JsonCell;
@@ -240,7 +240,7 @@ public class Scene extends JComponent implements Constants {
 	 * @return Returns true if valid or false otherwise
 	 */
 	private boolean pathInvalid(int x, int y) {
-		BreadthFirstSearch breadthFirstSearch = new BreadthFirstSearch(this);
+		PlayerAI breadthFirstSearch = new PlayerAI(this, null);
 		State playerState = new State(2, 1, State.Type.START, null, 0);
 		State objectiveState = new State(x, y, State.Type.EXIT, null, 0);
 		return !breadthFirstSearch.search(playerState, objectiveState);
