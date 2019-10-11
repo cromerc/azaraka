@@ -2,6 +2,7 @@
   <settings default="BSD3">
     <module2copyright>
       <element module="All" copyright="BSD3" />
+      <element module="Project Files" copyright="BSD3" />
     </module2copyright>
   </settings>
 </component>

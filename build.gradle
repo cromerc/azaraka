@@ -16,18 +16,17 @@
 plugins {
     id 'java'
     id 'application'
+    id 'distribution'
 }
 
 group 'cl.cromer.azaraka'
 version '1.0.0'
 
-// These are used, so ignore the inspections
-//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
-//noinspection GroovyUnusedAssignment
 targetCompatibility = 1.8
 
-mainClassName = "cl.cromer.azaraka.Azaraka"
+applicationName = 'Azaraka'
+mainClassName = 'cl.cromer.azaraka.Azaraka'
 
 repositories {
     mavenCentral()
@@ -38,18 +37,29 @@ dependencies {
     //testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.+'
 }
 
+ext.sharedManifest = manifest {
+    attributes 'Main-Class': "$mainClassName",
+            'Class-Path': configurations.default.files.collect { "$it.name" }.join(' '),
+            'Implementation-Title': 'Gradle',
+            'Implementation-Version': "$gradle.gradleVersion"
+}
+
 jar {
-    manifest {
-        attributes "Main-Class": "$mainClassName",
-                'Class-Path': configurations.default.files.collect { "$it.name" }.join(' '),
-                "Implementation-Title": "Gradle",
-                "Implementation-Version": "$gradle.gradleVersion"
+    manifest = project.manifest {
+        from sharedManifest
     }
 
-    // This adds the libs into the jar
-    /*from {
-        configurations.default.collect { it.isDirectory() ? it : zipTree(it) }
-    }*/
+    if (project.uberJar == "true") {
+        from sourceSets.main.output
+
+        dependsOn configurations.runtimeClasspath
+        from {
+            configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        }
+    }
+    else {
+        dependsOn tasks.withType(Copy)
+    }
 }
 
 task copyDependencies(type: Copy) {
@@ -57,15 +67,10 @@ task copyDependencies(type: Copy) {
     into "$buildDir/libs"
 }
 
-build {
-    dependsOn copyDependencies
-}
-
 plugins.withType(DistributionPlugin) {
     distTar {
-        // This is a correct assignment and works as intended
-        //noinspection GroovyAssignabilityCheck
-        archiveExtension = "tar.gz"
+        //noinspection GroovyAssignabilityCheck, GroovyAccessibility
+        archiveExtension = 'tar.gz'
         compression = Compression.GZIP
     }
 }
@@ -76,22 +81,15 @@ task createDocs {
 }
 
 distributions {
-    //noinspection GroovyAssignabilityCheck
     main {
-        //noinspection GrUnresolvedAccess
         contents {
-            //noinspection GrUnresolvedAccess
             from(createDocs) {
-                //noinspection GrUnresolvedAccess
                 into 'docs'
             }
         }
     }
 }
 
-jar.dependsOn(copyDependencies)
-
-tasks.withType(JavaCompile) {
-    options.fork = true
-    options.incremental = true
+wrapper{
+    gradleVersion = '5.6.2'
 }
