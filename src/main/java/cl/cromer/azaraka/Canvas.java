@@ -306,6 +306,8 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 0));
 		}
 
+		player.getAi().sortDestinations();
+
 		Thread thread = new Thread(player.getAi());
 		thread.start();
 		aiThreads.put(player.getAi(), thread);
