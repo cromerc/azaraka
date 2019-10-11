@@ -50,7 +50,7 @@ public class Chest extends Object implements Constants {
 	 * Initialize the chest
 	 *
 	 * @param scene The scene the chest is in
-	 * @param cell     The cell that contains the chest
+	 * @param cell  The cell that contains the chest
 	 */
 	public Chest(Scene scene, Cell cell) {
 		super(scene, cell);

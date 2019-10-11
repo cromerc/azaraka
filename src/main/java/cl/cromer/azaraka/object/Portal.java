@@ -50,7 +50,7 @@ public class Portal extends Object implements Constants {
 	 * Initialize the portal
 	 *
 	 * @param scene The scene that contains the portal
-	 * @param cell     The cell the portal is in
+	 * @param cell  The cell the portal is in
 	 */
 	public Portal(Scene scene, Cell cell) {
 		super(scene, cell);
@@ -142,6 +142,15 @@ public class Portal extends Object implements Constants {
 	}
 
 	/**
+	 * Get the current state of the portal
+	 *
+	 * @return Returns the state of the portal
+	 */
+	public State getState() {
+		return state;
+	}
+
+	/**
 	 * Sets a new status for the portal
 	 *
 	 * @param state The new status
@@ -177,15 +186,6 @@ public class Portal extends Object implements Constants {
 				getLogger().warning(e.getMessage());
 			}
 		}
-	}
-
-	/**
-	 * Get the current state of the portal
-	 *
-	 * @return Returns the state of the portal
-	 */
-	public State getState() {
-		return state;
 	}
 
 	/**

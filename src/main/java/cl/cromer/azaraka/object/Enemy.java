@@ -47,8 +47,8 @@ public class Enemy extends Object implements Constants {
 	 * Initialize the enemy
 	 *
 	 * @param scene The scene the enemy is in
-	 * @param cell     The cell this enemy is in
-	 * @param lock      The lock used to prevent the threads from conflicting
+	 * @param cell  The cell this enemy is in
+	 * @param lock  The lock used to prevent the threads from conflicting
 	 */
 	public Enemy(Scene scene, Cell cell, Lock lock) {
 		super(scene, cell);

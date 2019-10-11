@@ -76,7 +76,7 @@ public class Object implements Runnable, Constants {
 	 * Initialize the object
 	 *
 	 * @param scene The scene the object is in
-	 * @param cell     The cell the object is in
+	 * @param cell  The cell the object is in
 	 */
 	protected Object(Scene scene, Cell cell) {
 		this.scene = scene;

@@ -26,7 +26,7 @@ public class Obstacle extends Object {
 	 * Initialize the obstacle
 	 *
 	 * @param scene The scene the object is in
-	 * @param cell     The cell the object is in
+	 * @param cell  The cell the object is in
 	 */
 	public Obstacle(Scene scene, Cell cell) {
 		super(scene, cell);

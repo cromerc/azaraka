@@ -42,7 +42,7 @@ public class Key extends Object implements Constants {
 	 * Initialize the key
 	 *
 	 * @param scene The scene the key is in
-	 * @param cell     The cell the key is in
+	 * @param cell  The cell the key is in
 	 */
 	public Key(Scene scene, Cell cell) {
 		super(scene, cell);

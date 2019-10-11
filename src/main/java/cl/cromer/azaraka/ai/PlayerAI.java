@@ -39,8 +39,8 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 	/**
 	 * Initialize the algorithm
 	 *
-	 * @param scene The scene the AI is in
-	 * @param player    The player controlled by the AI
+	 * @param scene  The scene the AI is in
+	 * @param player The player controlled by the AI
 	 */
 	public PlayerAI(Scene scene, Player player) {
 		super();

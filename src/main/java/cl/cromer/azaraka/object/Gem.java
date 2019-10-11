@@ -47,7 +47,7 @@ public class Gem extends Object {
 	 * Initialize the gem object
 	 *
 	 * @param scene The scene the gem is in
-	 * @param cell     The cell the gem is in
+	 * @param cell  The cell the gem is in
 	 */
 	public Gem(Scene scene, Cell cell) {
 		super(scene, cell);

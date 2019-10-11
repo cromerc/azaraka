@@ -81,6 +81,18 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 */
 	private final Animation gameOverAnimation;
 	/**
+	 * The left margin of the game
+	 */
+	private final int leftMargin;
+	/**
+	 * The top margin of the game
+	 */
+	private final int topMargin;
+	/**
+	 * The threads that control AI
+	 */
+	private final HashMap<AI, Thread> aiThreads = new HashMap<>();
+	/**
 	 * The graphics buffer
 	 */
 	private Graphics graphicBuffer;
@@ -100,14 +112,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 * The hearts animation
 	 */
 	private Animation heartAnimation;
-	/**
-	 * The left margin of the game
-	 */
-	private final int leftMargin;
-	/**
-	 * The top margin of the game
-	 */
-	private final int topMargin;
 	/**
 	 * The game scene
 	 */
@@ -153,10 +157,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 */
 	private Sound doorSound;
 	/**
-	 * The threads that control AI
-	 */
-	private final HashMap<AI, Thread> aiThreads = new HashMap<>();
-	/**
 	 * The sound when a gem is received
 	 */
 	private Sound getGemSound;
@@ -173,8 +173,8 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 * Initialize the canvas
 	 *
 	 * @param azaraka The main window
-	 * @param width The width to set the canvas
-	 * @param height The width to set the canvas
+	 * @param width   The width to set the canvas
+	 * @param height  The width to set the canvas
 	 */
 	public Canvas(Azaraka azaraka, int width, int height) {
 		logger = getLogger(this.getClass(), LogLevel.LIENZO);

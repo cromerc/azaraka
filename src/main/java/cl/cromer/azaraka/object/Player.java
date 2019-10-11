@@ -38,19 +38,19 @@ public class Player extends Object implements Constants {
 	 */
 	private final ArrayList<Object> carrying = new ArrayList<>();
 	/**
-	 * The current health of the player
-	 */
-	private int health = MAX_HEALTH;
-	/**
 	 * The artificial intelligence of the player
 	 */
 	private final PlayerAI ai;
+	/**
+	 * The current health of the player
+	 */
+	private int health = MAX_HEALTH;
 
 	/**
 	 * Initialize the player
 	 *
 	 * @param scene The scene the player is in
-	 * @param cell     The cell the player is in
+	 * @param cell  The cell the player is in
 	 */
 	public Player(Scene scene, Cell cell) {
 		super(scene, cell);

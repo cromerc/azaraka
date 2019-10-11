@@ -60,7 +60,7 @@ public class BreadthFirstSearch extends AI {
 	/**
 	 * Find a path to the objective
 	 *
-	 * @param searchInitial The start point
+	 * @param searchInitial   The start point
 	 * @param searchObjective The objective
 	 * @return Returns true if a path was found or false otherwise
 	 */
@@ -217,8 +217,8 @@ public class BreadthFirstSearch extends AI {
 	 * This method is called when the player arrives at a destination
 	 *
 	 * @param objective The objective the player arrived at
-	 * @throws AIException Thrown if the method is called via super
 	 * @return Returns true if the destination condition is valid or false otherwise
+	 * @throws AIException Thrown if the method is called via super
 	 */
 	protected boolean destinationArrived(State objective) throws AIException {
 		String methodName = new Throwable().getStackTrace()[0].getMethodName();
