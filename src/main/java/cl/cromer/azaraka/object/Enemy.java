@@ -15,9 +15,9 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Constantes;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Constants;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -29,7 +29,7 @@ import java.util.concurrent.locks.Lock;
 /**
  * This class handles the enemy object
  */
-public class Enemy extends Object implements Constantes {
+public class Enemy extends Object implements Constants {
 	/**
 	 * The lock helps prevent race conditions when checking positioning
 	 */
@@ -46,12 +46,12 @@ public class Enemy extends Object implements Constantes {
 	/**
 	 * Initialize the enemy
 	 *
-	 * @param escenario The scene the enemy is in
-	 * @param celda     The cell this enemy is in
+	 * @param scene The scene the enemy is in
+	 * @param cell     The cell this enemy is in
 	 * @param lock      The lock used to prevent the threads from conflicting
 	 */
-	public Enemy(Escenario escenario, Celda celda, Lock lock) {
-		super(escenario, celda);
+	public Enemy(Scene scene, Cell cell, Lock lock) {
+		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.ENEMY));
 		this.lock = lock;
 		loadEnemyAnimation();
@@ -78,7 +78,7 @@ public class Enemy extends Object implements Constantes {
 	 */
 	private void playAttackSound() {
 		try {
-			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.setVolume(getScene().getCanvas().getVolume());
 			sound.play();
 		}
 		catch (SoundException e) {
@@ -114,10 +114,10 @@ public class Enemy extends Object implements Constantes {
 		int x = getX();
 		int y = getY();
 		if (direction == Direction.LEFT) {
-			if (x > 0 && getEscenario().getCeldas()[x - 1][y].getObject() == null) {
-				getCelda().setObject(null);
-				setCelda(getEscenario().getCeldas()[x - 1][y]);
-				getCelda().setObject(this);
+			if (x > 0 && getScene().getCells()[x - 1][y].getObject() == null) {
+				getCell().setObject(null);
+				setCell(getScene().getCells()[x - 1][y]);
+				getCell().setObject(this);
 
 				try {
 					getAnimation().getNextFrame();
@@ -128,7 +128,7 @@ public class Enemy extends Object implements Constantes {
 				setX(getX() - 1);
 				getLogger().info("Move left to x: " + x + " y: " + y);
 			}
-			else if (x > 0 && getEscenario().getCeldas()[x - 1][y].getObject() instanceof Player) {
+			else if (x > 0 && getScene().getCells()[x - 1][y].getObject() instanceof Player) {
 				attackPlayer(x - 1, y);
 			}
 			else {
@@ -138,10 +138,10 @@ public class Enemy extends Object implements Constantes {
 			}
 		}
 		else if (direction == Direction.RIGHT) {
-			if (x < (HORIZONTAL_CELLS - 1) && getEscenario().getCeldas()[x + 1][y].getObject() == null) {
-				getCelda().setObject(null);
-				setCelda(getEscenario().getCeldas()[x + 1][y]);
-				getCelda().setObject(this);
+			if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() == null) {
+				getCell().setObject(null);
+				setCell(getScene().getCells()[x + 1][y]);
+				getCell().setObject(this);
 
 				try {
 					getAnimation().getNextFrame();
@@ -152,7 +152,7 @@ public class Enemy extends Object implements Constantes {
 				setX(getX() + 1);
 				getLogger().info("Move right to x: " + x + " y: " + y);
 			}
-			else if (x < (HORIZONTAL_CELLS - 1) && getEscenario().getCeldas()[x + 1][y].getObject() instanceof Player) {
+			else if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() instanceof Player) {
 				attackPlayer(x + 1, y);
 			}
 			else {
@@ -162,10 +162,10 @@ public class Enemy extends Object implements Constantes {
 			}
 		}
 		else if (direction == Direction.DOWN) {
-			if (y < (VERTICAL_CELLS) - 1 && getEscenario().getCeldas()[x][y + 1].getObject() == null) {
-				getCelda().setObject(null);
-				setCelda(getEscenario().getCeldas()[x][y + 1]);
-				getCelda().setObject(this);
+			if (y < (VERTICAL_CELLS) - 1 && getScene().getCells()[x][y + 1].getObject() == null) {
+				getCell().setObject(null);
+				setCell(getScene().getCells()[x][y + 1]);
+				getCell().setObject(this);
 
 				try {
 					getAnimation().getNextFrame();
@@ -176,7 +176,7 @@ public class Enemy extends Object implements Constantes {
 				setY(getY() + 1);
 				getLogger().info("Move down to x: " + x + " y: " + y);
 			}
-			else if (y < (VERTICAL_CELLS - 1) && getEscenario().getCeldas()[x][y + 1].getObject() instanceof Player) {
+			else if (y < (VERTICAL_CELLS - 1) && getScene().getCells()[x][y + 1].getObject() instanceof Player) {
 				attackPlayer(x, y + 1);
 			}
 			else {
@@ -186,10 +186,10 @@ public class Enemy extends Object implements Constantes {
 			}
 		}
 		else if (direction == Direction.UP) {
-			if (y > 0 && getEscenario().getCeldas()[x][y - 1].getObject() == null) {
-				getCelda().setObject(null);
-				setCelda(getEscenario().getCeldas()[x][y - 1]);
-				getCelda().setObject(this);
+			if (y > 0 && getScene().getCells()[x][y - 1].getObject() == null) {
+				getCell().setObject(null);
+				setCell(getScene().getCells()[x][y - 1]);
+				getCell().setObject(this);
 
 				try {
 					getAnimation().getNextFrame();
@@ -200,7 +200,7 @@ public class Enemy extends Object implements Constantes {
 				setY(getY() - 1);
 				getLogger().info("Move up to x: " + x + " y: " + y);
 			}
-			else if (y > 0 && getEscenario().getCeldas()[x][y - 1].getObject() instanceof Player) {
+			else if (y > 0 && getScene().getCells()[x][y - 1].getObject() instanceof Player) {
 				attackPlayer(x, y - 1);
 			}
 			else {
@@ -218,20 +218,20 @@ public class Enemy extends Object implements Constantes {
 	 * @param y The y position of the player
 	 */
 	private void attackPlayer(int x, int y) {
-		if (getEscenario().getCanvas().getPlayer().getHealth() > 0) {
+		if (getScene().getCanvas().getPlayer().getHealth() > 0) {
 
 			getLogger().info("Attacked player at x: " + x + " y: " + y);
 
 			playAttackSound();
 
-			getEscenario().getCanvas().getPlayer().loseHealth(2);
+			getScene().getCanvas().getPlayer().loseHealth(2);
 			try {
-				getEscenario().getCeldas()[x][y].addTexture(getEscenario().getTextureSheet().getTexture(12), 12);
+				getScene().getCells()[x][y].addTexture(getScene().getTextureSheet().getTexture(12), 12);
 			}
 			catch (SheetException e) {
 				getLogger().warning(e.getMessage());
 			}
-			getEscenario().getCanvas().getPlayer().attacked();
+			getScene().getCanvas().getPlayer().attacked();
 
 			if (direction == Direction.UP) {
 				getAnimation().setCurrentDirection(Animation.Direction.LEFT);
@@ -267,7 +267,7 @@ public class Enemy extends Object implements Constantes {
 			synchronized (this) {
 				lock.lock();
 				move();
-				getEscenario().getCanvas().repaint();
+				getScene().getCanvas().repaint();
 				lock.unlock();
 			}
 		}

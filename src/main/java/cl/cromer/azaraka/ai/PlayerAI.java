@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka.ai;
 
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.object.Player;
 import cl.cromer.azaraka.object.Portal;
 import cl.cromer.azaraka.sprite.Animation;
@@ -34,11 +34,11 @@ public class PlayerAI extends BreadthFirstSearch {
 	/**
 	 * Initialize the algorithm
 	 *
-	 * @param escenario The scene the AI is in
+	 * @param scene The scene the AI is in
 	 * @param player    The player controlled by the AI
 	 */
-	public PlayerAI(Escenario escenario, Player player) {
-		super(escenario);
+	public PlayerAI(Scene scene, Player player) {
+		super(scene);
 		this.player = player;
 	}
 
@@ -57,9 +57,9 @@ public class PlayerAI extends BreadthFirstSearch {
 						player.keyPressed(KeyEvent.VK_UP);
 					}
 					player.interact();
-					Portal portal = getEscenario().getCanvas().getPortal();
+					Portal portal = getScene().getCanvas().getPortal();
 					if (portal.getState() == Portal.State.ACTIVE) {
-						addDestination(new State(portal.getCelda().getX(), portal.getCelda().getY(), State.Type.PORTAL, null, 2));
+						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 2));
 					}
 					return true;
 				}
@@ -70,7 +70,7 @@ public class PlayerAI extends BreadthFirstSearch {
 			case KEY:
 				return true;
 			case PORTAL:
-				if (player.hasTaintedGem() && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				if (player.hasTaintedGem() && getScene().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 					return true;
 				}
 				break;
@@ -101,13 +101,13 @@ public class PlayerAI extends BreadthFirstSearch {
 				break;
 			case PORTAL:
 				// If the portal is active head towards it
-				if (player.hasTaintedGem() && getEscenario().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+				if (player.hasTaintedGem() && getScene().getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
 					return true;
 				}
 				break;
 			case EXIT:
 				// If the door is open head to it
-				if (getEscenario().isDoorOpen()) {
+				if (getScene().isDoorOpen()) {
 					return true;
 				}
 				break;
@@ -137,7 +137,7 @@ public class PlayerAI extends BreadthFirstSearch {
 			}
 		}
 
-		getEscenario().getCanvas().repaint();
+		getScene().getCanvas().repaint();
 	}
 
 	/**
@@ -145,6 +145,6 @@ public class PlayerAI extends BreadthFirstSearch {
 	 */
 	@Override
 	public void getNewInitial() {
-		setInitial(new State(player.getCelda().getX(), player.getCelda().getY(), State.Type.START, null, 0));
+		setInitial(new State(player.getCell().getX(), player.getCell().getY(), State.Type.START, null, 0));
 	}
 }

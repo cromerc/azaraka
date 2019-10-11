@@ -15,8 +15,8 @@
 
 package cl.cromer.azaraka.ai;
 
-import cl.cromer.azaraka.Constantes;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Constants;
+import cl.cromer.azaraka.Scene;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 /**
  * This is an implementation of the Breadth-First search algorithm with multiple objectives
  */
-public class BreadthFirstSearch extends AI implements Constantes {
+public class BreadthFirstSearch extends AI implements Constants {
 	/**
 	 * The queued states to check
 	 */
@@ -57,10 +57,10 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	/**
 	 * Initialize the algorithm
 	 *
-	 * @param escenario The scene the AI is in
+	 * @param scene The scene the AI is in
 	 */
-	public BreadthFirstSearch(Escenario escenario) {
-		super(escenario);
+	public BreadthFirstSearch(Scene scene) {
+		super(scene);
 		setLogger(getLogger(this.getClass(), LogLevel.AI));
 	}
 
@@ -99,6 +99,8 @@ public class BreadthFirstSearch extends AI implements Constantes {
 		}
 	}
 
+	// TODO: remove escenario from the algorithm
+
 	/**
 	 * Move up if possible
 	 *
@@ -106,7 +108,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveUp(State state) {
 		if (state.getY() > 0) {
-			if (getEscenario().getCeldas()[state.getX()][state.getY() - 1].getObject() == null) {
+			if (getScene().getCells()[state.getX()][state.getY() - 1].getObject() == null) {
 				State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state, state.getImportance());
 				if (!history.contains(up)) {
 					queuedStates.add(up);
@@ -128,7 +130,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveDown(State state) {
 		if (state.getY() < VERTICAL_CELLS - 1) {
-			if (getEscenario().getCeldas()[state.getX()][state.getY() + 1].getObject() == null) {
+			if (getScene().getCells()[state.getX()][state.getY() + 1].getObject() == null) {
 				State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state, state.getImportance());
 				if (!history.contains(down)) {
 					queuedStates.add(down);
@@ -150,7 +152,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveLeft(State state) {
 		if (state.getX() > 0) {
-			if (getEscenario().getCeldas()[state.getX() - 1][state.getY()].getObject() == null) {
+			if (getScene().getCells()[state.getX() - 1][state.getY()].getObject() == null) {
 				State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state, state.getImportance());
 				if (!history.contains(left)) {
 					queuedStates.add(left);
@@ -172,7 +174,7 @@ public class BreadthFirstSearch extends AI implements Constantes {
 	 */
 	private void moveRight(State state) {
 		if (state.getX() < HORIZONTAL_CELLS - 1) {
-			if (getEscenario().getCeldas()[state.getX() + 1][state.getY()].getObject() == null) {
+			if (getScene().getCells()[state.getX() + 1][state.getY()].getObject() == null) {
 				State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state, state.getImportance());
 				if (!history.contains(right)) {
 					queuedStates.add(right);

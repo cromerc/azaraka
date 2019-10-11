@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka.sprite;
 
-import cl.cromer.azaraka.Constantes;
+import cl.cromer.azaraka.Constants;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 /**
  * This class handles loading the images and sub-images
  */
-public class Sheet implements Constantes {
+public class Sheet implements Constants {
 	/**
 	 * A list of all the textures in the collection
 	 */

@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * This class is a cell that will contain a game element such as a player, enemy, prize, etc
  */
-public class Celda extends JComponent implements Constantes {
+public class Cell extends JComponent implements Constants {
 	/**
 	 * The x graphical coordinate of the cell
 	 */
@@ -69,7 +69,7 @@ public class Celda extends JComponent implements Constantes {
 	 * @param x       The x coordinate of the cell
 	 * @param y       The y coordinate of the cell
 	 */
-	public Celda(int xPixels, int yPixels, int x, int y) {
+	public Cell(int xPixels, int yPixels, int x, int y) {
 		this.xPixels = xPixels;
 		this.yPixels = yPixels;
 		this.x = x;

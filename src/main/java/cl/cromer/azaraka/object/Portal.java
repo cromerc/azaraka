@@ -15,9 +15,9 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Constantes;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Constants;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 /**
  * This class handles the portal functionality
  */
-public class Portal extends Object implements Constantes {
+public class Portal extends Object implements Constants {
 	/**
 	 * The current state of the portal
 	 */
@@ -49,11 +49,11 @@ public class Portal extends Object implements Constantes {
 	/**
 	 * Initialize the portal
 	 *
-	 * @param escenario The scene that contains the portal
-	 * @param celda     The cell the portal is in
+	 * @param scene The scene that contains the portal
+	 * @param cell     The cell the portal is in
 	 */
-	public Portal(Escenario escenario, Celda celda) {
-		super(escenario, celda);
+	public Portal(Scene scene, Cell cell) {
+		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PORTAL));
 		loadPortalAnimations();
 	}
@@ -92,17 +92,17 @@ public class Portal extends Object implements Constantes {
 	 */
 	public void purifyGems() {
 		if (state == State.ACTIVE) {
-			ArrayList<Gem> gems = getEscenario().getCanvas().getPlayer().getInventoryGems();
+			ArrayList<Gem> gems = getScene().getCanvas().getPlayer().getInventoryGems();
 			for (Gem gem : gems) {
 				if (gem.getState() == Gem.State.TAINTED) {
 					gem.setState(Gem.State.PURIFIED);
-					getEscenario().getCanvas().getPlayer().gainHealth(2);
+					getScene().getCanvas().getPlayer().gainHealth(2);
 				}
 			}
 			setState(State.INACTIVE);
 			playPortalSound();
 			if (gems.size() == 2) {
-				getEscenario().openDoor(true);
+				getScene().openDoor(true);
 			}
 		}
 	}
@@ -121,7 +121,7 @@ public class Portal extends Object implements Constantes {
 	 */
 	private void playPortalSound() {
 		try {
-			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.setVolume(getScene().getCanvas().getVolume());
 			sound.play();
 		}
 		catch (SoundException e) {
@@ -203,7 +203,7 @@ public class Portal extends Object implements Constantes {
 			}
 			synchronized (this) {
 				animate();
-				getEscenario().getCanvas().repaint();
+				getScene().getCanvas().repaint();
 			}
 		}
 	}

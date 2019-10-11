@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka.ai;
 
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Scene;
 
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ public class AI implements Runnable {
 	/**
 	 * The scene of the game
 	 */
-	private final Escenario escenario;
+	private final Scene scene;
 	/**
 	 * The logger
 	 */
@@ -39,10 +39,10 @@ public class AI implements Runnable {
 	/**
 	 * Initialize the AI
 	 *
-	 * @param escenario The scene of the game
+	 * @param scene The scene of the game
 	 */
-	protected AI(Escenario escenario) {
-		this.escenario = escenario;
+	protected AI(Scene scene) {
+		this.scene = scene;
 	}
 
 	/**
@@ -50,8 +50,8 @@ public class AI implements Runnable {
 	 *
 	 * @return Returns the scene
 	 */
-	protected Escenario getEscenario() {
-		return escenario;
+	protected Scene getScene() {
+		return scene;
 	}
 
 	/**

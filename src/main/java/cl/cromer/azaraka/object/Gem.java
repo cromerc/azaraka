@@ -15,8 +15,8 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -46,11 +46,11 @@ public class Gem extends Object {
 	/**
 	 * Initialize the gem object
 	 *
-	 * @param escenario The scene the gem is in
-	 * @param celda     The cell the gem is in
+	 * @param scene The scene the gem is in
+	 * @param cell     The cell the gem is in
 	 */
-	public Gem(Escenario escenario, Celda celda) {
-		super(escenario, celda);
+	public Gem(Scene scene, Cell cell) {
+		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.GEM));
 		loadGemAnimation(null);
 		setAnimation(taintedAnimation);
@@ -119,7 +119,7 @@ public class Gem extends Object {
 	 */
 	public void playGemSound() {
 		try {
-			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.setVolume(getScene().getCanvas().getVolume());
 			sound.play();
 		}
 		catch (SoundException e) {
@@ -201,7 +201,7 @@ public class Gem extends Object {
 			}
 			synchronized (this) {
 				animate();
-				getEscenario().getCanvas().repaint();
+				getScene().getCanvas().repaint();
 			}
 		}
 	}

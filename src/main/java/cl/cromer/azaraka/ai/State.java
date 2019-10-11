@@ -38,7 +38,7 @@ public class State {
 	/**
 	 * The importance of the objective, higher is more important
 	 */
-	private int importance;
+	private final int importance;
 
 	/**
 	 * Initialize the state

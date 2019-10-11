@@ -15,9 +15,9 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Constantes;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Constants;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -28,7 +28,7 @@ import cl.cromer.azaraka.sprite.SheetException;
 /**
  * This class handles the chests
  */
-public class Chest extends Object implements Constantes {
+public class Chest extends Object implements Constants {
 	/**
 	 * The current state of the chest
 	 */
@@ -49,11 +49,11 @@ public class Chest extends Object implements Constantes {
 	/**
 	 * Initialize the chest
 	 *
-	 * @param escenario The scene the chest is in
-	 * @param celda     The cell that contains the chest
+	 * @param scene The scene the chest is in
+	 * @param cell     The cell that contains the chest
 	 */
-	public Chest(Escenario escenario, Celda celda) {
-		super(escenario, celda);
+	public Chest(Scene scene, Cell cell) {
+		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.CHEST));
 
 		loadChestAnimation();
@@ -109,7 +109,7 @@ public class Chest extends Object implements Constantes {
 			catch (AnimationException e) {
 				getLogger().warning(e.getMessage());
 			}
-			getEscenario().getCanvas().repaint();
+			getScene().getCanvas().repaint();
 		}
 	}
 
@@ -136,7 +136,7 @@ public class Chest extends Object implements Constantes {
 	 */
 	private void playChestOpenSound() {
 		try {
-			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.setVolume(getScene().getCanvas().getVolume());
 			sound.play();
 		}
 		catch (SoundException e) {
@@ -188,19 +188,19 @@ public class Chest extends Object implements Constantes {
 							gemLoops--;
 						}
 						else if (gemLoops == 0) {
-							gem.getCelda().setObjectOnTop(null);
+							gem.getCell().setObjectOnTop(null);
 							gem.setYScale(24);
 							gem.setXScale(24);
 							gem.setUseOffset(false);
-							getEscenario().getCanvas().getPlayer().addInventory(gem);
-							getEscenario().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+							getScene().getCanvas().getPlayer().addInventory(gem);
+							getScene().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 							gemLoops--;
 						}
 					}
 				}
 				else if (state == State.OPENING) {
 					animate();
-					getEscenario().getCanvas().repaint();
+					getScene().getCanvas().repaint();
 				}
 			}
 		}

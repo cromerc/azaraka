@@ -15,9 +15,9 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Constantes;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Constants;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -28,7 +28,7 @@ import cl.cromer.azaraka.sprite.SheetException;
 /**
  * This class contains the key
  */
-public class Key extends Object implements Constantes {
+public class Key extends Object implements Constants {
 	/**
 	 * The current state of the key
 	 */
@@ -41,11 +41,11 @@ public class Key extends Object implements Constantes {
 	/**
 	 * Initialize the key
 	 *
-	 * @param escenario The scene the key is in
-	 * @param celda     The cell the key is in
+	 * @param scene The scene the key is in
+	 * @param cell     The cell the key is in
 	 */
-	public Key(Escenario escenario, Celda celda) {
-		super(escenario, celda);
+	public Key(Scene scene, Cell cell) {
+		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.KEY));
 		loadKeyAnimation();
 	}
@@ -92,7 +92,7 @@ public class Key extends Object implements Constantes {
 	 */
 	public void playGetKeySound() {
 		try {
-			sound.setVolume(getEscenario().getCanvas().getVolume());
+			sound.setVolume(getScene().getCanvas().getVolume());
 			sound.play();
 		}
 		catch (SoundException e) {
@@ -114,7 +114,7 @@ public class Key extends Object implements Constantes {
 	 */
 	public void getKey() {
 		// Remove the key from the cell
-		getCelda().setObjectOnBottom(null);
+		getCell().setObjectOnBottom(null);
 		setState(State.HELD);
 	}
 
@@ -169,7 +169,7 @@ public class Key extends Object implements Constantes {
 			}
 			synchronized (this) {
 				animate();
-				getEscenario().getCanvas().repaint();
+				getScene().getCanvas().repaint();
 			}
 		}
 		// The thread was killed, set the animation to frame 4

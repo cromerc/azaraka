@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka.sound;
 
-import cl.cromer.azaraka.Constantes;
+import cl.cromer.azaraka.Constants;
 
 import javax.sound.sampled.*;
 import java.io.BufferedInputStream;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 /**
  * This class handles sound
  */
-public class Sound implements Constantes {
+public class Sound implements Constants {
 	/**
 	 * The path to the sound
 	 */

@@ -21,18 +21,41 @@ import java.util.logging.Logger;
 /**
  * The main class of the game
  */
-public class Azaraka implements Constantes {
+public class Azaraka implements Constants {
+	/**
+	 * The main window
+	 */
+	private MainWindow mainWindow;
+	/**
+	 * The logger
+	 */
+	private final Logger logger;
 
 	/**
-	 * Initialize the main class
+	 * The main game class
 	 */
 	private Azaraka() {
-		Logger logger = getLogger(this.getClass(), LogLevel.MAIN);
+		logger = getLogger(this.getClass(), LogLevel.MAIN);
+		start();
+	}
 
+	/**
+	 * Restart the game
+	 */
+	public void restart() {
+		mainWindow.removeAll();
+		mainWindow.dispose();
+		start();
+	}
+
+	/**
+	 * Load the main game window to start
+	 */
+	private void start() {
 		logger.info("Load main window");
-		VentanaPrincipal ventanaPrincipal = new VentanaPrincipal();
-		ventanaPrincipal.setVisible(true);
-		ventanaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainWindow = new MainWindow(this);
+		mainWindow.setVisible(true);
+		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	/**
@@ -41,6 +64,15 @@ public class Azaraka implements Constantes {
 	 * @param args The arguments passed to the application
 	 */
 	public static void main(String[] args) {
+		int validCells = (HORIZONTAL_CELLS - 2) * (VERTICAL_CELLS - 2);
+		validCells = validCells - ENEMIES;
+		validCells = validCells - (CHESTS * 2);
+		validCells = validCells - OBSTACLES;
+		if (validCells < 10) {
+			// This is to prevent a possible infinite loop
+			System.out.println("Not enough valid cells: " + validCells + "!");
+			System.exit(0);
+		}
 		new Azaraka();
 	}
 

@@ -17,7 +17,6 @@ package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.ai.BreadthFirstSearch;
 import cl.cromer.azaraka.ai.State;
-import cl.cromer.azaraka.json.Cell;
 import cl.cromer.azaraka.json.Json;
 import cl.cromer.azaraka.object.Object;
 import cl.cromer.azaraka.object.*;
@@ -42,15 +41,15 @@ import java.util.logging.Logger;
 /**
  * The scene used for the game
  */
-public class Escenario extends JComponent implements Constantes {
+public class Scene extends JComponent implements Constants {
 	/**
 	 * The canvas
 	 */
-	private final Lienzo canvas;
+	private final Canvas canvas;
 	/**
 	 * The cells of the game
 	 */
-	private final Celda[][] celdas;
+	private final Cell[][] cells;
 	/**
 	 * The logger
 	 */
@@ -67,22 +66,18 @@ public class Escenario extends JComponent implements Constantes {
 	 * The sound the door makes
 	 */
 	private Sound doorSound;
-	/**
-	 * The amount of tries before giving up
-	 */
-	private int tries = 0;
 
 	/**
 	 * Initialize the scene
 	 *
 	 * @param canvas The canvas that this scene is in
 	 */
-	public Escenario(Lienzo canvas) {
+	public Scene(Canvas canvas) {
 		logger = getLogger(this.getClass(), LogLevel.ESCENARIO);
 		this.canvas = canvas;
 		loadTextures();
 
-		celdas = new Celda[HORIZONTAL_CELLS][VERTICAL_CELLS];
+		cells = new Cell[HORIZONTAL_CELLS][VERTICAL_CELLS];
 
 		if (GENERATE_SCENE) {
 			generateScene();
@@ -106,7 +101,7 @@ public class Escenario extends JComponent implements Constantes {
 
 		if (EXPORT_SCENE) {
 			Json json = new Json();
-			json.exportScene(celdas);
+			json.exportScene(cells);
 		}
 	}
 
@@ -118,37 +113,37 @@ public class Escenario extends JComponent implements Constantes {
 	private void loadScene(String json) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		Gson gson = gsonBuilder.create();
-		Cell[][] cells = gson.fromJson(json, Cell[][].class);
+		cl.cromer.azaraka.json.Cell[][] cells = gson.fromJson(json, cl.cromer.azaraka.json.Cell[][].class);
 
 		for (int x = 0; x < cells.length; x++) {
 			for (int y = 0; y < cells[x].length; y++) {
-				celdas[x][y] = new Celda((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
+				this.cells[x][y] = new Cell((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
 
 				if (cells[x][y].type.equals(Player.class.getName())) {
-					celdas[x][y].setObject(new Player(null, celdas[x][y]));
+					this.cells[x][y].setObject(new Player(null, this.cells[x][y]));
 				}
 				else if (cells[x][y].type.equals(Enemy.class.getName())) {
-					celdas[x][y].setObject(new Enemy(null, celdas[x][y], null));
+					this.cells[x][y].setObject(new Enemy(null, this.cells[x][y], null));
 				}
 				else if (cells[x][y].type.equals(Chest.class.getName())) {
-					celdas[x][y].setObject(new Chest(null, celdas[x][y]));
+					this.cells[x][y].setObject(new Chest(null, this.cells[x][y]));
 				}
 				else if (cells[x][y].type.equals(Gem.class.getName())) {
-					celdas[x][y].setObject(new Gem(null, celdas[x][y]));
+					this.cells[x][y].setObject(new Gem(null, this.cells[x][y]));
 				}
 				else if (cells[x][y].type.equals(Key.class.getName())) {
-					celdas[x][y].setObject(new Key(null, celdas[x][y]));
+					this.cells[x][y].setObject(new Key(null, this.cells[x][y]));
 				}
 				else if (cells[x][y].type.equals(Obstacle.class.getName())) {
-					celdas[x][y].setObject(new Obstacle(null, celdas[x][y]));
+					this.cells[x][y].setObject(new Obstacle(null, this.cells[x][y]));
 				}
 				else if (cells[x][y].type.equals(Portal.class.getName())) {
-					celdas[x][y].setObject(new Portal(null, celdas[x][y]));
+					this.cells[x][y].setObject(new Portal(null, this.cells[x][y]));
 				}
 
 				for (int k = 0; k < cells[x][y].textures.size(); k++) {
 					try {
-						celdas[x][y].addTexture(textureSheet.getTexture(cells[x][y].textures.get(k)), cells[x][y].textures.get(k));
+						this.cells[x][y].addTexture(textureSheet.getTexture(cells[x][y].textures.get(k)), cells[x][y].textures.get(k));
 					}
 					catch (SheetException e) {
 						logger.warning(e.getMessage());
@@ -168,17 +163,15 @@ public class Escenario extends JComponent implements Constantes {
 		ArrayList<Object> objectArrayList = new ArrayList<>();
 
 		// The player has a fixed position
-		celdas[2][1].setObject(new Player(this, celdas[2][1]));
-		objectArrayList.add(celdas[2][1].getObject());
+		cells[2][1].setObject(new Player(this, cells[2][1]));
+		objectArrayList.add(cells[2][1].getObject());
 
 		for (int i = 0; i < OBSTACLES; i++) {
-			random = randomCoordinates(false);
-			if (random[0] == -1 || random[1] == -1) {
-				return null;
-			}
-			celdas[random[0]][random[1]].setObject(new Obstacle(this, celdas[random[0]][random[1]]));
+			random = randomCoordinates();
+			cells[random[0]][random[1]].setObject(new Obstacle(this, cells[random[0]][random[1]]));
+			objectArrayList.add(cells[random[0]][random[1]].getObject());
 			try {
-				celdas[random[0]][random[1]].addTexture(textureSheet.getTexture(30), 30);
+				cells[random[0]][random[1]].addTexture(textureSheet.getTexture(30), 30);
 			}
 			catch (SheetException e) {
 				logger.warning(e.getMessage());
@@ -187,103 +180,88 @@ public class Escenario extends JComponent implements Constantes {
 
 		final Lock lock = new ReentrantLock(true);
 		for (int i = 0; i < ENEMIES; i++) {
-			random = randomCoordinates(true);
-			if (random[0] == -1 || random[1] == -1) {
-				return null;
-			}
-			celdas[random[0]][random[1]].setObject(new Enemy(this, celdas[random[0]][random[1]], lock));
-			objectArrayList.add(celdas[random[0]][random[1]].getObject());
+			random = randomCoordinates();
+			cells[random[0]][random[1]].setObject(new Enemy(this, cells[random[0]][random[1]], lock));
+			objectArrayList.add(cells[random[0]][random[1]].getObject());
 		}
 
-		random = randomCoordinates(true);
-		if (random[0] == -1 || random[1] == -1) {
-			return null;
-		}
-		celdas[random[0]][random[1]].setObjectOnBottom(new Portal(this, celdas[random[0]][random[1]]));
-		objectArrayList.add(celdas[random[0]][random[1]].getObjectOnBottom());
+		random = randomCoordinates();
+		cells[random[0]][random[1]].setObjectOnBottom(new Portal(this, cells[random[0]][random[1]]));
+		objectArrayList.add(cells[random[0]][random[1]].getObjectOnBottom());
 
 		// Generate enough keys for the chests that will exist
 		for (int i = 0; i < CHESTS; i++) {
-			random = randomCoordinates(true);
-			if (random[0] == -1 || random[1] == -1) {
-				return null;
-			}
-			celdas[random[0]][random[1]].setObjectOnBottom(new Key(this, celdas[random[0]][random[1]]));
-			objectArrayList.add(celdas[random[0]][random[1]].getObjectOnBottom());
+			random = randomCoordinates();
+			cells[random[0]][random[1]].setObjectOnBottom(new Key(this, cells[random[0]][random[1]]));
+			objectArrayList.add(cells[random[0]][random[1]].getObjectOnBottom());
 		}
 
 		// Chests need to be last to make sure they are openable
 		for (int i = 0; i < CHESTS; i++) {
-			tries = 0;
 			int random_x = random(0, HORIZONTAL_CELLS - 1);
 			int random_y = random(0, VERTICAL_CELLS - 1);
 			// Don't put a chest if it can't be opened
 			while (random_y + 1 == VERTICAL_CELLS ||
-					celdas[random_x][random_y].containsObject() ||
-					celdas[random_x][random_y + 1].containsObject() ||
-					celdas[random_x][random_y - 1].containsObject() ||
-					checkBreadthFirst(random_x, random_y + 1)) {
+					cells[random_x][random_y].containsObject() ||
+					cells[random_x][random_y + 1].containsObject()) {
 				random_x = random(0, HORIZONTAL_CELLS - 1);
 				random_y = random(0, VERTICAL_CELLS - 1);
-				tries++;
-				if (tries == HORIZONTAL_CELLS) {
-					random[0] = -1;
-					random[1] = -1;
-					break;
+			}
+			cells[random_x][random_y].setObject(new Chest(this, cells[random_x][random_y]));
+			objectArrayList.add(cells[random_x][random_y].getObject());
+		}
+
+		for (Object object : objectArrayList) {
+			if (object instanceof Chest) {
+				int x = object.getCell().getX();
+				int y = object.getCell().getY();
+				if (pathInvalid(x, y + 1)) {
+					return null;
 				}
 			}
-			if (random[0] == -1 || random[1] == -1) {
-				return null;
+			else if (object instanceof Portal || object instanceof Key) {
+				int x = object.getCell().getX();
+				int y = object.getCell().getY();
+				if (pathInvalid(x, y)) {
+					return null;
+				}
 			}
-			celdas[random_x][random_y].setObjectOnBottom(new Chest(this, celdas[random_x][random_y]));
-			objectArrayList.add(celdas[random_x][random_y].getObjectOnBottom());
 		}
 
 		return objectArrayList;
 	}
 
 	/**
+	 * Check if the path to the objective is valid
+	 *
+	 * @param x The x coordinate of the objective
+	 * @param y The y coordinate of the objective
+	 * @return Returns true if valid or false otherwise
+	 */
+	private boolean pathInvalid(int x, int y) {
+		BreadthFirstSearch breadthFirstSearch = new BreadthFirstSearch(this);
+		State playerState = new State(2, 1, State.Type.START, null, 0);
+		State objectiveState = new State(x, y, State.Type.EXIT, null, 0);
+		return !breadthFirstSearch.search(playerState, objectiveState);
+	}
+
+	/**
 	 * Get random x and y coordinates
 	 *
-	 * @param checkPath Check if the path can be reached using AI
 	 * @return Returns an array with the coordinates
 	 */
-	private int[] randomCoordinates(boolean checkPath) {
-		tries = 0;
+	private int[] randomCoordinates() {
 		int[] random = new int[2];
 		random[0] = random(0, HORIZONTAL_CELLS - 1);
 		random[1] = random(0, VERTICAL_CELLS - 1);
 		// If the cell is not empty look for another
 		// If the cell is not reachable by the player look for another
 		// If the player can't reach the bottom right corner look for another
-		while (celdas[random[0]][random[1]].containsObject() || (checkPath && checkBreadthFirst(random[0], random[1]))) {
+		while (cells[random[0]][random[1]].containsObject()) {
 			random[0] = random(0, HORIZONTAL_CELLS - 1);
 			random[1] = random(0, VERTICAL_CELLS - 1);
-			tries++;
-			if (tries == VERTICAL_CELLS) {
-				random[0] = -1;
-				random[1] = -1;
-				break;
-			}
 		}
 		return random;
-	}
-
-	/**
-	 * Check the path using BreadFirst-Search
-	 *
-	 * @param x The x position to check
-	 * @param y The y position to check
-	 * @return Returns true if the object is reachable or false otherwise
-	 */
-	private boolean checkBreadthFirst(int x, int y) {
-		BreadthFirstSearch breadthFirstSearch = new BreadthFirstSearch(this);
-		return (!breadthFirstSearch.search(
-				new State(2, 1, State.Type.START, null, 0),
-				new State(x, y, State.Type.EXIT, null, 0)) ||
-				!breadthFirstSearch.search(
-						new State(2, 1, State.Type.START, null, 0),
-						new State(HORIZONTAL_CELLS - 2, VERTICAL_CELLS - 2, State.Type.EXIT, null, 0)));
 	}
 
 	/**
@@ -293,9 +271,9 @@ public class Escenario extends JComponent implements Constantes {
 		for (int x = 0; x < HORIZONTAL_CELLS; x++) {
 			for (int y = 0; y < VERTICAL_CELLS; y++) {
 				logger.info("Generate cell x: " + x + " y: " + y + " manually");
-				celdas[x][y] = new Celda((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
+				cells[x][y] = new Cell((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
 				try {
-					celdas[x][y].addTexture(textureSheet.getTexture(0), 0);
+					cells[x][y].addTexture(textureSheet.getTexture(0), 0);
 				}
 				catch (SheetException e) {
 					logger.warning(e.getMessage());
@@ -303,9 +281,9 @@ public class Escenario extends JComponent implements Constantes {
 
 				if (x == 0 && y == 0) {
 					// Top left corner
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					try {
-						celdas[x][y].addTexture(textureSheet.getTexture(33), 33);
+						cells[x][y].addTexture(textureSheet.getTexture(33), 33);
 					}
 					catch (SheetException e) {
 						logger.warning(e.getMessage());
@@ -313,9 +291,9 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1 && y == 0) {
 					// Top right corner
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					try {
-						celdas[x][y].addTexture(textureSheet.getTexture(37), 37);
+						cells[x][y].addTexture(textureSheet.getTexture(37), 37);
 					}
 					catch (SheetException e) {
 						logger.warning(e.getMessage());
@@ -323,9 +301,9 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == 0 && y == VERTICAL_CELLS - 1) {
 					// Bottom left corner
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					try {
-						celdas[x][y].addTexture(textureSheet.getTexture(97), 97);
+						cells[x][y].addTexture(textureSheet.getTexture(97), 97);
 					}
 					catch (SheetException e) {
 						logger.warning(e.getMessage());
@@ -333,9 +311,9 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1 && y == VERTICAL_CELLS - 1) {
 					// Bottom right corner
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					try {
-						celdas[x][y].addTexture(textureSheet.getTexture(101), 101);
+						cells[x][y].addTexture(textureSheet.getTexture(101), 101);
 					}
 					catch (SheetException e) {
 						logger.warning(e.getMessage());
@@ -343,12 +321,12 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (y == 0) {
 					// Top wall
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					if (x == 1) {
 						// Left door frame
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(144), 144);
-							celdas[x][y].addTexture(textureSheet.getTexture(192), 192);
+							cells[x][y].addTexture(textureSheet.getTexture(144), 144);
+							cells[x][y].addTexture(textureSheet.getTexture(192), 192);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -357,7 +335,7 @@ public class Escenario extends JComponent implements Constantes {
 					else if (x == 2) {
 						// Door
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(145), 145);
+							cells[x][y].addTexture(textureSheet.getTexture(145), 145);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -366,8 +344,8 @@ public class Escenario extends JComponent implements Constantes {
 					else if (x == 3) {
 						// Right door frame
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(146), 146);
-							celdas[x][y].addTexture(textureSheet.getTexture(194), 194);
+							cells[x][y].addTexture(textureSheet.getTexture(146), 146);
+							cells[x][y].addTexture(textureSheet.getTexture(194), 194);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -376,7 +354,7 @@ public class Escenario extends JComponent implements Constantes {
 					else if (x == 8) {
 						// Broken wall piece
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(105), 105);
+							cells[x][y].addTexture(textureSheet.getTexture(105), 105);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -384,8 +362,8 @@ public class Escenario extends JComponent implements Constantes {
 					}
 					else if (x % 2 == 0) {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(34), 34);
-							celdas[x][y].addTexture(textureSheet.getTexture(222), 222);
+							cells[x][y].addTexture(textureSheet.getTexture(34), 34);
+							cells[x][y].addTexture(textureSheet.getTexture(222), 222);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -393,7 +371,7 @@ public class Escenario extends JComponent implements Constantes {
 					}
 					else {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(35), 35);
+							cells[x][y].addTexture(textureSheet.getTexture(35), 35);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -402,11 +380,11 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == 0) {
 					// Left wall
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					if (y % 2 == 0) {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(49), 49);
-							celdas[x][y].addTexture(textureSheet.getTexture(255), 255);
+							cells[x][y].addTexture(textureSheet.getTexture(49), 49);
+							cells[x][y].addTexture(textureSheet.getTexture(255), 255);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -414,7 +392,7 @@ public class Escenario extends JComponent implements Constantes {
 					}
 					else {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(65), 65);
+							cells[x][y].addTexture(textureSheet.getTexture(65), 65);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -423,11 +401,11 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (x == HORIZONTAL_CELLS - 1) {
 					// Right wall
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					if (y % 2 == 0) {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(53), 53);
-							celdas[x][y].addTexture(textureSheet.getTexture(238), 238);
+							cells[x][y].addTexture(textureSheet.getTexture(53), 53);
+							cells[x][y].addTexture(textureSheet.getTexture(238), 238);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -435,7 +413,7 @@ public class Escenario extends JComponent implements Constantes {
 					}
 					else {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(69), 69);
+							cells[x][y].addTexture(textureSheet.getTexture(69), 69);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -444,11 +422,11 @@ public class Escenario extends JComponent implements Constantes {
 				}
 				else if (y == VERTICAL_CELLS - 1) {
 					// Bottom wall
-					celdas[x][y].setObject(new Obstacle(this, celdas[x][y]));
+					cells[x][y].setObject(new Obstacle(this, cells[x][y]));
 					if (x % 2 == 0) {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(98), 98);
-							celdas[x][y].addTexture(textureSheet.getTexture(207), 207);
+							cells[x][y].addTexture(textureSheet.getTexture(98), 98);
+							cells[x][y].addTexture(textureSheet.getTexture(207), 207);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -456,7 +434,7 @@ public class Escenario extends JComponent implements Constantes {
 					}
 					else {
 						try {
-							celdas[x][y].addTexture(textureSheet.getTexture(99), 99);
+							cells[x][y].addTexture(textureSheet.getTexture(99), 99);
 						}
 						catch (SheetException e) {
 							logger.warning(e.getMessage());
@@ -484,8 +462,8 @@ public class Escenario extends JComponent implements Constantes {
 	 *
 	 * @return Returns a matrix of the cells of the game
 	 */
-	public Celda[][] getCeldas() {
-		return celdas;
+	public Cell[][] getCells() {
+		return cells;
 	}
 
 	/**
@@ -507,7 +485,7 @@ public class Escenario extends JComponent implements Constantes {
 	public void update(Graphics g) {
 		for (int i = 0; i < HORIZONTAL_CELLS; i++) {
 			for (int j = 0; j < VERTICAL_CELLS; j++) {
-				celdas[i][j].paintComponent(g);
+				cells[i][j].paintComponent(g);
 			}
 		}
 	}
@@ -517,7 +495,7 @@ public class Escenario extends JComponent implements Constantes {
 	 *
 	 * @return Returns the parent canvas
 	 */
-	public Lienzo getCanvas() {
+	public Canvas getCanvas() {
 		return canvas;
 	}
 
@@ -559,9 +537,9 @@ public class Escenario extends JComponent implements Constantes {
 	 */
 	public void openDoor(boolean doorOpen) {
 		if (!doorOpen && isDoorOpen()) {
-			celdas[2][0].setObject(new Obstacle(this, celdas[2][0]));
+			cells[2][0].setObject(new Obstacle(this, cells[2][0]));
 			try {
-				celdas[2][0].addTexture(textureSheet.getTexture(193), 193);
+				cells[2][0].addTexture(textureSheet.getTexture(193), 193);
 			}
 			catch (SheetException e) {
 				logger.warning(e.getMessage());
@@ -570,8 +548,8 @@ public class Escenario extends JComponent implements Constantes {
 			playDoorSound();
 		}
 		else if (doorOpen && !isDoorOpen()) {
-			celdas[2][0].removeTexture(193);
-			celdas[2][0].setObject(null);
+			cells[2][0].removeTexture(193);
+			cells[2][0].setObject(null);
 			this.doorOpen = true;
 			playDoorSound();
 		}

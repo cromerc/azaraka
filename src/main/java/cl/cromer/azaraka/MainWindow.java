@@ -25,12 +25,14 @@ import java.util.logging.Logger;
 /**
  * The main window of the game
  */
-public class VentanaPrincipal extends JFrame implements Constantes {
+public class MainWindow extends JFrame implements Constants {
 
 	/**
 	 * Initialize the main window
+	 *
+	 * @param azaraka The main game class
 	 */
-	public VentanaPrincipal() {
+	public MainWindow(Azaraka azaraka) {
 		Logger logger = getLogger(this.getClass(), LogLevel.VENTANA_PRINCIPAL);
 
 		logger.info("Create panels");
@@ -52,7 +54,7 @@ public class VentanaPrincipal extends JFrame implements Constantes {
 			logger.warning(e.getMessage());
 		}
 
-		Lienzo canvas = new Lienzo(screenSize.width, screenSize.height - 50);
+		Canvas canvas = new Canvas(azaraka, screenSize.width, screenSize.height - 50);
 		canvas.setFocusable(true);
 		canvas.requestFocus();
 		add(canvas);

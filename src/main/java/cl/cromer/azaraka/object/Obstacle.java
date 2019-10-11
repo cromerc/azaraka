@@ -15,8 +15,8 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Scene;
 
 /**
  * This class handles the obstacles
@@ -25,10 +25,10 @@ public class Obstacle extends Object {
 	/**
 	 * Initialize the obstacle
 	 *
-	 * @param escenario The scene the object is in
-	 * @param celda     The cell the object is in
+	 * @param scene The scene the object is in
+	 * @param cell     The cell the object is in
 	 */
-	public Obstacle(Escenario escenario, Celda celda) {
-		super(escenario, celda);
+	public Obstacle(Scene scene, Cell cell) {
+		super(scene, cell);
 	}
 }

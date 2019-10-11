@@ -15,8 +15,8 @@
 
 package cl.cromer.azaraka.json;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Constantes;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Constants;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * This class handles reading and writing of JSON objects
  */
-public class Json implements Constantes {
+public class Json implements Constants {
 	/**
 	 * The logger
 	 */
@@ -46,11 +46,11 @@ public class Json implements Constantes {
 	 *
 	 * @param celdas The cells of the scene to export
 	 */
-	public void exportScene(Celda[][] celdas) {
-		Cell[][] cells = new Cell[celdas.length][celdas[0].length];
+	public void exportScene(Cell[][] celdas) {
+		cl.cromer.azaraka.json.Cell[][] cells = new cl.cromer.azaraka.json.Cell[celdas.length][celdas[0].length];
 		for (int x = 0; x < celdas.length; x++) {
 			for (int y = 0; y < celdas[x].length; y++) {
-				cells[x][y] = new Cell();
+				cells[x][y] = new cl.cromer.azaraka.json.Cell();
 				if (celdas[x][y].getObject() != null) {
 					cells[x][y].type = celdas[x][y].getObject().getClass().getName();
 				}
@@ -68,7 +68,7 @@ public class Json implements Constantes {
 	 *
 	 * @param cells The JSON cells object
 	 */
-	private void writeScene(Cell[][] cells) {
+	private void writeScene(cl.cromer.azaraka.json.Cell[][] cells) {
 		GsonBuilder gsonBuilder;
 		if (PRETTY_JSON) {
 			gsonBuilder = new GsonBuilder().setPrettyPrinting();

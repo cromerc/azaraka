@@ -15,9 +15,9 @@
 
 package cl.cromer.azaraka.object;
 
-import cl.cromer.azaraka.Celda;
-import cl.cromer.azaraka.Constantes;
-import cl.cromer.azaraka.Escenario;
+import cl.cromer.azaraka.Cell;
+import cl.cromer.azaraka.Constants;
+import cl.cromer.azaraka.Scene;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 import cl.cromer.azaraka.sprite.Sheet;
@@ -30,11 +30,11 @@ import java.util.logging.Logger;
 /**
  * All game objects extend this class
  */
-public class Object implements Runnable, Constantes {
+public class Object implements Runnable, Constants {
 	/**
 	 * The scene the object is in
 	 */
-	private final Escenario escenario;
+	private final Scene scene;
 	/**
 	 * The current x position of the object
 	 */
@@ -46,7 +46,7 @@ public class Object implements Runnable, Constantes {
 	/**
 	 * The cell the object is in
 	 */
-	private Celda celda;
+	private Cell cell;
 	/**
 	 * The animation of the object
 	 */
@@ -75,14 +75,14 @@ public class Object implements Runnable, Constantes {
 	/**
 	 * Initialize the object
 	 *
-	 * @param escenario The scene the object is in
-	 * @param celda     The cell the object is in
+	 * @param scene The scene the object is in
+	 * @param cell     The cell the object is in
 	 */
-	protected Object(Escenario escenario, Celda celda) {
-		this.escenario = escenario;
-		this.celda = celda;
-		this.x = celda.getX();
-		this.y = celda.getY();
+	protected Object(Scene scene, Cell cell) {
+		this.scene = scene;
+		this.cell = cell;
+		this.x = cell.getX();
+		this.y = cell.getY();
 	}
 
 	/**
@@ -144,8 +144,8 @@ public class Object implements Runnable, Constantes {
 	 *
 	 * @return Returns the scene
 	 */
-	protected Escenario getEscenario() {
-		return escenario;
+	protected Scene getScene() {
+		return scene;
 	}
 
 	/**
@@ -153,17 +153,17 @@ public class Object implements Runnable, Constantes {
 	 *
 	 * @return Returns the cell
 	 */
-	public Celda getCelda() {
-		return celda;
+	public Cell getCell() {
+		return cell;
 	}
 
 	/**
 	 * Get the cell the object is in
 	 *
-	 * @param celda The cell
+	 * @param cell The cell
 	 */
-	public void setCelda(Celda celda) {
-		this.celda = celda;
+	public void setCell(Cell cell) {
+		this.cell = cell;
 	}
 
 	/**

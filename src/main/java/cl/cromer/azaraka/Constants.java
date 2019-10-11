@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Constants used in the game
  */
-public interface Constantes {
+public interface Constants {
 	/**
 	 * The name of the game
 	 */
@@ -37,7 +37,7 @@ public interface Constantes {
 	/**
 	 * Whether or not the player should be controlled by AI
 	 */
-	boolean PLAYER_AI = false;
+	boolean PLAYER_AI = true;
 	/**
 	 * Make logs
 	 */
@@ -55,11 +55,11 @@ public interface Constantes {
 	 */
 	int CELL_PIXELS = 64;
 	/**
-	 * The number of cells to draw horizontally, minimum 8
+	 * The number of cells to draw horizontally
 	 */
 	int HORIZONTAL_CELLS = 16;
 	/**
-	 * The number of cells to draw vertically, minimum 8
+	 * The number of cells to draw vertically
 	 */
 	int VERTICAL_CELLS = 9;
 	/**

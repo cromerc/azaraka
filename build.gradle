@@ -76,9 +76,13 @@ task createDocs {
 }
 
 distributions {
+    //noinspection GroovyAssignabilityCheck
     main {
+        //noinspection GrUnresolvedAccess
         contents {
+            //noinspection GrUnresolvedAccess
             from(createDocs) {
+                //noinspection GrUnresolvedAccess
                 into 'docs'
             }
         }

@@ -34,7 +34,11 @@ import java.util.logging.Logger;
 /**
  * This class extends the canvas to make drawing and listening easier
  */
-public class Lienzo extends Canvas implements Constantes {
+public class Canvas extends java.awt.Canvas implements Constants {
+	/**
+	 * The main window
+	 */
+	private final Azaraka azaraka;
 	/**
 	 * The current volume
 	 */
@@ -94,7 +98,7 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * The game scene
 	 */
-	private Escenario escenario;
+	private Scene scene;
 	/**
 	 * The sound played when a key is picked up
 	 */
@@ -155,11 +159,13 @@ public class Lienzo extends Canvas implements Constantes {
 	/**
 	 * Initialize the canvas
 	 *
+	 * @param azaraka The main window
 	 * @param width The width to set the canvas
 	 * @param height The width to set the canvas
 	 */
-	public Lienzo(int width, int height) {
+	public Canvas(Azaraka azaraka, int width, int height) {
 		logger = getLogger(this.getClass(), LogLevel.LIENZO);
+		this.azaraka = azaraka;
 
 		setSize(width, height);
 		leftMargin = (width - CELL_PIXELS * HORIZONTAL_CELLS) / 2;
@@ -185,25 +191,25 @@ public class Lienzo extends Canvas implements Constantes {
 		gameOverAnimation = new Animation();
 		gameOverAnimation.addImage(Animation.Direction.NONE, "/img/gameover/gameover.png");
 
-		escenario = new Escenario(this);
+		scene = new Scene(this);
 
-		ArrayList<Object> objectList = escenario.generateRandomObjects();
+		ArrayList<Object> objectList = scene.generateRandomObjects();
 		while (objectList == null) {
-			escenario = new Escenario(this);
-			objectList = escenario.generateRandomObjects();
+			scene = new Scene(this);
+			objectList = scene.generateRandomObjects();
 		}
 
-		escenario.setDoorSound(doorSound);
+		scene.setDoorSound(doorSound);
 		setBackground(Color.black);
 
 		Enemy.Direction enemyDirection = Enemy.Direction.DOWN;
 
 		// Create the gems and later place them in 2 of the chests
 		ArrayList<Gem> gems = new ArrayList<>();
-		Gem lifeGem = new Gem(escenario, new Celda(0, 0, 0, 0));
+		Gem lifeGem = new Gem(scene, new Cell(0, 0, 0, 0));
 		lifeGem.setSound(getGemSound);
 		lifeGem.setType(Gem.Type.LIFE);
-		Gem deathGem = new Gem(escenario, new Celda(0, 0, 0, 0));
+		Gem deathGem = new Gem(scene, new Cell(0, 0, 0, 0));
 		deathGem.setSound(getGemSound);
 		deathGem.setType(Gem.Type.DEATH);
 		gems.add(lifeGem);
@@ -211,12 +217,12 @@ public class Lienzo extends Canvas implements Constantes {
 
 		for (Object object : objectList) {
 			if (object instanceof Player) {
-				object.getCelda().setObject(object);
+				object.getCell().setObject(object);
 				player = (Player) object;
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Enemy) {
-				object.getCelda().setObject(object);
+				object.getCell().setObject(object);
 				if (enemyDirection == Enemy.Direction.UP) {
 					enemyDirection = Enemy.Direction.DOWN;
 				}
@@ -235,12 +241,12 @@ public class Lienzo extends Canvas implements Constantes {
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Chest) {
-				object.getCelda().setObject(object);
+				object.getCell().setObject(object);
 				((Chest) object).setSound(openChestSound);
 				if (gems.size() > 0) {
 					Gem gem = gems.get(0);
 					// Place the gem in the cell above the chest, but don't add it to object2 until we are ready to draw it
-					gem.setCelda(escenario.getCeldas()[object.getCelda().getX()][object.getCelda().getY() - 1]);
+					gem.setCell(scene.getCells()[object.getCell().getX()][object.getCell().getY() - 1]);
 					threads.put(gem, new Thread(gem));
 					((Chest) object).setGem(gem);
 					gems.remove(gem);
@@ -249,13 +255,13 @@ public class Lienzo extends Canvas implements Constantes {
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Key) {
-				object.getCelda().setObjectOnBottom(object);
+				object.getCell().setObjectOnBottom(object);
 				((Key) object).setSound(getKeySound);
 				keys.add((Key) object);
 				threads.put(object, new Thread(object));
 			}
 			else if (object instanceof Portal) {
-				object.getCelda().setObjectOnBottom(object);
+				object.getCell().setObjectOnBottom(object);
 				portal = (Portal) object;
 				portal.setSound(portalSound);
 				threads.put(object, new Thread(object));
@@ -293,11 +299,11 @@ public class Lienzo extends Canvas implements Constantes {
 		// Shuffle the chests so that the AI doesn't open the correct chests on the first go
 		Collections.shuffle(chests, new Random(23));
 		for (Chest chest : chests) {
-			player.getAi().addDestination(new State(chest.getCelda().getX(), chest.getCelda().getY() + 1, State.Type.CHEST, null, 1));
+			player.getAi().addDestination(new State(chest.getCell().getX(), chest.getCell().getY() + 1, State.Type.CHEST, null, 1));
 		}
 
 		for (Key key : keys) {
-			player.getAi().addDestination(new State(key.getCelda().getX(), key.getCelda().getY(), State.Type.KEY, null, 0));
+			player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 0));
 		}
 
 		Thread thread = new Thread(player.getAi());
@@ -376,6 +382,16 @@ public class Lienzo extends Canvas implements Constantes {
 
 		if (gameOver) {
 			if (!gameOverRan) {
+				addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(KeyEvent event) {
+						super.keyPressed(event);
+						if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+							azaraka.restart();
+						}
+					}
+				});
+
 				stopBackgroundMusic();
 
 				try {
@@ -410,7 +426,7 @@ public class Lienzo extends Canvas implements Constantes {
 			}
 		}
 		else {
-			escenario.paintComponent(graphicBuffer);
+			scene.paintComponent(graphicBuffer);
 
 			if (won) {
 				int alpha = (255 * 75) / 100; // 75% transparent
@@ -427,6 +443,16 @@ public class Lienzo extends Canvas implements Constantes {
 				int x = rectangle.x + (rectangle.width - metrics.stringWidth(message)) / 2;
 				int y = rectangle.y + ((rectangle.height - metrics.getHeight()) / 2) + metrics.getAscent();
 				graphicBuffer.drawString(message, x, y);
+
+				addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(KeyEvent event) {
+						super.keyPressed(event);
+						if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+							System.exit(0);
+						}
+					}
+				});
 			}
 		}
 
