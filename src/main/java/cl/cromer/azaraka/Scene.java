@@ -18,6 +18,7 @@ package cl.cromer.azaraka;
 import cl.cromer.azaraka.ai.BreadthFirstSearch;
 import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.json.Json;
+import cl.cromer.azaraka.json.JsonCell;
 import cl.cromer.azaraka.object.Object;
 import cl.cromer.azaraka.object.*;
 import cl.cromer.azaraka.sound.Sound;
@@ -113,37 +114,37 @@ public class Scene extends JComponent implements Constants {
 	private void loadScene(String json) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		Gson gson = gsonBuilder.create();
-		cl.cromer.azaraka.json.Cell[][] cells = gson.fromJson(json, cl.cromer.azaraka.json.Cell[][].class);
+		JsonCell[][] jsonCells = gson.fromJson(json, JsonCell[][].class);
 
-		for (int x = 0; x < cells.length; x++) {
-			for (int y = 0; y < cells[x].length; y++) {
+		for (int x = 0; x < jsonCells.length; x++) {
+			for (int y = 0; y < jsonCells[x].length; y++) {
 				this.cells[x][y] = new Cell((x * CELL_PIXELS) + canvas.getLeftMargin(), (y * CELL_PIXELS) + canvas.getTopMargin(), x, y);
 
-				if (cells[x][y].type.equals(Player.class.getName())) {
+				if (jsonCells[x][y].type.equals(Player.class.getName())) {
 					this.cells[x][y].setObject(new Player(null, this.cells[x][y]));
 				}
-				else if (cells[x][y].type.equals(Enemy.class.getName())) {
+				else if (jsonCells[x][y].type.equals(Enemy.class.getName())) {
 					this.cells[x][y].setObject(new Enemy(null, this.cells[x][y], null));
 				}
-				else if (cells[x][y].type.equals(Chest.class.getName())) {
+				else if (jsonCells[x][y].type.equals(Chest.class.getName())) {
 					this.cells[x][y].setObject(new Chest(null, this.cells[x][y]));
 				}
-				else if (cells[x][y].type.equals(Gem.class.getName())) {
+				else if (jsonCells[x][y].type.equals(Gem.class.getName())) {
 					this.cells[x][y].setObject(new Gem(null, this.cells[x][y]));
 				}
-				else if (cells[x][y].type.equals(Key.class.getName())) {
+				else if (jsonCells[x][y].type.equals(Key.class.getName())) {
 					this.cells[x][y].setObject(new Key(null, this.cells[x][y]));
 				}
-				else if (cells[x][y].type.equals(Obstacle.class.getName())) {
+				else if (jsonCells[x][y].type.equals(Obstacle.class.getName())) {
 					this.cells[x][y].setObject(new Obstacle(null, this.cells[x][y]));
 				}
-				else if (cells[x][y].type.equals(Portal.class.getName())) {
+				else if (jsonCells[x][y].type.equals(Portal.class.getName())) {
 					this.cells[x][y].setObject(new Portal(null, this.cells[x][y]));
 				}
 
-				for (int k = 0; k < cells[x][y].textures.size(); k++) {
+				for (int k = 0; k < jsonCells[x][y].textures.size(); k++) {
 					try {
-						this.cells[x][y].addTexture(textureSheet.getTexture(cells[x][y].textures.get(k)), cells[x][y].textures.get(k));
+						this.cells[x][y].addTexture(textureSheet.getTexture(jsonCells[x][y].textures.get(k)), jsonCells[x][y].textures.get(k));
 					}
 					catch (SheetException e) {
 						logger.warning(e.getMessage());

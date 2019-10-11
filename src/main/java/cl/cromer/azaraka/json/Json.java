@@ -47,28 +47,28 @@ public class Json implements Constants {
 	 * @param celdas The cells of the scene to export
 	 */
 	public void exportScene(Cell[][] celdas) {
-		cl.cromer.azaraka.json.Cell[][] cells = new cl.cromer.azaraka.json.Cell[celdas.length][celdas[0].length];
+		JsonCell[][] jsonCells = new JsonCell[celdas.length][celdas[0].length];
 		for (int x = 0; x < celdas.length; x++) {
 			for (int y = 0; y < celdas[x].length; y++) {
-				cells[x][y] = new cl.cromer.azaraka.json.Cell();
+				jsonCells[x][y] = new JsonCell();
 				if (celdas[x][y].getObject() != null) {
-					cells[x][y].type = celdas[x][y].getObject().getClass().getName();
+					jsonCells[x][y].type = celdas[x][y].getObject().getClass().getName();
 				}
 				else {
-					cells[x][y].type = "null";
+					jsonCells[x][y].type = "null";
 				}
-				cells[x][y].textures = celdas[x][y].getTextureNumbers();
+				jsonCells[x][y].textures = celdas[x][y].getTextureNumbers();
 			}
 		}
-		writeScene(cells);
+		writeScene(jsonCells);
 	}
 
 	/**
 	 * Write the JSON scene to a file
 	 *
-	 * @param cells The JSON cells object
+	 * @param jsonCells The JSON cells object
 	 */
-	private void writeScene(cl.cromer.azaraka.json.Cell[][] cells) {
+	private void writeScene(JsonCell[][] jsonCells) {
 		GsonBuilder gsonBuilder;
 		if (PRETTY_JSON) {
 			gsonBuilder = new GsonBuilder().setPrettyPrinting();
@@ -77,7 +77,7 @@ public class Json implements Constants {
 			gsonBuilder = new GsonBuilder();
 		}
 		Gson gson = gsonBuilder.create();
-		String json = gson.toJson(cells);
+		String json = gson.toJson(jsonCells);
 
 		File file = new File("src/main/resources/scene.json");
 		try {

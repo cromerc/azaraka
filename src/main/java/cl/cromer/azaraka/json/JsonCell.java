@@ -20,7 +20,7 @@ import java.util.ArrayList;
 /**
  * This class represents the structure of a cell in JSON
  */
-public class Cell {
+public class JsonCell {
 	/**
 	 * The type of cell, e.g. player, chest, enemy, etc
 	 */
