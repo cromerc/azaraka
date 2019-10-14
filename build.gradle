@@ -71,7 +71,8 @@ jar {
         from {
             configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
-    } else {
+    }
+	else {
         dependsOn tasks.withType(Copy)
     }
 }
