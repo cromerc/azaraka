@@ -95,6 +95,15 @@ public class Cell extends JComponent implements Constants {
 	}
 
 	/**
+	 * Get a top object
+	 *
+	 * @return Returns the top object
+	 */
+	public Object getObjectOnTop() {
+		return objectOnTop;
+	}
+
+	/**
 	 * Set a top object
 	 *
 	 * @param object The top object

@@ -490,7 +490,8 @@ public class Player extends Object implements Constants {
 	public ArrayList<Gem> getInventoryGems() {
 		ArrayList<Gem> gems = new ArrayList<>();
 		for (Object object : carrying) {
-			if (object instanceof Gem) {
+			if (object instanceof Gem && object.getCell().getObjectOnTop() == null) {
+				// Only count the gem as in inventory once it stops showing
 				gems.add((Gem) object);
 			}
 		}
