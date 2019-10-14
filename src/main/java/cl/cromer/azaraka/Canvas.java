@@ -369,7 +369,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			}
 		}
 
-		ArrayList<Gem> gems = player.getInventoryGems();
+		ArrayList<Gem> gems = player.getInventoryGems(false);
 		for (Gem gem : gems) {
 			gem.drawAnimation(graphicBuffer, xPixels, 8);
 			xPixels = xPixels + 3 + (gem.getAnimationWidth());

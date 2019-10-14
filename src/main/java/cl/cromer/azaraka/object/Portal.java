@@ -92,15 +92,21 @@ public class Portal extends Object implements Constants {
 	 */
 	public void purifyGems() {
 		if (state == State.ACTIVE) {
-			ArrayList<Gem> gems = getScene().getCanvas().getPlayer().getInventoryGems();
+			ArrayList<Gem> gems = getScene().getCanvas().getPlayer().getInventoryGems(true);
+			boolean purified = false;
 			for (Gem gem : gems) {
 				if (gem.getState() == Gem.State.TAINTED) {
 					gem.setState(Gem.State.PURIFIED);
 					getScene().getCanvas().getPlayer().gainHealth(2);
+					if (!purified) {
+						purified = true;
+					}
 				}
 			}
-			setState(State.INACTIVE);
-			playPortalSound();
+			if (purified) {
+				setState(State.INACTIVE);
+				playPortalSound();
+			}
 			if (gems.size() == 2) {
 				getScene().openDoor(true);
 			}

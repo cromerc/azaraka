@@ -82,7 +82,7 @@ public class Player extends Object implements Constants {
 	 */
 	public void keyPressed(int keyCode) {
 		if (getScene().isDoorOpen()) {
-			ArrayList<Gem> gems = getInventoryGems();
+			ArrayList<Gem> gems = getInventoryGems(true);
 			if (gems.size() < 2) {
 				getScene().openDoor(false);
 			}
@@ -485,13 +485,17 @@ public class Player extends Object implements Constants {
 	/**
 	 * Get the gems the player has
 	 *
+	 * @param all Whether or not to return the gems that are still in transition to inventory
 	 * @return Returns an array of the gems the player is carrying
 	 */
-	public ArrayList<Gem> getInventoryGems() {
+	public ArrayList<Gem> getInventoryGems(boolean all) {
 		ArrayList<Gem> gems = new ArrayList<>();
 		for (Object object : carrying) {
-			if (object instanceof Gem && object.getCell().getObjectOnTop() == null) {
-				// Only count the gem as in inventory once it stops showing
+			if (object instanceof Gem) {
+				if (!all && object.getCell().getObjectOnTop() != null) {
+					// Only count the gem as in inventory once it stops showing
+					continue;
+				}
 				gems.add((Gem) object);
 			}
 		}
