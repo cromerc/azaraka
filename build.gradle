@@ -22,9 +22,12 @@ plugins {
 group 'cl.cromer.azaraka'
 version '1.0.0'
 
+//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
+//noinspection GroovyUnusedAssignment
 targetCompatibility = 1.8
 
+//noinspection GroovyUnusedAssignment
 applicationName = 'Azaraka'
 mainClassName = 'cl.cromer.azaraka.Azaraka'
 
@@ -37,7 +40,9 @@ dependencies {
     //testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.+'
 }
 
+//noinspection GrUnresolvedAccess
 ext.sharedManifest = manifest {
+    //noinspection GrUnresolvedAccess
     attributes 'Main-Class': "$mainClassName",
             'Class-Path': configurations.default.files.collect { "$it.name" }.join(' '),
             'Implementation-Title': 'Gradle',
@@ -46,18 +51,19 @@ ext.sharedManifest = manifest {
 
 jar {
     manifest = project.manifest {
+        //noinspection GroovyAssignabilityCheck
         from sharedManifest
     }
 
     if (project.uberJar == "true") {
+        //noinspection GroovyAssignabilityCheck
         from sourceSets.main.output
 
         dependsOn configurations.runtimeClasspath
         from {
             configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
         }
-    }
-    else {
+    } else {
         dependsOn tasks.withType(Copy)
     }
 }
@@ -81,15 +87,19 @@ task createDocs {
 }
 
 distributions {
+    //noinspection GroovyAssignabilityCheck
     main {
+        //noinspection GrUnresolvedAccess
         contents {
+            //noinspection GrUnresolvedAccess
             from(createDocs) {
+                //noinspection GrUnresolvedAccess
                 into 'docs'
             }
         }
     }
 }
 
-wrapper{
+wrapper {
     gradleVersion = '5.6.2'
 }

@@ -32,7 +32,7 @@ public class Player extends Object implements Constants {
 	/**
 	 * The maximum health of the player
 	 */
-	public final static int MAX_HEALTH = 8;
+	public final static int MAX_HEALTH = 20;
 	/**
 	 * Objects that the player is carrying
 	 */
@@ -120,12 +120,15 @@ public class Player extends Object implements Constants {
 	/**
 	 * Move the player up
 	 */
-	private void moveUp() {
+	@Override
+	protected boolean moveUp() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Up key pressed");
 		if (x == 2 && y == 0) {
-			getScene().getCanvas().win();
+			if (getScene().getCanvas().getGameStatus()) {
+				getScene().getCanvas().win();
+			}
 		}
 		else if (y > 0) {
 			Object type = getScene().getCells()[x][y - 1].getObject();
@@ -144,20 +147,7 @@ public class Player extends Object implements Constants {
 					getScene().getCanvas().getPortal().purifyGems();
 				}
 
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x][y - 1]);
-				getCell().setObject(this);
-
-				if (changeDirection(Animation.Direction.UP)) {
-					try {
-						getAnimation().getNextFrame();
-					}
-					catch (AnimationException e) {
-						getLogger().warning(e.getMessage());
-					}
-				}
-
-				setY(getY() - 1);
+				super.moveUp();
 			}
 			else {
 				if (changeDirection(Animation.Direction.UP)) {
@@ -168,6 +158,7 @@ public class Player extends Object implements Constants {
 						getLogger().warning(e.getMessage());
 					}
 				}
+				return false;
 			}
 		}
 		else {
@@ -179,13 +170,16 @@ public class Player extends Object implements Constants {
 					getLogger().warning(e.getMessage());
 				}
 			}
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * Move the player down
 	 */
-	private void moveDown() {
+	@Override
+	protected boolean moveDown() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Down key pressed");
@@ -206,20 +200,7 @@ public class Player extends Object implements Constants {
 					getScene().getCanvas().getPortal().purifyGems();
 				}
 
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x][y + 1]);
-				getCell().setObject(this);
-
-				if (changeDirection(Animation.Direction.DOWN)) {
-					try {
-						getAnimation().getNextFrame();
-					}
-					catch (AnimationException e) {
-						getLogger().warning(e.getMessage());
-					}
-				}
-
-				setY(getY() + 1);
+				super.moveDown();
 			}
 			else {
 				if (changeDirection(Animation.Direction.DOWN)) {
@@ -230,6 +211,7 @@ public class Player extends Object implements Constants {
 						getLogger().warning(e.getMessage());
 					}
 				}
+				return false;
 			}
 		}
 		else {
@@ -241,13 +223,16 @@ public class Player extends Object implements Constants {
 					getLogger().warning(e.getMessage());
 				}
 			}
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * Move the player to the left
 	 */
-	private void moveLeft() {
+	@Override
+	protected boolean moveLeft() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Left key pressed");
@@ -268,20 +253,7 @@ public class Player extends Object implements Constants {
 					getScene().getCanvas().getPortal().purifyGems();
 				}
 
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x - 1][y]);
-				getCell().setObject(this);
-
-				if (changeDirection(Animation.Direction.LEFT)) {
-					try {
-						getAnimation().getNextFrame();
-					}
-					catch (AnimationException e) {
-						getLogger().warning(e.getMessage());
-					}
-				}
-
-				setX(getX() - 1);
+				super.moveLeft();
 			}
 			else {
 				if (changeDirection(Animation.Direction.LEFT)) {
@@ -292,6 +264,7 @@ public class Player extends Object implements Constants {
 						getLogger().warning(e.getMessage());
 					}
 				}
+				return false;
 			}
 		}
 		else {
@@ -303,13 +276,16 @@ public class Player extends Object implements Constants {
 					getLogger().warning(e.getMessage());
 				}
 			}
+			return false;
 		}
+		return true;
 	}
 
 	/**
 	 * Move the player to the right
 	 */
-	private void moveRight() {
+	@Override
+	protected boolean moveRight() {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Right key pressed");
@@ -330,20 +306,7 @@ public class Player extends Object implements Constants {
 					getScene().getCanvas().getPortal().purifyGems();
 				}
 
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x + 1][y]);
-				getCell().setObject(this);
-
-				if (changeDirection(Animation.Direction.RIGHT)) {
-					try {
-						getAnimation().getNextFrame();
-					}
-					catch (AnimationException e) {
-						getLogger().warning(e.getMessage());
-					}
-				}
-
-				setX(getX() + 1);
+				super.moveRight();
 			}
 			else {
 				if (changeDirection(Animation.Direction.RIGHT)) {
@@ -354,6 +317,7 @@ public class Player extends Object implements Constants {
 						getLogger().warning(e.getMessage());
 					}
 				}
+				return false;
 			}
 		}
 		else {
@@ -365,23 +329,9 @@ public class Player extends Object implements Constants {
 					getLogger().warning(e.getMessage());
 				}
 			}
-		}
-	}
-
-	/**
-	 * Change the direction of the player sprite
-	 *
-	 * @param direction The new direction
-	 * @return Returns true if a direction change is not necessary
-	 */
-	private boolean changeDirection(Animation.Direction direction) {
-		if (getAnimation().getCurrentDirection() != direction) {
-			getAnimation().setCurrentDirection(direction);
 			return false;
 		}
-		else {
-			return true;
-		}
+		return true;
 	}
 
 	/**
@@ -406,25 +356,28 @@ public class Player extends Object implements Constants {
 		int x = getX();
 		int y = getY();
 		getLogger().info("Space bar pressed");
-		if (getAnimation().getCurrentDirection() == Animation.Direction.UP) {
-			if (getScene().getCells()[x][y - 1].getObject() instanceof Chest) {
-				if (hasKey()) {
-					getLogger().info("Player opened chest");
+		if (y > 0) {
+			if (getAnimation().getCurrentDirection() == Animation.Direction.UP) {
+				if (getScene().getCells()[x][y - 1].getObject() instanceof Chest) {
+					if (hasKey()) {
+						getLogger().info("Player opened chest");
 
-					gainHealth(2);
+						gainHealth(2);
 
-					for (Chest chest : getScene().getCanvas().getChests()) {
-						if (chest.checkPosition(x, y - 1)) {
-							if (chest.getState() == Chest.State.CLOSED) {
-								chest.setState(Chest.State.OPENING);
-								Gem gem = chest.getGem();
-								if (gem != null) {
-									gem.playGemSound();
-									gem.getCell().setObjectOnTop(gem);
-									getScene().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+						for (Chest chest : getScene().getCanvas().getChests()) {
+							if (chest.checkPosition(x, y - 1)) {
+								if (chest.getState() == Chest.State.CLOSED) {
+									chest.setState(Chest.State.OPENING);
+									Gem gem = chest.getGem();
+									if (gem != null) {
+										gem.playGemSound();
+										gem.getCell().setObjectOnTop(gem);
+										addInventory(gem);
+										getScene().getCanvas().getPortal().setState(Portal.State.ACTIVE);
+									}
+									useKey();
+									break;
 								}
-								useKey();
-								break;
 							}
 						}
 					}
@@ -516,7 +469,7 @@ public class Player extends Object implements Constants {
 	 *
 	 * @param object The object to add
 	 */
-	public void addInventory(Object object) {
+	private void addInventory(Object object) {
 		carrying.add(object);
 	}
 
@@ -556,6 +509,12 @@ public class Player extends Object implements Constants {
 			if (health < 0) {
 				getLogger().info("Player is dead");
 				health = 0;
+			}
+		}
+		if (health == 0) {
+			setActive(false);
+			if (getScene().getCanvas().getGameStatus()) {
+				getScene().getCanvas().gameOver();
 			}
 		}
 	}

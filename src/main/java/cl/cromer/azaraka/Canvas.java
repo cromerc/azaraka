@@ -15,7 +15,7 @@
 
 package cl.cromer.azaraka;
 
-import cl.cromer.azaraka.ai.AI;
+import cl.cromer.azaraka.ai.SearchAI;
 import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.object.Chest;
 import cl.cromer.azaraka.object.Enemy;
@@ -37,6 +37,7 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	/**
 	 * The threads that control AI
 	 */
-	private final HashMap<AI, Thread> aiThreads = new HashMap<>();
+	private final HashMap<SearchAI, Thread> aiThreads = new HashMap<>();
 	/**
 	 * The graphics buffer
 	 */
@@ -149,10 +150,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 */
 	private boolean gameOver = false;
 	/**
-	 * If the game over loop has been run at least once
-	 */
-	private boolean gameOverRan = false;
-	/**
 	 * The sound of the door opening or closing
 	 */
 	private Sound doorSound;
@@ -168,6 +165,10 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 * Has the game been won
 	 */
 	private boolean won = false;
+	/**
+	 * The key listener for the player
+	 */
+	private KeyListener playerKeyListener;
 
 	/**
 	 * Initialize the canvas
@@ -177,7 +178,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 * @param height  The width to set the canvas
 	 */
 	public Canvas(Azaraka azaraka, int width, int height) {
-		logger = getLogger(this.getClass(), LogLevel.LIENZO);
+		logger = getLogger(this.getClass(), LogLevel.CANVAS);
 		this.azaraka = azaraka;
 
 		setSize(width, height);
@@ -236,22 +237,24 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			}
 			else if (object instanceof Enemy) {
 				object.getCell().setObject(object);
-				if (enemyDirection == Enemy.Direction.UP) {
-					enemyDirection = Enemy.Direction.DOWN;
-				}
-				else if (enemyDirection == Enemy.Direction.DOWN) {
-					enemyDirection = Enemy.Direction.LEFT;
-				}
-				else if (enemyDirection == Enemy.Direction.LEFT) {
-					enemyDirection = Enemy.Direction.RIGHT;
-				}
-				else {
-					enemyDirection = Enemy.Direction.UP;
-				}
-				((Enemy) object).setDirection(enemyDirection);
 				((Enemy) object).setSound(enemyAttackSound);
 				enemies.add((Enemy) object);
-				threads.put(object, new Thread(object));
+				if (!ENEMY_AI) {
+					if (enemyDirection == Enemy.Direction.UP) {
+						enemyDirection = Enemy.Direction.DOWN;
+					}
+					else if (enemyDirection == Enemy.Direction.DOWN) {
+						enemyDirection = Enemy.Direction.LEFT;
+					}
+					else if (enemyDirection == Enemy.Direction.LEFT) {
+						enemyDirection = Enemy.Direction.RIGHT;
+					}
+					else {
+						enemyDirection = Enemy.Direction.UP;
+					}
+					((Enemy) object).setDirection(enemyDirection);
+					threads.put(object, new Thread(object));
+				}
 			}
 			else if (object instanceof Chest) {
 				object.getCell().setObject(object);
@@ -290,21 +293,17 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			setupPlayerAI();
 		}
 		else {
-			addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent event) {
-					super.keyPressed(event);
-					if (!gameOver) {
-						player.keyPressed(event);
-						repaint();
-					}
-				}
-			});
+			playerKeyListener = getPlayerKeyListener();
+			addKeyListener(playerKeyListener);
+		}
+
+		if (ENEMY_AI) {
+			setupEnemyAI();
 		}
 	}
 
 	/**
-	 * Set up the player AI
+	 * Setup the player AI
 	 */
 	private void setupPlayerAI() {
 		player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null, 3));
@@ -312,11 +311,11 @@ public class Canvas extends java.awt.Canvas implements Constants {
 		// Shuffle the chests so that the AI doesn't open the correct chests on the first go
 		Collections.shuffle(chests, new Random(23));
 		for (Chest chest : chests) {
-			player.getAi().addDestination(new State(chest.getCell().getX(), chest.getCell().getY() + 1, State.Type.CHEST, null, 1));
+			player.getAi().addDestination(new State(chest.getCell().getX(), chest.getCell().getY() + 1, State.Type.CHEST, null, 2));
 		}
 
 		for (Key key : keys) {
-			player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 0));
+			player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 2));
 		}
 
 		player.getAi().sortDestinations();
@@ -324,6 +323,17 @@ public class Canvas extends java.awt.Canvas implements Constants {
 		Thread thread = new Thread(player.getAi());
 		thread.start();
 		aiThreads.put(player.getAi(), thread);
+	}
+
+	/**
+	 * Setup the enemy AI
+	 */
+	private void setupEnemyAI() {
+		for (Enemy enemy : enemies) {
+			Thread thread = new Thread(enemy.getAi());
+			thread.start();
+			aiThreads.put(enemy.getAi(), thread);
+		}
 	}
 
 	/**
@@ -367,9 +377,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 
 		if (player != null) {
 			int health = player.getHealth();
-			if (health == 0) {
-				gameOver = true;
-			}
 			int hearts = Player.MAX_HEALTH / 4;
 			if (heartAnimation == null) {
 				heartAnimation = new Animation();
@@ -396,32 +403,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 		}
 
 		if (gameOver) {
-			if (!gameOverRan) {
-				addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent event) {
-						super.keyPressed(event);
-						if (event.getKeyCode() == KeyEvent.VK_ENTER) {
-							azaraka.restart();
-						}
-					}
-				});
-
-				stopBackgroundMusic();
-
-				try {
-					gameOverMusic.setVolume(volume);
-					gameOverMusic.play();
-				}
-				catch (SoundException e) {
-					logger.warning(e.getMessage());
-				}
-
-				stopThreads();
-
-				gameOverRan = true;
-			}
-
 			// Place the game over image on the screen
 			graphicBuffer.setColor(Color.black);
 			graphicBuffer.drawRect(0, 0, getWidth(), getHeight());
@@ -458,16 +439,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 				int x = rectangle.x + (rectangle.width - metrics.stringWidth(message)) / 2;
 				int y = rectangle.y + ((rectangle.height - metrics.getHeight()) / 2) + metrics.getAscent();
 				graphicBuffer.drawString(message, x, y);
-
-				addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent event) {
-						super.keyPressed(event);
-						if (event.getKeyCode() == KeyEvent.VK_ENTER) {
-							System.exit(0);
-						}
-					}
-				});
 			}
 		}
 
@@ -513,29 +484,44 @@ public class Canvas extends java.awt.Canvas implements Constants {
 				Object object = entry.getKey();
 				object.setActive(false);
 				thread.interrupt();
-				try {
-					thread.join();
-				}
-				catch (InterruptedException e) {
-					logger.info(e.getMessage());
-				}
 			}
 		}
 
 		// Stop AI threads
-		for (Map.Entry<AI, Thread> entry : aiThreads.entrySet()) {
+		for (Map.Entry<SearchAI, Thread> entry : aiThreads.entrySet()) {
 			Thread thread = entry.getValue();
 			if (thread.isAlive()) {
-				AI ai = entry.getKey();
+				SearchAI ai = entry.getKey();
 				ai.setActive(false);
 				thread.interrupt();
-				try {
-					thread.join();
-				}
-				catch (InterruptedException e) {
-					logger.info(e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * The player died, game over
+	 */
+	public void gameOver() {
+		gameOver = true;
+		stopThreads();
+		stopBackgroundMusic();
+		removeKeyListener(playerKeyListener);
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent event) {
+				super.keyPressed(event);
+				if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+					azaraka.restart();
 				}
 			}
+		});
+
+		try {
+			gameOverMusic.setVolume(volume);
+			gameOverMusic.play();
+		}
+		catch (SoundException e) {
+			logger.warning(e.getMessage());
 		}
 	}
 
@@ -543,8 +529,19 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 * Called when the game is won
 	 */
 	public void win() {
+		won = true;
 		stopThreads();
 		stopBackgroundMusic();
+		removeKeyListener(playerKeyListener);
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent event) {
+				super.keyPressed(event);
+				if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.exit(0);
+				}
+			}
+		});
 
 		try {
 			successSound.setVolume(volume);
@@ -553,8 +550,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 		catch (SoundException e) {
 			logger.warning(e.getMessage());
 		}
-
-		won = true;
 	}
 
 	/**
@@ -618,5 +613,32 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 */
 	public int getTopMargin() {
 		return topMargin;
+	}
+
+	/**
+	 * Check if the game has ended or not
+	 *
+	 * @return Returns true if the game is still playing or false if game is over
+	 */
+	public boolean getGameStatus() {
+		return (!won && !gameOver);
+	}
+
+	/**
+	 * Get a game over key listener to use
+	 *
+	 * @return Returns a key listener
+	 */
+	private KeyListener getPlayerKeyListener() {
+		return new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent event) {
+				super.keyPressed(event);
+				if (!gameOver) {
+					player.keyPressed(event);
+					repaint();
+				}
+			}
+		};
 	}
 }

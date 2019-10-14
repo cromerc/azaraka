@@ -21,31 +21,15 @@ import java.util.ArrayList;
 /**
  * This is an implementation of the Breadth-First search algorithm with multiple objectives
  */
-public class BreadthFirstSearch extends AI {
-	/**
-	 * The queued states to check
-	 */
-	private final ArrayList<State> queuedStates = new ArrayList<>();
-	/**
-	 * The history of states that have been checked
-	 */
-	private final ArrayList<State> history = new ArrayList<>();
+public class BreadthFirstSearch extends SearchAI {
 	/**
 	 * The steps to get to the objective
 	 */
 	private final ArrayList<State.Type> steps = new ArrayList<>();
 	/**
-	 * The destinations the player should visit
+	 * The destinations to visit
 	 */
 	private final ArrayList<State> destinations = new ArrayList<>();
-	/**
-	 * The state of the search objective
-	 */
-	private State searchObjective;
-	/**
-	 * If the search was successful or not
-	 */
-	private boolean success = false;
 	/**
 	 * The subInitial point to start searching from
 	 */
@@ -58,118 +42,12 @@ public class BreadthFirstSearch extends AI {
 	}
 
 	/**
-	 * Find a path to the objective
-	 *
-	 * @param searchInitial   The start point
-	 * @param searchObjective The objective
-	 * @return Returns true if a path was found or false otherwise
-	 */
-	public boolean search(State searchInitial, State searchObjective) {
-		queuedStates.add(searchInitial);
-		history.add(searchInitial);
-		this.searchObjective = searchObjective;
-
-		success = searchInitial.equals(searchObjective);
-
-		while (!queuedStates.isEmpty() && !success) {
-			State temp = queuedStates.get(0);
-			queuedStates.remove(0);
-
-			moveUp(temp);
-			moveDown(temp);
-			moveLeft(temp);
-			moveRight(temp);
-		}
-
-		if (success) {
-			getLogger().info("Route to objective found!");
-			calculateRoute();
-			return true;
-		}
-		else {
-			getLogger().info("Route to objective not found!");
-			return false;
-		}
-	}
-
-	/**
-	 * Move up if possible
-	 *
-	 * @param state The previous state
-	 */
-	protected void moveUp(State state) {
-		State up = new State(state.getX(), state.getY() - 1, State.Type.UP, state, state.getImportance());
-		if (!history.contains(up)) {
-			queuedStates.add(up);
-			history.add(up);
-
-			if (up.equals(searchObjective)) {
-				searchObjective = up;
-				success = true;
-			}
-		}
-	}
-
-	/**
-	 * Move down if possible
-	 *
-	 * @param state The previous state
-	 */
-	protected void moveDown(State state) {
-		State down = new State(state.getX(), state.getY() + 1, State.Type.DOWN, state, state.getImportance());
-		if (!history.contains(down)) {
-			queuedStates.add(down);
-			history.add(down);
-
-			if (down.equals(searchObjective)) {
-				searchObjective = down;
-				success = true;
-			}
-		}
-	}
-
-	/**
-	 * Move left if possible
-	 *
-	 * @param state The previous state
-	 */
-	protected void moveLeft(State state) {
-		State left = new State(state.getX() - 1, state.getY(), State.Type.LEFT, state, state.getImportance());
-		if (!history.contains(left)) {
-			queuedStates.add(left);
-			history.add(left);
-
-			if (left.equals(searchObjective)) {
-				searchObjective = left;
-				success = true;
-			}
-		}
-	}
-
-	/**
-	 * Move right if possible
-	 *
-	 * @param state The previous state
-	 */
-	protected void moveRight(State state) {
-		State right = new State(state.getX() + 1, state.getY(), State.Type.RIGHT, state, state.getImportance());
-		if (!history.contains(right)) {
-			queuedStates.add(right);
-			history.add(right);
-
-			if (right.equals(searchObjective)) {
-				searchObjective = right;
-				success = true;
-			}
-		}
-	}
-
-	/**
 	 * Calculate the route to the object
 	 */
-	private void calculateRoute() {
+	@Override
+	protected void calculateRoute() {
 		getLogger().info("Calculate the route!");
-		State predecessor = searchObjective;
+		State predecessor = getSearchObjective();
 		do {
 			steps.add(0, predecessor.getOperation());
 			predecessor = predecessor.getPredecessor();
@@ -275,6 +153,8 @@ public class BreadthFirstSearch extends AI {
 		throw new AIException("Do not call " + methodName + "using super!");
 	}
 
+	// TODO: set the speed of the enemy and player outside of the algorithm
+
 	/**
 	 * Run the steps in a loop, then launch the next objective when finished
 	 */
@@ -283,14 +163,14 @@ public class BreadthFirstSearch extends AI {
 		super.run();
 		while (getActive()) {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(400);
 			}
 			catch (InterruptedException e) {
 				getLogger().info(e.getMessage());
 			}
 			synchronized (this) {
-				queuedStates.clear();
-				history.clear();
+				getQueuedStates().clear();
+				getHistory().clear();
 				steps.clear();
 
 				State objective;
@@ -328,8 +208,8 @@ public class BreadthFirstSearch extends AI {
 					}
 					else {
 						if (!found) {
-							queuedStates.clear();
-							history.clear();
+							getQueuedStates().clear();
+							getHistory().clear();
 							steps.clear();
 							// Don't run this because the destination might return to be available again at some point
 							//destinationArrived(subObjective);

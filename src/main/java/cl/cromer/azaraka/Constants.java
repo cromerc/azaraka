@@ -37,7 +37,11 @@ public interface Constants {
 	/**
 	 * Whether or not the player should be controlled by AI
 	 */
-	boolean PLAYER_AI = true;
+	boolean PLAYER_AI = false;
+	/**
+	 * Whether or not the enemies should be controlled by AI
+	 */
+	boolean ENEMY_AI = true;
 	/**
 	 * Make logs
 	 */
@@ -65,7 +69,7 @@ public interface Constants {
 	/**
 	 * The amount of chests to draw, if less then 2 the game cannot be won
 	 */
-	int CHESTS = 4;
+	int CHESTS = 2;
 	/**
 	 * The amount of enemies to draw
 	 */
@@ -73,7 +77,7 @@ public interface Constants {
 	/**
 	 * The amount of obstacles to draw on the screen
 	 */
-	int OBSTACLES = (int) Math.floor((double) (HORIZONTAL_CELLS * VERTICAL_CELLS) * 0.10);
+	int OBSTACLES = (int) Math.floor((double) (HORIZONTAL_CELLS * VERTICAL_CELLS) * 0.05);
 	/**
 	 * The default volume between 0 and 100
 	 */
@@ -195,17 +199,17 @@ public interface Constants {
 		 */
 		MAIN(Level.INFO),
 		/**
-		 * The ventana principal log level
+		 * The main window log level
 		 */
-		VENTANA_PRINCIPAL(Level.INFO),
+		MAIN_WINDOW(Level.INFO),
 		/**
-		 * The lienzo log level
+		 * The canvas log level
 		 */
-		LIENZO(Level.INFO),
+		CANVAS(Level.INFO),
 		/**
 		 * The escenario log level
 		 */
-		ESCENARIO(Level.INFO),
+		SCENE(Level.INFO),
 		/**
 		 * The player log level
 		 */
@@ -221,15 +225,15 @@ public interface Constants {
 		/**
 		 * The sound log level
 		 */
-		SOUND(Level.INFO),
+		SOUND(Level.WARNING),
 		/**
 		 * The animation log level
 		 */
-		ANIMATION(Level.INFO),
+		ANIMATION(Level.WARNING),
 		/**
 		 * The sheet log level
 		 */
-		SHEET(Level.INFO),
+		SHEET(Level.WARNING),
 		/**
 		 * The key log level
 		 */

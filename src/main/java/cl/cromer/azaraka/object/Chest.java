@@ -192,8 +192,6 @@ public class Chest extends Object implements Constants {
 							gem.setYScale(24);
 							gem.setXScale(24);
 							gem.setUseOffset(false);
-							getScene().getCanvas().getPlayer().addInventory(gem);
-							getScene().getCanvas().getPortal().setState(Portal.State.ACTIVE);
 							gemLoops--;
 						}
 					}

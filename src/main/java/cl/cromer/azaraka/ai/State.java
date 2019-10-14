@@ -127,9 +127,13 @@ public class State {
 	 */
 	public enum Type {
 		/**
-		 * Where to start the search
+		 * The player
 		 */
-		START,
+		PLAYER,
+		/**
+		 * The enemy
+		 */
+		ENEMY,
 		/**
 		 * Arrive at the key
 		 */

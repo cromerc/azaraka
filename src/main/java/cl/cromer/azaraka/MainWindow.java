@@ -35,7 +35,7 @@ public class MainWindow extends JFrame implements Constants {
 	 * @param azaraka The main game class
 	 */
 	public MainWindow(Azaraka azaraka) {
-		Logger logger = getLogger(this.getClass(), LogLevel.VENTANA_PRINCIPAL);
+		Logger logger = getLogger(this.getClass(), LogLevel.MAIN_WINDOW);
 
 		logger.info("Create panels");
 

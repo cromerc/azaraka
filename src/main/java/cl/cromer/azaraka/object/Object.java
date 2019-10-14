@@ -99,7 +99,7 @@ public class Object implements Runnable, Constants {
 	 *
 	 * @param x The new x coordinate
 	 */
-	protected void setX(int x) {
+	private void setX(int x) {
 		this.x = x;
 	}
 
@@ -117,7 +117,7 @@ public class Object implements Runnable, Constants {
 	 *
 	 * @param y The new y coordinate
 	 */
-	protected void setY(int y) {
+	private void setY(int y) {
 		this.y = y;
 	}
 
@@ -280,6 +280,114 @@ public class Object implements Runnable, Constants {
 		}
 		catch (AnimationException e) {
 			logger.warning(e.getMessage());
+		}
+	}
+
+	/**
+	 * Move the object up one cell
+	 *
+	 * @return Returns true if it was moved
+	 */
+	protected boolean moveUp() {
+		getCell().setObject(null);
+		setCell(getScene().getCells()[x][y - 1]);
+		getCell().setObject(this);
+
+		if (changeDirection(Animation.Direction.UP)) {
+			try {
+				getAnimation().getNextFrame();
+			}
+			catch (AnimationException e) {
+				getLogger().warning(e.getMessage());
+			}
+		}
+
+		setY(getY() - 1);
+		return true;
+	}
+
+	/**
+	 * Move the object down one cell
+	 *
+	 * @return Returns true if it was moved
+	 */
+	protected boolean moveDown() {
+		getCell().setObject(null);
+		setCell(getScene().getCells()[x][y + 1]);
+		getCell().setObject(this);
+
+		if (changeDirection(Animation.Direction.DOWN)) {
+			try {
+				getAnimation().getNextFrame();
+			}
+			catch (AnimationException e) {
+				getLogger().warning(e.getMessage());
+			}
+		}
+
+		setY(getY() + 1);
+		return true;
+	}
+
+	/**
+	 * Move the object left one cell
+	 *
+	 * @return Returns true if it was moved
+	 */
+	protected boolean moveLeft() {
+		getCell().setObject(null);
+		setCell(getScene().getCells()[x - 1][y]);
+		getCell().setObject(this);
+
+		if (changeDirection(Animation.Direction.LEFT)) {
+			try {
+				getAnimation().getNextFrame();
+			}
+			catch (AnimationException e) {
+				getLogger().warning(e.getMessage());
+			}
+		}
+
+		setX(getX() - 1);
+		return true;
+	}
+
+	/**
+	 * Move the object right one cell
+	 *
+	 * @return Returns true if it was moved
+	 */
+	protected boolean moveRight() {
+		getCell().setObject(null);
+		setCell(getScene().getCells()[x + 1][y]);
+		getCell().setObject(this);
+
+		if (changeDirection(Animation.Direction.RIGHT)) {
+			try {
+				getAnimation().getNextFrame();
+			}
+			catch (AnimationException e) {
+				getLogger().warning(e.getMessage());
+			}
+		}
+
+		setX(getX() + 1);
+		return true;
+	}
+
+	/**
+	 * Change the direction of the object sprite
+	 *
+	 * @param direction The new direction
+	 * @return Returns true if a direction change is not necessary
+	 */
+	protected boolean changeDirection(Animation.Direction direction) {
+		if (getAnimation().getCurrentDirection() != direction) {
+			getAnimation().setCurrentDirection(direction);
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 

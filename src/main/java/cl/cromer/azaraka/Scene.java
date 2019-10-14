@@ -15,6 +15,7 @@
 
 package cl.cromer.azaraka;
 
+import cl.cromer.azaraka.ai.EnemyAI;
 import cl.cromer.azaraka.ai.PlayerAI;
 import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.json.Json;
@@ -80,7 +81,7 @@ public class Scene extends JComponent implements Constants {
 	 * @param canvas The canvas that this scene is in
 	 */
 	public Scene(Canvas canvas) {
-		logger = getLogger(this.getClass(), LogLevel.ESCENARIO);
+		logger = getLogger(this.getClass(), LogLevel.SCENE);
 		this.canvas = canvas;
 		loadTextures();
 
@@ -185,7 +186,7 @@ public class Scene extends JComponent implements Constants {
 			}
 		}
 
-		final Lock lock = new ReentrantLock(true);
+		final Lock lock = new ReentrantLock(false);
 		for (int i = 0; i < ENEMIES; i++) {
 			random = randomCoordinates();
 			cells[random[0]][random[1]].setObject(new Enemy(this, cells[random[0]][random[1]], lock));
@@ -219,17 +220,23 @@ public class Scene extends JComponent implements Constants {
 		}
 
 		for (Object object : objectArrayList) {
+			int x = object.getCell().getX();
+			int y = object.getCell().getY();
 			if (object instanceof Chest) {
-				int x = object.getCell().getX();
-				int y = object.getCell().getY();
 				if (pathInvalid(x, y + 1)) {
+					// Chest is unreachable
 					return null;
 				}
 			}
 			else if (object instanceof Portal || object instanceof Key) {
-				int x = object.getCell().getX();
-				int y = object.getCell().getY();
 				if (pathInvalid(x, y)) {
+					// Portal or key is unreachable
+					return null;
+				}
+			}
+			else if (object instanceof Enemy) {
+				if (enemyPathInvalid(x, y)) {
+					// Enemy can't reach player
 					return null;
 				}
 			}
@@ -246,10 +253,24 @@ public class Scene extends JComponent implements Constants {
 	 * @return Returns true if valid or false otherwise
 	 */
 	private boolean pathInvalid(int x, int y) {
-		PlayerAI breadthFirstSearch = new PlayerAI(this, null);
-		State playerState = new State(2, 1, State.Type.START, null, 0);
+		PlayerAI playerAI = new PlayerAI(this, null);
+		State playerState = new State(2, 1, State.Type.PLAYER, null, 0);
 		State objectiveState = new State(x, y, State.Type.EXIT, null, 0);
-		return !breadthFirstSearch.search(playerState, objectiveState);
+		return !playerAI.search(playerState, objectiveState);
+	}
+
+	/**
+	 * Check if the path to the player is valid
+	 *
+	 * @param x The x coordinate of the enemy
+	 * @param y The y coordinate of the enemy
+	 * @return Returns true if valid or false otherwise
+	 */
+	private boolean enemyPathInvalid(int x, int y) {
+		EnemyAI enemyAI = new EnemyAI(this, null);
+		State playerState = new State(2, 1, State.Type.PLAYER, null, 0);
+		State enemyState = new State(x, y, State.Type.ENEMY, null, 0);
+		return !enemyAI.search(enemyState, playerState);
 	}
 
 	/**

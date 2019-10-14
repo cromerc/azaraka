@@ -18,6 +18,7 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Cell;
 import cl.cromer.azaraka.Constants;
 import cl.cromer.azaraka.Scene;
+import cl.cromer.azaraka.ai.EnemyAI;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -34,6 +35,10 @@ public class Enemy extends Object implements Constants {
 	 * The lock helps prevent race conditions when checking positioning
 	 */
 	private final Lock lock;
+	/**
+	 * The artificial intelligence of the player
+	 */
+	private final EnemyAI ai;
 	/**
 	 * The current direction the enemy is facing
 	 */
@@ -55,6 +60,7 @@ public class Enemy extends Object implements Constants {
 		setLogger(getLogger(this.getClass(), LogLevel.ENEMY));
 		this.lock = lock;
 		loadEnemyAnimation();
+		ai = new EnemyAI(scene, this);
 	}
 
 	/**
@@ -111,104 +117,182 @@ public class Enemy extends Object implements Constants {
 	 * This method handles the enemy's movements
 	 */
 	private void move() {
-		int x = getX();
-		int y = getY();
 		if (direction == Direction.LEFT) {
-			if (x > 0 && getScene().getCells()[x - 1][y].getObject() == null) {
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x - 1][y]);
-				getCell().setObject(this);
-
-				try {
-					getAnimation().getNextFrame();
-				}
-				catch (AnimationException e) {
-					getLogger().warning(e.getMessage());
-				}
-				setX(getX() - 1);
-				getLogger().info("Move left to x: " + x + " y: " + y);
-			}
-			else if (x > 0 && getScene().getCells()[x - 1][y].getObject() instanceof Player) {
-				attackPlayer(x - 1, y);
-			}
-			else {
+			if (!moveLeft()) {
 				getLogger().info("Change to right direction");
-				getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
 				direction = Direction.RIGHT;
 			}
 		}
 		else if (direction == Direction.RIGHT) {
-			if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() == null) {
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x + 1][y]);
-				getCell().setObject(this);
-
-				try {
-					getAnimation().getNextFrame();
-				}
-				catch (AnimationException e) {
-					getLogger().warning(e.getMessage());
-				}
-				setX(getX() + 1);
-				getLogger().info("Move right to x: " + x + " y: " + y);
-			}
-			else if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() instanceof Player) {
-				attackPlayer(x + 1, y);
-			}
-			else {
+			if (!moveRight()) {
 				getLogger().info("Change to left direction");
-				getAnimation().setCurrentDirection(Animation.Direction.LEFT);
 				direction = Direction.LEFT;
 			}
 		}
 		else if (direction == Direction.DOWN) {
-			if (y < (VERTICAL_CELLS) - 1 && getScene().getCells()[x][y + 1].getObject() == null) {
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x][y + 1]);
-				getCell().setObject(this);
-
-				try {
-					getAnimation().getNextFrame();
-				}
-				catch (AnimationException e) {
-					getLogger().warning(e.getMessage());
-				}
-				setY(getY() + 1);
-				getLogger().info("Move down to x: " + x + " y: " + y);
-			}
-			else if (y < (VERTICAL_CELLS - 1) && getScene().getCells()[x][y + 1].getObject() instanceof Player) {
-				attackPlayer(x, y + 1);
-			}
-			else {
+			if (!moveDown()) {
 				getLogger().info("Change to up direction");
-				getAnimation().setCurrentDirection(Animation.Direction.UP);
 				direction = Direction.UP;
 			}
 		}
 		else if (direction == Direction.UP) {
-			if (y > 0 && getScene().getCells()[x][y - 1].getObject() == null) {
-				getCell().setObject(null);
-				setCell(getScene().getCells()[x][y - 1]);
-				getCell().setObject(this);
+			if (!moveUp()) {
+				getLogger().info("Change to down direction");
+				direction = Direction.DOWN;
+			}
+		}
+	}
 
+	/**
+	 * Move up
+	 *
+	 * @return If movement is not possible returns false
+	 */
+	@Override
+	public boolean moveUp() {
+		int x = getX();
+		int y = getY();
+		if (y > 0 && getScene().getCells()[x][y - 1].getObject() == null) {
+			super.moveUp();
+			getLogger().info("Move up to x: " + x + " y: " + y);
+		}
+		else if (y > 0 && getScene().getCells()[x][y - 1].getObject() instanceof Player) {
+			if (changeDirection(Animation.Direction.UP)) {
 				try {
 					getAnimation().getNextFrame();
 				}
 				catch (AnimationException e) {
 					getLogger().warning(e.getMessage());
 				}
-				setY(getY() - 1);
-				getLogger().info("Move up to x: " + x + " y: " + y);
 			}
-			else if (y > 0 && getScene().getCells()[x][y - 1].getObject() instanceof Player) {
-				attackPlayer(x, y - 1);
-			}
-			else {
-				getLogger().info("Change to down direction");
-				getAnimation().setCurrentDirection(Animation.Direction.DOWN);
-				direction = Direction.DOWN;
-			}
+			attackPlayer(x, y - 1);
 		}
+		else {
+			if (changeDirection(Animation.Direction.UP)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Move down
+	 *
+	 * @return If movement is not possible move down
+	 */
+	@Override
+	public boolean moveDown() {
+		int x = getX();
+		int y = getY();
+		if (y < (VERTICAL_CELLS) - 1 && getScene().getCells()[x][y + 1].getObject() == null) {
+			super.moveDown();
+			getLogger().info("Move down to x: " + x + " y: " + y);
+		}
+		else if (y < (VERTICAL_CELLS - 1) && getScene().getCells()[x][y + 1].getObject() instanceof Player) {
+			if (changeDirection(Animation.Direction.DOWN)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			attackPlayer(x, y + 1);
+		}
+		else {
+			if (changeDirection(Animation.Direction.DOWN)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Move left
+	 *
+	 * @return If movement is not possible returns false
+	 */
+	@Override
+	public boolean moveLeft() {
+		int x = getX();
+		int y = getY();
+		if (x > 0 && getScene().getCells()[x - 1][y].getObject() == null) {
+			super.moveLeft();
+			getLogger().info("Move left to x: " + x + " y: " + y);
+		}
+		else if (x > 0 && getScene().getCells()[x - 1][y].getObject() instanceof Player) {
+			if (changeDirection(Animation.Direction.LEFT)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			attackPlayer(x - 1, y);
+		}
+		else {
+			if (changeDirection(Animation.Direction.LEFT)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Move right
+	 *
+	 * @return If movement is not possible returns false
+	 */
+	@Override
+	public boolean moveRight() {
+		int x = getX();
+		int y = getY();
+		if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() == null) {
+			super.moveRight();
+			getLogger().info("Move right to x: " + x + " y: " + y);
+		}
+		else if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() instanceof Player) {
+			if (changeDirection(Animation.Direction.RIGHT)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			attackPlayer(x + 1, y);
+		}
+		else {
+			if (changeDirection(Animation.Direction.RIGHT)) {
+				try {
+					getAnimation().getNextFrame();
+				}
+				catch (AnimationException e) {
+					getLogger().warning(e.getMessage());
+				}
+			}
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -233,23 +317,34 @@ public class Enemy extends Object implements Constants {
 			}
 			getScene().getCanvas().getPlayer().attacked();
 
-			if (direction == Direction.UP) {
-				getAnimation().setCurrentDirection(Animation.Direction.LEFT);
-				direction = Direction.LEFT;
-			}
-			else if (direction == Direction.DOWN) {
-				getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
-				direction = Direction.RIGHT;
-			}
-			else if (direction == Direction.LEFT) {
-				getAnimation().setCurrentDirection(Animation.Direction.UP);
-				direction = Direction.UP;
-			}
-			else {
-				getAnimation().setCurrentDirection(Animation.Direction.DOWN);
-				direction = Direction.DOWN;
+			if (!ENEMY_AI) {
+				if (direction == Direction.UP) {
+					getAnimation().setCurrentDirection(Animation.Direction.LEFT);
+					direction = Direction.LEFT;
+				}
+				else if (direction == Direction.DOWN) {
+					getAnimation().setCurrentDirection(Animation.Direction.RIGHT);
+					direction = Direction.RIGHT;
+				}
+				else if (direction == Direction.LEFT) {
+					getAnimation().setCurrentDirection(Animation.Direction.UP);
+					direction = Direction.UP;
+				}
+				else {
+					getAnimation().setCurrentDirection(Animation.Direction.DOWN);
+					direction = Direction.DOWN;
+				}
 			}
 		}
+	}
+
+	/**
+	 * Get the AI in use by the enemy
+	 *
+	 * @return Returns the current AI in use
+	 */
+	public EnemyAI getAi() {
+		return ai;
 	}
 
 	/**
@@ -266,7 +361,9 @@ public class Enemy extends Object implements Constants {
 			}
 			synchronized (this) {
 				lock.lock();
-				move();
+				if (!ENEMY_AI) {
+					move();
+				}
 				getScene().getCanvas().repaint();
 				lock.unlock();
 			}

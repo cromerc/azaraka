@@ -56,7 +56,6 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 	 */
 	@Override
 	public boolean destinationArrived(State objective) {
-		sortDestinations();
 		switch (objective.getOperation()) {
 			case CHEST:
 				if (player.hasKey()) {
@@ -67,6 +66,7 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 					Portal portal = scene.getCanvas().getPortal();
 					if (portal.getState() == Portal.State.ACTIVE) {
 						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 2));
+						sortDestinations();
 					}
 					return true;
 				}
@@ -78,10 +78,12 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 				return true;
 			case PORTAL:
 				if (player.hasTaintedGem() && scene.getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
+					sortDestinations();
 					return true;
 				}
 				break;
 		}
+		sortDestinations();
 		return false;
 	}
 
@@ -147,6 +149,11 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 		scene.getCanvas().repaint();
 	}
 
+	/**
+	 * Move up
+	 *
+	 * @param state The previous state
+	 */
 	@Override
 	public void moveUp(State state) {
 		if (state.getY() > 0) {
@@ -156,6 +163,11 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 		}
 	}
 
+	/**
+	 * Move down
+	 *
+	 * @param state The previous state
+	 */
 	@Override
 	public void moveDown(State state) {
 		if (state.getY() < VERTICAL_CELLS - 1) {
@@ -165,6 +177,11 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 		}
 	}
 
+	/**
+	 * Move left
+	 *
+	 * @param state The previous state
+	 */
 	@Override
 	public void moveLeft(State state) {
 		if (state.getX() > 0) {
@@ -174,6 +191,11 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 		}
 	}
 
+	/**
+	 * Move right
+	 *
+	 * @param state The previous state
+	 */
 	@Override
 	public void moveRight(State state) {
 		if (state.getX() < HORIZONTAL_CELLS - 1) {
@@ -188,6 +210,6 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 	 */
 	@Override
 	public void getNewInitial() {
-		setInitial(new State(player.getCell().getX(), player.getCell().getY(), State.Type.START, null, 0));
+		setInitial(new State(player.getCell().getX(), player.getCell().getY(), State.Type.PLAYER, null, 0));
 	}
 }
