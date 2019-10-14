@@ -14,6 +14,7 @@
  */
 
 plugins {
+    id 'idea'
     id 'java'
     id 'application'
     id 'distribution'
@@ -30,6 +31,13 @@ targetCompatibility = 1.8
 //noinspection GroovyUnusedAssignment
 applicationName = 'Azaraka'
 mainClassName = 'cl.cromer.azaraka.Azaraka'
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
 
 repositories {
     mavenCentral()
