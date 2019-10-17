@@ -35,9 +35,9 @@ public interface Constants {
 	 */
 	String TITLE = "La Aventura de Azaraka";
 	/**
-	 * Whether or not the player should be controlled by AI
+	 * Which type of AI to use
 	 */
-	boolean PLAYER_AI = false;
+	PlayerAIType PLAYER_AI = PlayerAIType.ASTAR;
 	/**
 	 * Whether or not the enemies should be controlled by AI
 	 */
@@ -81,7 +81,7 @@ public interface Constants {
 	/**
 	 * The default volume between 0 and 100
 	 */
-	int VOLUME = 100;
+	int VOLUME = 0;
 	/**
 	 * Generates the scene manually instead of from the JSON file if true
 	 */
@@ -184,6 +184,24 @@ public interface Constants {
 				fileHandler.setFormatter(formatter);
 			}
 		}
+	}
+
+	/**
+	 * The different AI that can be used by the player
+	 */
+	enum PlayerAIType {
+		/**
+		 * Human player
+		 */
+		HUMAN,
+		/**
+		 * Breadth-First Search
+		 */
+		BFS,
+		/**
+		 * A* Search
+		 */
+		ASTAR
 	}
 
 	/**

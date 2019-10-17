@@ -47,7 +47,7 @@ public class Cell extends JComponent implements Constants {
 	/**
 	 * A map containing the textures used in the cell, LinkedHashMap is used to maintain the order of images
 	 */
-	private final LinkedHashMap<Integer, BufferedImage> textures = new LinkedHashMap<>();
+	private final Map<Integer, BufferedImage> textures = new LinkedHashMap<>();
 	/**
 	 * The object in the cell
 	 */

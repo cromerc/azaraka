@@ -16,9 +16,9 @@
 package cl.cromer.azaraka.ai;
 
 /**
- * The state of the Breadth-First Search algorithm
+ * The states used in the AI algorithms
  */
-public class State {
+public class State implements Comparable {
 	/**
 	 * The x position being checked
 	 */
@@ -39,6 +39,10 @@ public class State {
 	 * The importance of the objective, higher is more important
 	 */
 	private final int importance;
+	/**
+	 * This handles the priority based on enemy distance
+	 */
+	private double priority;
 
 	/**
 	 * Initialize the state
@@ -103,6 +107,24 @@ public class State {
 	}
 
 	/**
+	 * Get the priority of the state
+	 *
+	 * @return The priority
+	 */
+	private double getPriority() {
+		return priority;
+	}
+
+	/**
+	 * Set the priority of a given state
+	 *
+	 * @param priority The priority value
+	 */
+	public void setPriority(double priority) {
+		this.priority = priority;
+	}
+
+	/**
 	 * Overridden equals to compare the x and y coordinates
 	 *
 	 * @param object The object to compare with this
@@ -119,7 +141,27 @@ public class State {
 		}
 
 		State that = (State) object;
-		return (this.x == that.getX() && this.y == that.getY());
+		return (this.getX() == that.getX() && this.getY() == that.getY());
+	}
+
+	/**
+	 * This is used to compare priorities in a priority queue
+	 *
+	 * @param object The object to compare
+	 * @return Returns the value of Double.compare()
+	 */
+	@Override
+	public int compareTo(Object object) {
+		State that = (State) object;
+		return Double.compare(this.getPriority(), that.getPriority());
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 23;
+		result = result * 23 + x;
+		result = result * 23 + y;
+		return result;
 	}
 
 	/**

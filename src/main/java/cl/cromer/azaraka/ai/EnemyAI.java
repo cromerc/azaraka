@@ -21,10 +21,18 @@ import cl.cromer.azaraka.object.Enemy;
 import cl.cromer.azaraka.object.Object;
 import cl.cromer.azaraka.object.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 /**
- * This class handles player based interactions mixed with AI
+ * This is an implementation of the Depth-First search algorithm
  */
-public class EnemyAI extends DepthFirstSearch implements Constants {
+public class EnemyAI extends AI implements Runnable, Constants {
+	/**
+	 * The logger
+	 */
+	private final Logger logger;
 	/**
 	 * The player
 	 */
@@ -33,56 +41,102 @@ public class EnemyAI extends DepthFirstSearch implements Constants {
 	 * The scene the AI is in
 	 */
 	private final Scene scene;
+	/**
+	 * The queued states to check
+	 */
+	private final List<State> queuedStates = new ArrayList<>();
+	/**
+	 * The history of states that have been checked
+	 */
+	private final List<State> history = new ArrayList<>();
+	/**
+	 * The steps to get to the goal
+	 */
+	private final List<State.Type> steps = new ArrayList<>();
+	/**
+	 * The goal point to search for
+	 */
+	private State searchGoal;
+	/**
+	 * If the search was successful or not
+	 */
+	private boolean success = false;
 
 	/**
 	 * Initialize the algorithm
 	 *
 	 * @param scene The scene the AI is in
-	 * @param enemy The player controlled by the AI
+	 * @param enemy The enemy the AI is controlling
 	 */
 	public EnemyAI(Scene scene, Enemy enemy) {
-		super();
-		setLogger(getLogger(this.getClass(), LogLevel.AI));
+		logger = getLogger(this.getClass(), Constants.LogLevel.AI);
 		this.scene = scene;
 		this.enemy = enemy;
 	}
 
 	/**
-	 * Handle actions based on the states
+	 * Find a path to the objective
+	 *
+	 * @param searchInitial The start point
+	 * @param searchGoal    The goal
+	 * @return Returns true if a path to the goal is found or false otherwise
 	 */
-	@Override
-	public void doAction() {
-		if (getSteps().size() > 1) {
-			switch (getSteps().get(1)) {
-				case UP:
-					enemy.moveUp();
-					break;
-				case DOWN:
-					enemy.moveDown();
-					break;
-				case LEFT:
-					enemy.moveLeft();
-					break;
-				case RIGHT:
-					enemy.moveRight();
-					break;
+	public boolean search(State searchInitial, State searchGoal) {
+		queuedStates.add(searchInitial);
+		history.add(searchInitial);
+		this.searchGoal = searchGoal;
+
+		success = searchInitial.equals(searchGoal);
+
+		while (!queuedStates.isEmpty() && !success) {
+			State current = queuedStates.get(0);
+			queuedStates.remove(0);
+
+			moveUp(current);
+			moveDown(current);
+			moveLeft(current);
+			moveRight(current);
+		}
+
+		if (success) {
+			logger.info("Route to objective found!");
+			calculateRoute();
+			return true;
+		}
+		else {
+			logger.info("Route to objective not found!");
+			return false;
+		}
+	}
+
+	/**
+	 * Move to the next state
+	 *
+	 * @param next The next state
+	 */
+	private void move(State next) {
+		if (!history.contains(next)) {
+			queuedStates.add(next);
+			history.add(next);
+
+			if (next.equals(searchGoal)) {
+				searchGoal = next;
+				success = true;
 			}
-			scene.getCanvas().repaint();
 		}
 	}
 
 	/**
 	 * Move up
 	 *
-	 * @param state The previous state
+	 * @param current The current state
 	 */
-
-	@Override
-	public void moveUp(State state) {
-		if (state.getY() > 0) {
-			Object object = scene.getCells()[state.getX()][state.getY() - 1].getObject();
+	private void moveUp(State current) {
+		if (current.getY() > 0) {
+			Object object = scene.getCells()[current.getX()][current.getY() - 1].getObject();
 			if (object == null || object instanceof Player) {
-				super.moveUp(state);
+				State next = new State(current.getX(), current.getY() - 1, State.Type.UP, current, current.getImportance());
+				move(next);
 			}
 		}
 	}
@@ -90,14 +144,14 @@ public class EnemyAI extends DepthFirstSearch implements Constants {
 	/**
 	 * Move down
 	 *
-	 * @param state The previous state
+	 * @param current The current state
 	 */
-	@Override
-	public void moveDown(State state) {
-		if (state.getY() < VERTICAL_CELLS - 1) {
-			Object object = scene.getCells()[state.getX()][state.getY() + 1].getObject();
+	private void moveDown(State current) {
+		if (current.getY() < VERTICAL_CELLS - 1) {
+			Object object = scene.getCells()[current.getX()][current.getY() + 1].getObject();
 			if (object == null || object instanceof Player) {
-				super.moveDown(state);
+				State next = new State(current.getX(), current.getY() + 1, State.Type.DOWN, current, current.getImportance());
+				move(next);
 			}
 		}
 	}
@@ -105,14 +159,14 @@ public class EnemyAI extends DepthFirstSearch implements Constants {
 	/**
 	 * Move left
 	 *
-	 * @param state The previous state
+	 * @param current The current state
 	 */
-	@Override
-	public void moveLeft(State state) {
-		if (state.getX() > 0) {
-			Object object = scene.getCells()[state.getX() - 1][state.getY()].getObject();
+	private void moveLeft(State current) {
+		if (current.getX() > 0) {
+			Object object = scene.getCells()[current.getX() - 1][current.getY()].getObject();
 			if (object == null || object instanceof Player) {
-				super.moveLeft(state);
+				State next = new State(current.getX() - 1, current.getY(), State.Type.LEFT, current, current.getImportance());
+				move(next);
 			}
 		}
 	}
@@ -120,32 +174,78 @@ public class EnemyAI extends DepthFirstSearch implements Constants {
 	/**
 	 * Move right
 	 *
-	 * @param state The previous state
+	 * @param current The current state
 	 */
-	@Override
-	public void moveRight(State state) {
-		if (state.getX() < HORIZONTAL_CELLS - 1) {
-			Object object = scene.getCells()[state.getX() + 1][state.getY()].getObject();
+	private void moveRight(State current) {
+		if (current.getX() < HORIZONTAL_CELLS - 1) {
+			Object object = scene.getCells()[current.getX() + 1][current.getY()].getObject();
 			if (object == null || object instanceof Player) {
-				super.moveRight(state);
+				State next = new State(current.getX() + 1, current.getY(), State.Type.RIGHT, current, current.getImportance());
+				move(next);
 			}
 		}
 	}
 
 	/**
-	 * This method is called when the algorithm wants to know where the enemy is located at now
+	 * Calculate the route to the goal
 	 */
-	@Override
-	public void getNewInitial() {
-		setInitial(new State(enemy.getCell().getX(), enemy.getCell().getY(), State.Type.ENEMY, null, 0));
-
+	private void calculateRoute() {
+		logger.info("Calculate the route!");
+		State predecessor = searchGoal;
+		do {
+			steps.add(0, predecessor.getOperation());
+			predecessor = predecessor.getPredecessor();
+		}
+		while (predecessor != null);
 	}
 
 	/**
-	 * The method is called when the algorithm wants to know where the player is located at now
+	 * Clear the states to start a new search
+	 */
+	private void clearStates() {
+		queuedStates.clear();
+		history.clear();
+		steps.clear();
+	}
+
+	/**
+	 * Run the steps in a loop
 	 */
 	@Override
-	public void getNewObjective() {
-		setObjective(new State(scene.getCanvas().getPlayer().getCell().getX(), scene.getCanvas().getPlayer().getCell().getY(), State.Type.PLAYER, null, 0));
+	public void run() {
+		while (getActive()) {
+			try {
+				Thread.sleep(600);
+			}
+			catch (InterruptedException e) {
+				logger.info(e.getMessage());
+			}
+			synchronized (this) {
+				clearStates();
+
+				State initial = new State(enemy.getCell().getX(), enemy.getCell().getY(), State.Type.ENEMY, null, 0);
+				State objective = new State(scene.getCanvas().getPlayer().getCell().getX(), scene.getCanvas().getPlayer().getCell().getY(), State.Type.PLAYER, null, 0);
+
+				search(initial, objective);
+
+				if (steps.size() > 1) {
+					switch (steps.get(1)) {
+						case UP:
+							enemy.moveUp();
+							break;
+						case DOWN:
+							enemy.moveDown();
+							break;
+						case LEFT:
+							enemy.moveLeft();
+							break;
+						case RIGHT:
+							enemy.moveRight();
+							break;
+					}
+					scene.getCanvas().repaint();
+				}
+			}
+		}
 	}
 }

@@ -23,7 +23,7 @@ import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class handles the portal functionality
@@ -92,7 +92,7 @@ public class Portal extends Object implements Constants {
 	 */
 	public void purifyGems() {
 		if (state == State.ACTIVE) {
-			ArrayList<Gem> gems = getScene().getCanvas().getPlayer().getInventoryGems(true);
+			List<Gem> gems = getScene().getCanvas().getPlayer().getInventoryGems(true);
 			boolean purified = false;
 			for (Gem gem : gems) {
 				if (gem.getState() == Gem.State.TAINTED) {

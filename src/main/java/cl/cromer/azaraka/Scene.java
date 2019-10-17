@@ -17,6 +17,7 @@ package cl.cromer.azaraka;
 
 import cl.cromer.azaraka.ai.EnemyAI;
 import cl.cromer.azaraka.ai.PlayerAI;
+import cl.cromer.azaraka.ai.PlayerBreadthFirstAI;
 import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.json.Json;
 import cl.cromer.azaraka.json.JsonCell;
@@ -42,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -166,9 +168,9 @@ public class Scene extends JComponent implements Constants {
 	 *
 	 * @return Returns a list of objects that where generated
 	 */
-	public ArrayList<Object> generateRandomObjects() {
+	public List<Object> generateRandomObjects() {
 		int[] random;
-		ArrayList<Object> objectArrayList = new ArrayList<>();
+		List<Object> objectArrayList = new ArrayList<>();
 
 		// The player has a fixed position
 		cells[2][1].setObject(new Player(this, cells[2][1]));
@@ -253,7 +255,7 @@ public class Scene extends JComponent implements Constants {
 	 * @return Returns true if valid or false otherwise
 	 */
 	private boolean pathInvalid(int x, int y) {
-		PlayerAI playerAI = new PlayerAI(this, null);
+		PlayerAI playerAI = new PlayerBreadthFirstAI(this, null);
 		State playerState = new State(2, 1, State.Type.PLAYER, null, 0);
 		State objectiveState = new State(x, y, State.Type.EXIT, null, 0);
 		return !playerAI.search(playerState, objectiveState);

@@ -18,12 +18,15 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Cell;
 import cl.cromer.azaraka.Constants;
 import cl.cromer.azaraka.Scene;
-import cl.cromer.azaraka.ai.PlayerAI;
+import cl.cromer.azaraka.ai.AI;
+import cl.cromer.azaraka.ai.PlayerAStarAI;
+import cl.cromer.azaraka.ai.PlayerBreadthFirstAI;
 import cl.cromer.azaraka.sprite.Animation;
 import cl.cromer.azaraka.sprite.AnimationException;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains the player
@@ -36,11 +39,11 @@ public class Player extends Object implements Constants {
 	/**
 	 * Objects that the player is carrying
 	 */
-	private final ArrayList<Object> carrying = new ArrayList<>();
+	private final List<Object> carrying = new ArrayList<>();
 	/**
 	 * The artificial intelligence of the player
 	 */
-	private final PlayerAI ai;
+	private final AI ai;
 	/**
 	 * The current health of the player
 	 */
@@ -56,7 +59,15 @@ public class Player extends Object implements Constants {
 		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PLAYER));
 		loadPlayerAnimation();
-		ai = new PlayerAI(scene, this);
+		if (PLAYER_AI == PlayerAIType.ASTAR) {
+			ai = new PlayerAStarAI(scene, this);
+		}
+		else if (PLAYER_AI == PlayerAIType.BFS) {
+			ai = new PlayerBreadthFirstAI(scene, this);
+		}
+		else {
+			ai = null;
+		}
 	}
 
 	/**
@@ -82,7 +93,7 @@ public class Player extends Object implements Constants {
 	 */
 	public void keyPressed(int keyCode) {
 		if (getScene().isDoorOpen()) {
-			ArrayList<Gem> gems = getInventoryGems(true);
+			List<Gem> gems = getInventoryGems(true);
 			if (gems.size() < 2) {
 				getScene().openDoor(false);
 			}
@@ -478,7 +489,7 @@ public class Player extends Object implements Constants {
 	 *
 	 * @return Returns the current AI in use
 	 */
-	public PlayerAI getAi() {
+	public AI getAi() {
 		return ai;
 	}
 
@@ -488,8 +499,8 @@ public class Player extends Object implements Constants {
 	 * @param all Whether or not to return the gems that are still in transition to inventory
 	 * @return Returns an array of the gems the player is carrying
 	 */
-	public ArrayList<Gem> getInventoryGems(boolean all) {
-		ArrayList<Gem> gems = new ArrayList<>();
+	public List<Gem> getInventoryGems(boolean all) {
+		List<Gem> gems = new ArrayList<>();
 		for (Object object : carrying) {
 			if (object instanceof Gem) {
 				if (!all && object.getCell().getObjectOnTop() != null) {

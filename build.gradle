@@ -14,101 +14,89 @@
  */
 
 plugins {
-    id 'idea'
-    id 'java'
-    id 'application'
-    id 'distribution'
+	id 'idea'
+	id 'java'
+	id 'application'
+	id 'distribution'
 }
 
 group 'cl.cromer.azaraka'
 version '1.0.0'
 
-//noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8
-//noinspection GroovyUnusedAssignment
 targetCompatibility = 1.8
 
-//noinspection GroovyUnusedAssignment
 applicationName = 'Azaraka'
 mainClassName = 'cl.cromer.azaraka.Azaraka'
 
 idea {
-    module {
-        downloadJavadoc = true
-        downloadSources = true
-    }
+	module {
+		downloadJavadoc = true
+		downloadSources = true
+	}
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
 dependencies {
-    implementation group: 'com.google.code.gson', name: 'gson', version: '2.+'
-    //testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.+'
+	implementation group: 'com.google.code.gson', name: 'gson', version: '2.+'
+	//testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.+'
 }
 
-//noinspection GrUnresolvedAccess
 ext.sharedManifest = manifest {
-    //noinspection GrUnresolvedAccess
-    attributes 'Main-Class': "$mainClassName",
-            'Class-Path': configurations.default.files.collect { "$it.name" }.join(' '),
-            'Implementation-Title': 'Gradle',
-            'Implementation-Version': "$gradle.gradleVersion"
+	attributes 'Main-Class': "$mainClassName",
+			'Class-Path': configurations.default.files.collect { "$it.name" }.join(' '),
+			'Implementation-Title': 'Gradle',
+			'Implementation-Version': "$gradle.gradleVersion"
 }
 
 jar {
-    manifest = project.manifest {
-        //noinspection GroovyAssignabilityCheck
-        from sharedManifest
-    }
+	manifest = project.manifest {
+		from sharedManifest
+	}
 
-    if (project.uberJar == "true") {
-        //noinspection GroovyAssignabilityCheck
-        from sourceSets.main.output
+	if (project.uberJar == "true") {
+		from sourceSets.main.output
 
-        dependsOn configurations.runtimeClasspath
-        from {
-            configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
-        }
-    }
+		dependsOn configurations.runtimeClasspath
+		from {
+			configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+		}
+	}
 	else {
-        dependsOn tasks.withType(Copy)
-    }
+		dependsOn tasks.withType(Copy)
+	}
 }
 
 task copyDependencies(type: Copy) {
-    from configurations.default
-    into "$buildDir/libs"
+	from configurations.default
+	into "$buildDir/libs"
 }
 
 plugins.withType(DistributionPlugin) {
-    distTar {
-        //noinspection GroovyAssignabilityCheck, GroovyAccessibility
-        archiveExtension = 'tar.gz'
-        compression = Compression.GZIP
-    }
+	distTar {
+		archiveExtension = 'tar.gz'
+		compression = Compression.GZIP
+	}
 }
 
 task createDocs {
-    def docs = file("$buildDir/docs")
-    outputs.dir docs
+	def docs = file("$buildDir/docs")
+	outputs.dir docs
 }
 
 distributions {
-    //noinspection GroovyAssignabilityCheck
-    main {
-        //noinspection GrUnresolvedAccess
-        contents {
-            //noinspection GrUnresolvedAccess
-            from(createDocs) {
-                //noinspection GrUnresolvedAccess
-                into 'docs'
-            }
-        }
-    }
+	main {
+		contents {
+			from(createDocs) {
+				into 'docs'
+			}
+		}
+	}
 }
 
 wrapper {
-    gradleVersion = '5.6.2'
+	gradleVersion = '5.6.2'
 }

@@ -24,6 +24,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -33,7 +35,7 @@ public class Animation implements Cloneable, Constants {
 	/**
 	 * The collection of all the images that make up the object
 	 */
-	private final HashMap<Direction, ArrayList<BufferedImage>> imageHash;
+	private final Map<Direction, List<BufferedImage>> imageHash;
 	/**
 	 * The logger
 	 */
@@ -175,7 +177,7 @@ public class Animation implements Cloneable, Constants {
 		calculateXOffset(bufferedImage.getWidth());
 		calculateYOffset(bufferedImage.getHeight());
 
-		ArrayList<BufferedImage> images;
+		List<BufferedImage> images;
 		if (imageHash.containsKey(direction)) {
 			images = imageHash.get(direction);
 		}
@@ -193,7 +195,7 @@ public class Animation implements Cloneable, Constants {
 	 * @throws AnimationException Thrown when there are no images in the sprite
 	 */
 	public BufferedImage getFrame() throws AnimationException {
-		ArrayList<BufferedImage> images = getImagesFromHash();
+		List<BufferedImage> images = getImagesFromHash();
 		if (currentFrame >= images.size()) {
 			throw new AnimationException("Animation does not have frame: " + currentFrame);
 		}
@@ -217,7 +219,7 @@ public class Animation implements Cloneable, Constants {
 	 * @throws AnimationException Thrown if there are no frame in the current animation
 	 */
 	public int getCurrentFrame() throws AnimationException {
-		ArrayList<BufferedImage> images;
+		List<BufferedImage> images;
 		if (imageHash.containsKey(currentDirection)) {
 			images = imageHash.get(currentDirection);
 			if (images.size() == 0) {
@@ -238,7 +240,7 @@ public class Animation implements Cloneable, Constants {
 	 * @throws AnimationException Thrown if the frame number does not exist
 	 */
 	public void setCurrentFrame(int frame) throws AnimationException {
-		ArrayList<BufferedImage> images;
+		List<BufferedImage> images;
 		if (imageHash.containsKey(currentDirection)) {
 			images = imageHash.get(currentDirection);
 		}
@@ -261,7 +263,7 @@ public class Animation implements Cloneable, Constants {
 	 * @throws AnimationException Thrown when there are no images in the sprite
 	 */
 	public void getNextFrame() throws AnimationException {
-		ArrayList<BufferedImage> images = getImagesFromHash();
+		List<BufferedImage> images = getImagesFromHash();
 		currentFrame++;
 		if (currentFrame >= images.size()) {
 			currentFrame = 0;
@@ -274,8 +276,8 @@ public class Animation implements Cloneable, Constants {
 	 * @return The images for the specific direction
 	 * @throws AnimationException Thrown if there are no images in the hash or no images in the sprite
 	 */
-	private ArrayList<BufferedImage> getImagesFromHash() throws AnimationException {
-		ArrayList<BufferedImage> images;
+	private List<BufferedImage> getImagesFromHash() throws AnimationException {
+		List<BufferedImage> images;
 		if (imageHash.containsKey(currentDirection)) {
 			images = imageHash.get(currentDirection);
 		}

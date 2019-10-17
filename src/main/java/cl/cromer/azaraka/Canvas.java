@@ -15,7 +15,8 @@
 
 package cl.cromer.azaraka;
 
-import cl.cromer.azaraka.ai.SearchAI;
+import cl.cromer.azaraka.ai.AI;
+import cl.cromer.azaraka.ai.AIException;
 import cl.cromer.azaraka.ai.State;
 import cl.cromer.azaraka.object.Chest;
 import cl.cromer.azaraka.object.Enemy;
@@ -41,6 +42,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -60,19 +62,19 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	/**
 	 * The threads for the objects
 	 */
-	private final HashMap<Object, Thread> threads = new HashMap<>();
+	private final Map<Object, Thread> threads = new HashMap<>();
 	/**
 	 * The enemies
 	 */
-	private final ArrayList<Enemy> enemies = new ArrayList<>();
+	private final List<Enemy> enemies = new ArrayList<>();
 	/**
 	 * The keys
 	 */
-	private final ArrayList<Key> keys = new ArrayList<>();
+	private final List<Key> keys = new ArrayList<>();
 	/**
 	 * The chests
 	 */
-	private final ArrayList<Chest> chests = new ArrayList<>();
+	private final List<Chest> chests = new ArrayList<>();
 	/**
 	 * The logger
 	 */
@@ -92,7 +94,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	/**
 	 * The threads that control AI
 	 */
-	private final HashMap<SearchAI, Thread> aiThreads = new HashMap<>();
+	private final Map<AI, Thread> aiThreads = new HashMap<>();
 	/**
 	 * The graphics buffer
 	 */
@@ -207,7 +209,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 
 		scene = new Scene(this);
 
-		ArrayList<Object> objectList = scene.generateRandomObjects();
+		List<Object> objectList = scene.generateRandomObjects();
 		while (objectList == null) {
 			scene = new Scene(this);
 			objectList = scene.generateRandomObjects();
@@ -289,7 +291,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			thread.start();
 		}
 
-		if (PLAYER_AI) {
+		if (PLAYER_AI != PlayerAIType.HUMAN) {
 			setupPlayerAI();
 		}
 		else {
@@ -306,19 +308,24 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 * Setup the player AI
 	 */
 	private void setupPlayerAI() {
-		player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null, 3));
+		try {
+			player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null, 3));
 
-		// Shuffle the chests so that the AI doesn't open the correct chests on the first go
-		Collections.shuffle(chests, new Random(23));
-		for (Chest chest : chests) {
-			player.getAi().addDestination(new State(chest.getCell().getX(), chest.getCell().getY() + 1, State.Type.CHEST, null, 2));
+			// Shuffle the chests so that the AI doesn't open the correct chests on the first go
+			Collections.shuffle(chests, new Random(23));
+			for (Chest chest : chests) {
+				player.getAi().addDestination(new State(chest.getCell().getX(), chest.getCell().getY() + 1, State.Type.CHEST, null, 2));
+			}
+
+			for (Key key : keys) {
+				player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 2));
+			}
+
+			player.getAi().sortDestinations();
 		}
-
-		for (Key key : keys) {
-			player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 2));
+		catch (AIException e) {
+			logger.warning(e.getMessage());
 		}
-
-		player.getAi().sortDestinations();
 
 		Thread thread = new Thread(player.getAi());
 		thread.start();
@@ -369,7 +376,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			}
 		}
 
-		ArrayList<Gem> gems = player.getInventoryGems(false);
+		List<Gem> gems = player.getInventoryGems(false);
 		for (Gem gem : gems) {
 			gem.drawAnimation(graphicBuffer, xPixels, 8);
 			xPixels = xPixels + 3 + (gem.getAnimationWidth());
@@ -488,10 +495,10 @@ public class Canvas extends java.awt.Canvas implements Constants {
 		}
 
 		// Stop AI threads
-		for (Map.Entry<SearchAI, Thread> entry : aiThreads.entrySet()) {
+		for (Map.Entry<AI, Thread> entry : aiThreads.entrySet()) {
 			Thread thread = entry.getValue();
 			if (thread.isAlive()) {
-				SearchAI ai = entry.getKey();
+				AI ai = entry.getKey();
 				ai.setActive(false);
 				thread.interrupt();
 			}
@@ -584,7 +591,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 *
 	 * @return Returns all the keys that are in the game
 	 */
-	public ArrayList<Key> getKeys() {
+	public List<Key> getKeys() {
 		return keys;
 	}
 
@@ -593,7 +600,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 *
 	 * @return Returns all the chests that are in the game
 	 */
-	public ArrayList<Chest> getChests() {
+	public List<Chest> getChests() {
 		return chests;
 	}
 

@@ -22,41 +22,107 @@ import cl.cromer.azaraka.object.Portal;
 import cl.cromer.azaraka.sprite.Animation;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This class handles player based interactions mixed with AI
+ * This interface has Player specific AI code that is shared between AI implementations
  */
-public class PlayerAI extends BreadthFirstSearch implements Constants {
+public interface PlayerAI extends Runnable, Constants {
 	/**
-	 * The player
+	 * Search for the goal from a starting state
+	 *
+	 * @param start The start state
+	 * @param goal  The goal state
+	 * @return Return true if there is a path or false otherwise
 	 */
-	private final Player player;
-	/**
-	 * The scene the AI is in
-	 */
-	private final Scene scene;
+	boolean search(State start, State goal);
 
 	/**
-	 * Initialize the algorithm
+	 * Add a destination to the list of destinations
 	 *
-	 * @param scene  The scene the AI is in
-	 * @param player The player controlled by the AI
+	 * @param destination The new destination
 	 */
-	public PlayerAI(Scene scene, Player player) {
-		super();
-		setLogger(getLogger(this.getClass(), LogLevel.AI));
-		this.scene = scene;
-		this.player = player;
+	void addDestination(State destination);
+
+	/**
+	 * Sor the destinations based on importance and distance
+	 */
+	void sortDestinations();
+
+	/**
+	 * The heuristic to get the distance between the start state and the end state
+	 *
+	 * @param start The start state
+	 * @param goal  The goal state
+	 * @return Returns the distance between the states
+	 */
+	default double heuristic(State start, State goal) {
+		// Manhattan Distance
+		// Used for 4 direction movements
+		/*
+			h = abs (current_cell.x – goal.x) +
+			abs (current_cell.y – goal.y)
+		 */
+
+		// Diagonal Distance
+		// Used for 8 direction movements
+		/*
+			h = max { abs(current_cell.x – goal.x),
+			abs(current_cell.y – goal.y) }
+		 */
+
+		// Euclidean Distance
+		// Used for distance between 2 points
+		/*
+			h = sqrt ( (current_cell.x – goal.x)2 +
+			(current_cell.y – goal.y)2 )
+		 */
+		return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
 	}
 
 	/**
-	 * This handles what to do when the player arrives at a destination
+	 * Sort the destinations based on importance and distance
 	 *
-	 * @param objective The objective the player arrived at
+	 * @param destinations The destinations to sort
+	 * @param initial      The initial state of the player
+	 * @return Returns the new sorted destinations
 	 */
-	@Override
-	public boolean destinationArrived(State objective) {
-		switch (objective.getOperation()) {
+	default List<State> sortDestinations(List<State> destinations, State initial) {
+		destinations.sort((state1, state2) -> {
+			if (state1.getImportance() > state2.getImportance()) {
+				// The first state is more important
+				return -1;
+			}
+			else if (state1.getImportance() < state2.getImportance()) {
+				// The second state is more important
+				return 1;
+			}
+			else {
+				// The states have equal importance, so let's compare distances between them
+				if (initial != null) {
+					double state1Distance = heuristic(initial, state1);
+					double state2Distance = heuristic(initial, state2);
+					return Double.compare(state1Distance, state2Distance);
+				}
+				else {
+					return 0;
+				}
+			}
+		});
+		return destinations;
+	}
+
+	/**
+	 * If the player arrived at a a goal this should be called
+	 *
+	 * @param scene The scene
+	 * @param goal  The goal
+	 * @return Returns true if the goal is in a certain state or false if the goal is not truly reachable or usable
+	 */
+	default boolean destinationArrived(Scene scene, State goal) {
+		Player player = scene.getCanvas().getPlayer();
+		switch (goal.getOperation()) {
 			case CHEST:
 				if (player.hasKey()) {
 					if (player.getAnimation().getCurrentDirection() != Animation.Direction.UP) {
@@ -66,8 +132,8 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 					Portal portal = scene.getCanvas().getPortal();
 					if (portal.getState() == Portal.State.ACTIVE) {
 						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 2));
-						sortDestinations();
 					}
+					sortDestinations();
 					return true;
 				}
 				break;
@@ -75,6 +141,7 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 				player.keyPressed(KeyEvent.VK_UP);
 				return true;
 			case KEY:
+				sortDestinations();
 				return true;
 			case PORTAL:
 				if (player.hasTaintedGem() && scene.getCanvas().getPortal().getState() == Portal.State.ACTIVE) {
@@ -83,19 +150,19 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 				}
 				break;
 		}
-		sortDestinations();
 		return false;
 	}
 
 	/**
-	 * Check conditions to to make sure that the AI doesn't go after unobtainable objectives
+	 * Check conditions for the goal, if they are not met don't go after that goal yet
 	 *
-	 * @param objective The objective to check
-	 * @return Returns true if the objective is obtainable
+	 * @param scene The scene
+	 * @param goal  The goal
+	 * @return Returns true if the goal is obtainable or false otherwise
 	 */
-	@Override
-	public boolean checkCondition(State objective) {
-		switch (objective.getOperation()) {
+	default boolean checkCondition(Scene scene, State goal) {
+		Player player = scene.getCanvas().getPlayer();
+		switch (goal.getOperation()) {
 			case KEY:
 				// If the player doesn't have the gems yet, get keys
 				if (player.getGemCount() < 2) {
@@ -125,12 +192,40 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 	}
 
 	/**
-	 * Handle actions based on the states
+	 * Check if the spaces around the player are ope or not and return one of them randomly
+	 *
+	 * @param scene The scene
+	 * @return Returns a random direction to go
 	 */
-	@Override
-	public void doAction() {
-		if (getSteps().size() > 1) {
-			switch (getSteps().get(1)) {
+	default State.Type getOpenSpaceAroundPlayer(Scene scene) {
+		Player player = scene.getCanvas().getPlayer();
+		List<State.Type> openSpaces = new ArrayList<>();
+		if (player.getCell().getX() > 0 && scene.getCells()[player.getCell().getX() - 1][player.getCell().getY()].getObject() == null) {
+			openSpaces.add(State.Type.LEFT);
+		}
+		if (player.getCell().getX() < HORIZONTAL_CELLS - 1 && scene.getCells()[player.getCell().getX() + 1][player.getCell().getY()].getObject() == null) {
+			openSpaces.add(State.Type.RIGHT);
+		}
+		if (player.getCell().getY() > 0 && scene.getCells()[player.getCell().getX()][player.getCell().getY() - 1].getObject() == null) {
+			openSpaces.add(State.Type.UP);
+		}
+		if (player.getCell().getY() < VERTICAL_CELLS - 1 && scene.getCells()[player.getCell().getX()][player.getCell().getY() + 1].getObject() == null) {
+			openSpaces.add(State.Type.DOWN);
+		}
+		int random = random(0, openSpaces.size() - 1);
+		return openSpaces.get(random);
+	}
+
+	/**
+	 * Do the player control actions
+	 *
+	 * @param scene The scene
+	 * @param steps The steps to follow
+	 */
+	default void doAction(Scene scene, List<State.Type> steps) {
+		Player player = scene.getCanvas().getPlayer();
+		if (steps.size() > 1) {
+			switch (steps.get(1)) {
 				case UP:
 					player.keyPressed(KeyEvent.VK_UP);
 					break;
@@ -144,72 +239,7 @@ public class PlayerAI extends BreadthFirstSearch implements Constants {
 					player.keyPressed(KeyEvent.VK_RIGHT);
 					break;
 			}
+			scene.getCanvas().repaint();
 		}
-
-		scene.getCanvas().repaint();
-	}
-
-	/**
-	 * Move up
-	 *
-	 * @param state The previous state
-	 */
-	@Override
-	public void moveUp(State state) {
-		if (state.getY() > 0) {
-			if (scene.getCells()[state.getX()][state.getY() - 1].getObject() == null) {
-				super.moveUp(state);
-			}
-		}
-	}
-
-	/**
-	 * Move down
-	 *
-	 * @param state The previous state
-	 */
-	@Override
-	public void moveDown(State state) {
-		if (state.getY() < VERTICAL_CELLS - 1) {
-			if (scene.getCells()[state.getX()][state.getY() + 1].getObject() == null) {
-				super.moveDown(state);
-			}
-		}
-	}
-
-	/**
-	 * Move left
-	 *
-	 * @param state The previous state
-	 */
-	@Override
-	public void moveLeft(State state) {
-		if (state.getX() > 0) {
-			if (scene.getCells()[state.getX() - 1][state.getY()].getObject() == null) {
-				super.moveLeft(state);
-			}
-		}
-	}
-
-	/**
-	 * Move right
-	 *
-	 * @param state The previous state
-	 */
-	@Override
-	public void moveRight(State state) {
-		if (state.getX() < HORIZONTAL_CELLS - 1) {
-			if (scene.getCells()[state.getX() + 1][state.getY()].getObject() == null) {
-				super.moveRight(state);
-			}
-		}
-	}
-
-	/**
-	 * This method is called when the algorithm wants to know where the player is located at now
-	 */
-	@Override
-	public void getNewInitial() {
-		setInitial(new State(player.getCell().getX(), player.getCell().getY(), State.Type.PLAYER, null, 0));
 	}
 }

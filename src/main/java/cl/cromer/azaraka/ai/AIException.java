@@ -16,13 +16,13 @@
 package cl.cromer.azaraka.ai;
 
 /**
- * This class handles exceptions thrown by the AI
+ * This exception is thrown when there are problems with the AI
  */
 public class AIException extends Exception {
 	/**
-	 * Initialize the AI exception
+	 * Throw an error with a message
 	 *
-	 * @param errorMessage The message thrown
+	 * @param errorMessage The message
 	 */
 	public AIException(String errorMessage) {
 		super(errorMessage);
