@@ -59,14 +59,16 @@ public class Player extends Object implements Constants {
 		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PLAYER));
 		loadPlayerAnimation();
-		if (PLAYER_AI == PlayerAIType.ASTAR) {
-			ai = new PlayerAStarAI(scene, this);
-		}
-		else if (PLAYER_AI == PlayerAIType.BFS) {
-			ai = new PlayerBreadthFirstAI(scene, this);
-		}
-		else {
-			ai = null;
+		switch (PLAYER_AI) {
+			case ASTAR:
+				ai = new PlayerAStarAI(scene, this);
+				break;
+			case BFS:
+				ai = new PlayerBreadthFirstAI(scene, this);
+				break;
+			default:
+				ai = null;
+				break;
 		}
 	}
 
@@ -130,6 +132,8 @@ public class Player extends Object implements Constants {
 
 	/**
 	 * Move the player up
+	 *
+	 * @return Returns true if the player moved
 	 */
 	@Override
 	protected boolean moveUp() {
@@ -188,6 +192,8 @@ public class Player extends Object implements Constants {
 
 	/**
 	 * Move the player down
+	 *
+	 * @return Returns true if the player moved
 	 */
 	@Override
 	protected boolean moveDown() {
@@ -241,6 +247,8 @@ public class Player extends Object implements Constants {
 
 	/**
 	 * Move the player to the left
+	 *
+	 * @return Returns true if the player moved
 	 */
 	@Override
 	protected boolean moveLeft() {
@@ -294,6 +302,8 @@ public class Player extends Object implements Constants {
 
 	/**
 	 * Move the player to the right
+	 *
+	 * @return Returns true if the player moved
 	 */
 	@Override
 	protected boolean moveRight() {

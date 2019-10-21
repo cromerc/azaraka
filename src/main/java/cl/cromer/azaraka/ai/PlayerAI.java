@@ -89,6 +89,7 @@ public interface PlayerAI extends Runnable, Constants {
 	 * @return Returns the new sorted destinations
 	 */
 	default List<State> sortDestinations(List<State> destinations, State initial) {
+		// TODO: make the AI look for the goal farthest from the enemy
 		destinations.sort((state1, state2) -> {
 			if (state1.getImportance() > state2.getImportance()) {
 				// The first state is more important
