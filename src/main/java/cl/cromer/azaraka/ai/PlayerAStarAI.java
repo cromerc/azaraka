@@ -95,7 +95,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 		cameFrom.put(start, start);
 		costSoFar.put(start, 0.0);
 
-		while (frontier.size() > 0) {
+		while (frontier.size() > 0 && cameFrom.size() <= (HORIZONTAL_CELLS * VERTICAL_CELLS) * 2) {
 			State current = frontier.poll();
 
 			if (current.equals(goal)) {
