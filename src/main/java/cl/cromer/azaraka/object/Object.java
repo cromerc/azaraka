@@ -290,7 +290,7 @@ public class Object implements Runnable, Constants {
 	 */
 	protected boolean moveUp() {
 		getCell().setObject(null);
-		setCell(getScene().getCells()[x][y - 1]);
+		setCell(getScene().getCells().get(x).get(y - 1));
 		getCell().setObject(this);
 
 		if (changeDirection(Animation.Direction.UP)) {
@@ -313,7 +313,7 @@ public class Object implements Runnable, Constants {
 	 */
 	protected boolean moveDown() {
 		getCell().setObject(null);
-		setCell(getScene().getCells()[x][y + 1]);
+		setCell(getScene().getCells().get(x).get(y + 1));
 		getCell().setObject(this);
 
 		if (changeDirection(Animation.Direction.DOWN)) {
@@ -336,7 +336,7 @@ public class Object implements Runnable, Constants {
 	 */
 	protected boolean moveLeft() {
 		getCell().setObject(null);
-		setCell(getScene().getCells()[x - 1][y]);
+		setCell(getScene().getCells().get(x - 1).get(y));
 		getCell().setObject(this);
 
 		if (changeDirection(Animation.Direction.LEFT)) {
@@ -359,7 +359,7 @@ public class Object implements Runnable, Constants {
 	 */
 	protected boolean moveRight() {
 		getCell().setObject(null);
-		setCell(getScene().getCells()[x + 1][y]);
+		setCell(getScene().getCells().get(x + 1).get(y));
 		getCell().setObject(this);
 
 		if (changeDirection(Animation.Direction.RIGHT)) {

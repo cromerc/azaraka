@@ -205,16 +205,16 @@ public interface PlayerAI extends Runnable, Constants {
 	default State.Type getOpenSpaceAroundPlayer(Scene scene) {
 		Player player = scene.getCanvas().getPlayer();
 		List<State.Type> openSpaces = new ArrayList<>();
-		if (player.getCell().getX() > 0 && scene.getCells()[player.getCell().getX() - 1][player.getCell().getY()].getObject() == null) {
+		if (player.getCell().getX() > 0 && scene.getCells().get(player.getCell().getX() - 1).get(player.getCell().getY()).getObject() == null) {
 			openSpaces.add(State.Type.LEFT);
 		}
-		if (player.getCell().getX() < HORIZONTAL_CELLS - 1 && scene.getCells()[player.getCell().getX() + 1][player.getCell().getY()].getObject() == null) {
+		if (player.getCell().getX() < HORIZONTAL_CELLS - 1 && scene.getCells().get(player.getCell().getX() + 1).get(player.getCell().getY()).getObject() == null) {
 			openSpaces.add(State.Type.RIGHT);
 		}
-		if (player.getCell().getY() > 0 && scene.getCells()[player.getCell().getX()][player.getCell().getY() - 1].getObject() == null) {
+		if (player.getCell().getY() > 0 && scene.getCells().get(player.getCell().getX()).get(player.getCell().getY() - 1).getObject() == null) {
 			openSpaces.add(State.Type.UP);
 		}
-		if (player.getCell().getY() < VERTICAL_CELLS - 1 && scene.getCells()[player.getCell().getX()][player.getCell().getY() + 1].getObject() == null) {
+		if (player.getCell().getY() < VERTICAL_CELLS - 1 && scene.getCells().get(player.getCell().getX()).get(player.getCell().getY() + 1).getObject() == null) {
 			openSpaces.add(State.Type.DOWN);
 		}
 

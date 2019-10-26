@@ -264,7 +264,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 				if (gems.size() > 0) {
 					Gem gem = gems.get(0);
 					// Place the gem in the cell above the chest, but don't add it to object2 until we are ready to draw it
-					gem.setCell(scene.getCells()[object.getCell().getX()][object.getCell().getY() - 1]);
+					gem.setCell(scene.getCells().get(object.getCell().getX()).get(object.getCell().getY() - 1));
 					threads.put(gem, new Thread(gem));
 					((Chest) object).setGem(gem);
 					gems.remove(gem);

@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 /**
@@ -44,20 +45,20 @@ public class Json implements Constants {
 	/**
 	 * Export the game cells to a JSON ready object then write it to a file
 	 *
-	 * @param celdas The cells of the scene to export
+	 * @param cells The cells of the scene to export
 	 */
-	public void exportScene(Cell[][] celdas) {
-		JsonCell[][] jsonCells = new JsonCell[celdas.length][celdas[0].length];
-		for (int x = 0; x < celdas.length; x++) {
-			for (int y = 0; y < celdas[x].length; y++) {
+	public void exportScene(CopyOnWriteArrayList<CopyOnWriteArrayList<Cell>> cells) {
+		JsonCell[][] jsonCells = new JsonCell[cells.size()][cells.get(0).size()];
+		for (int x = 0; x < cells.size(); x++) {
+			for (int y = 0; y < cells.get(x).size(); y++) {
 				jsonCells[x][y] = new JsonCell();
-				if (celdas[x][y].getObject() != null) {
-					jsonCells[x][y].type = celdas[x][y].getObject().getClass().getName();
+				if (cells.get(x).get(y).getObject() != null) {
+					jsonCells[x][y].type = cells.get(x).get(y).getObject().getClass().getName();
 				}
 				else {
 					jsonCells[x][y].type = "null";
 				}
-				jsonCells[x][y].textures = celdas[x][y].getTextureNumbers();
+				jsonCells[x][y].textures = cells.get(x).get(y).getTextureNumbers();
 			}
 		}
 		writeScene(jsonCells);

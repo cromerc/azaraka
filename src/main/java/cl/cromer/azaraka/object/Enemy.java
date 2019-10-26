@@ -152,11 +152,11 @@ public class Enemy extends Object implements Constants {
 	public boolean moveUp() {
 		int x = getX();
 		int y = getY();
-		if (y > 0 && getScene().getCells()[x][y - 1].getObject() == null) {
+		if (y > 0 && getScene().getCells().get(x).get(y - 1).getObject() == null) {
 			super.moveUp();
 			getLogger().info("Move up to x: " + x + " y: " + y);
 		}
-		else if (y > 0 && getScene().getCells()[x][y - 1].getObject() instanceof Player) {
+		else if (y > 0 && getScene().getCells().get(x).get(y - 1).getObject() instanceof Player) {
 			if (changeDirection(Animation.Direction.UP)) {
 				try {
 					getAnimation().getNextFrame();
@@ -190,11 +190,11 @@ public class Enemy extends Object implements Constants {
 	public boolean moveDown() {
 		int x = getX();
 		int y = getY();
-		if (y < (VERTICAL_CELLS) - 1 && getScene().getCells()[x][y + 1].getObject() == null) {
+		if (y < (VERTICAL_CELLS) - 1 && getScene().getCells().get(x).get(y + 1).getObject() == null) {
 			super.moveDown();
 			getLogger().info("Move down to x: " + x + " y: " + y);
 		}
-		else if (y < (VERTICAL_CELLS - 1) && getScene().getCells()[x][y + 1].getObject() instanceof Player) {
+		else if (y < (VERTICAL_CELLS - 1) && getScene().getCells().get(x).get(y + 1).getObject() instanceof Player) {
 			if (changeDirection(Animation.Direction.DOWN)) {
 				try {
 					getAnimation().getNextFrame();
@@ -228,11 +228,11 @@ public class Enemy extends Object implements Constants {
 	public boolean moveLeft() {
 		int x = getX();
 		int y = getY();
-		if (x > 0 && getScene().getCells()[x - 1][y].getObject() == null) {
+		if (x > 0 && getScene().getCells().get(x - 1).get(y).getObject() == null) {
 			super.moveLeft();
 			getLogger().info("Move left to x: " + x + " y: " + y);
 		}
-		else if (x > 0 && getScene().getCells()[x - 1][y].getObject() instanceof Player) {
+		else if (x > 0 && getScene().getCells().get(x - 1).get(y).getObject() instanceof Player) {
 			if (changeDirection(Animation.Direction.LEFT)) {
 				try {
 					getAnimation().getNextFrame();
@@ -266,11 +266,11 @@ public class Enemy extends Object implements Constants {
 	public boolean moveRight() {
 		int x = getX();
 		int y = getY();
-		if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() == null) {
+		if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells().get(x + 1).get(y).getObject() == null) {
 			super.moveRight();
 			getLogger().info("Move right to x: " + x + " y: " + y);
 		}
-		else if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells()[x + 1][y].getObject() instanceof Player) {
+		else if (x < (HORIZONTAL_CELLS - 1) && getScene().getCells().get(x + 1).get(y).getObject() instanceof Player) {
 			if (changeDirection(Animation.Direction.RIGHT)) {
 				try {
 					getAnimation().getNextFrame();
@@ -310,7 +310,7 @@ public class Enemy extends Object implements Constants {
 
 			getScene().getCanvas().getPlayer().loseHealth(2);
 			try {
-				getScene().getCells()[x][y].addTexture(getScene().getTextureSheet().getTexture(12), 12);
+				getScene().getCells().get(x).get(y).addTexture(getScene().getTextureSheet().getTexture(12), 12);
 			}
 			catch (SheetException e) {
 				getLogger().warning(e.getMessage());

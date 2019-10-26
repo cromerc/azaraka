@@ -140,7 +140,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveUp(State current, State goal) {
 		if (current.getY() > 0) {
-			if (scene.getCells()[current.getX()][current.getY() - 1].getObject() == null) {
+			if (scene.getCells().get(current.getX()).get(current.getY() - 1).getObject() == null) {
 				State next = new State(current.getX(), current.getY() - 1, State.Type.UP, current, 0);
 				move(current, next, goal);
 			}
@@ -155,7 +155,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveDown(State current, State goal) {
 		if (current.getY() < VERTICAL_CELLS - 1) {
-			if (scene.getCells()[current.getX()][current.getY() + 1].getObject() == null) {
+			if (scene.getCells().get(current.getX()).get(current.getY() + 1).getObject() == null) {
 				State next = new State(current.getX(), current.getY() + 1, State.Type.DOWN, current, 0);
 				move(current, next, goal);
 			}
@@ -170,7 +170,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveLeft(State current, State goal) {
 		if (current.getX() > 0) {
-			if (scene.getCells()[current.getX() - 1][current.getY()].getObject() == null) {
+			if (scene.getCells().get(current.getX() - 1).get(current.getY()).getObject() == null) {
 				State next = new State(current.getX() - 1, current.getY(), State.Type.LEFT, current, 0);
 				move(current, next, goal);
 			}
@@ -185,7 +185,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveRight(State current, State goal) {
 		if (current.getX() < HORIZONTAL_CELLS - 1) {
-			if (scene.getCells()[current.getX() + 1][current.getY()].getObject() == null) {
+			if (scene.getCells().get(current.getX() + 1).get(current.getY()).getObject() == null) {
 				State next = new State(current.getX() + 1, current.getY(), State.Type.RIGHT, current, 0);
 				move(current, next, goal);
 			}
@@ -216,119 +216,119 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 
 		if (enemyCost.getLevel() >= EnemyCost.DIRECT.getLevel()) {
 			// The enemy
-			if (scene.getCells()[state.getX()][state.getY()].getObject() instanceof Enemy) {
+			if (scene.getCells().get(state.getX()).get(state.getY()).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT.getCost();
 			}
 		}
 
 		if (enemyCost.getLevel() >= EnemyCost.DIRECT_SIDES.getLevel()) {
 			// Left
-			if (state.getX() > 0 && scene.getCells()[state.getX() - 1][state.getY()].getObject() instanceof Enemy) {
+			if (state.getX() > 0 && scene.getCells().get(state.getX() - 1).get(state.getY()).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_SIDES.getCost();
 			}
 
 			// Right
-			else if (state.getX() < HORIZONTAL_CELLS - 1 && scene.getCells()[state.getX() + 1][state.getY()].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && scene.getCells().get(state.getX() + 1).get(state.getY()).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_SIDES.getCost();
 			}
 
 			// Up
-			else if (state.getY() > 0 && scene.getCells()[state.getX()][state.getY() - 1].getObject() instanceof Enemy) {
+			else if (state.getY() > 0 && scene.getCells().get(state.getX()).get(state.getY() - 1).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_SIDES.getCost();
 			}
 
 			// Down
-			else if (state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX()][state.getY() + 1].getObject() instanceof Enemy) {
+			else if (state.getY() < VERTICAL_CELLS - 1 && scene.getCells().get(state.getX()).get(state.getY() + 1).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_SIDES.getCost();
 			}
 		}
 
 		if (enemyCost.getLevel() >= EnemyCost.DIRECT_CORNERS.getLevel()) {
 			// Upper left corner
-			if (state.getX() > 0 && state.getY() > 0 && scene.getCells()[state.getX() - 1][state.getY() - 1].getObject() instanceof Enemy) {
+			if (state.getX() > 0 && state.getY() > 0 && scene.getCells().get(state.getX() - 1).get(state.getY() - 1).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_CORNERS.getCost();
 			}
 
 			// Upper right corner
-			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 0 && scene.getCells()[state.getX() + 1][state.getY() - 1].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 0 && scene.getCells().get(state.getX() + 1).get(state.getY() - 1).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_CORNERS.getCost();
 			}
 
 			// Lower left corner
-			else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() - 1][state.getY() + 1].getObject() instanceof Enemy) {
+			else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells().get(state.getX() - 1).get(state.getY() + 1).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_CORNERS.getCost();
 			}
 
 			// Lower right corner
-			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() + 1][state.getY() + 1].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells().get(state.getX() + 1).get(state.getY() + 1).getObject() instanceof Enemy) {
 				return EnemyCost.DIRECT_CORNERS.getCost();
 			}
 		}
 
 		if (enemyCost.getLevel() >= EnemyCost.FAR_SIDES.getLevel()) {
 			// Left
-			if (state.getX() > 1 && scene.getCells()[state.getX() - 2][state.getY()].getObject() instanceof Enemy) {
+			if (state.getX() > 1 && scene.getCells().get(state.getX() - 2).get(state.getY()).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_SIDES.getCost();
 			}
 
 			// Right
-			else if (state.getX() < HORIZONTAL_CELLS - 2 && scene.getCells()[state.getX() + 2][state.getY()].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && scene.getCells().get(state.getX() + 2).get(state.getY()).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_SIDES.getCost();
 			}
 
 			// Up
-			else if (state.getY() > 1 && scene.getCells()[state.getX()][state.getY() - 2].getObject() instanceof Enemy) {
+			else if (state.getY() > 1 && scene.getCells().get(state.getX()).get(state.getY() - 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_SIDES.getCost();
 			}
 
 			// Down
-			else if (state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX()][state.getY() + 2].getObject() instanceof Enemy) {
+			else if (state.getY() < VERTICAL_CELLS - 2 && scene.getCells().get(state.getX()).get(state.getY() + 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_SIDES.getCost();
 			}
 		}
 
 		if (enemyCost.getLevel() >= EnemyCost.FAR_CORNERS.getLevel()) {
 			// Upper left corner
-			if (state.getX() > 1 && state.getY() > 0 && scene.getCells()[state.getX() - 2][state.getY() - 1].getObject() instanceof Enemy) {
+			if (state.getX() > 1 && state.getY() > 0 && scene.getCells().get(state.getX() - 2).get(state.getY() - 1).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() > 1 && state.getY() > 1 && scene.getCells()[state.getX() - 2][state.getY() - 2].getObject() instanceof Enemy) {
+			else if (state.getX() > 1 && state.getY() > 1 && scene.getCells().get(state.getX() - 2).get(state.getY() - 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() > 0 && state.getY() > 1 && scene.getCells()[state.getX() - 1][state.getY() - 2].getObject() instanceof Enemy) {
+			else if (state.getX() > 0 && state.getY() > 1 && scene.getCells().get(state.getX() - 1).get(state.getY() - 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
 
 			// Upper right corner
-			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() > 0 && scene.getCells()[state.getX() + 2][state.getY() - 1].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() > 0 && scene.getCells().get(state.getX() + 2).get(state.getY() - 1).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() > 1 && scene.getCells()[state.getX() + 2][state.getY() - 2].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() > 1 && scene.getCells().get(state.getX() + 2).get(state.getY() - 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 1 && scene.getCells()[state.getX() + 1][state.getY() - 2].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 1 && scene.getCells().get(state.getX() + 1).get(state.getY() - 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
 
 			// Lower left corner
-			else if (state.getX() > 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() - 2][state.getY() + 1].getObject() instanceof Enemy) {
+			else if (state.getX() > 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells().get(state.getX() - 2).get(state.getY() + 1).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() > 1 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() - 2][state.getY() + 2].getObject() instanceof Enemy) {
+			else if (state.getX() > 1 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells().get(state.getX() - 2).get(state.getY() + 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() - 1][state.getY() + 2].getObject() instanceof Enemy) {
+			else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells().get(state.getX() - 1).get(state.getY() + 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
 
 			// Lower right corner
-			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() + 2][state.getY() + 1].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells().get(state.getX() + 2).get(state.getY() + 1).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() + 2][state.getY() + 2].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells().get(state.getX() + 2).get(state.getY() + 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
-			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() + 1][state.getY() + 2].getObject() instanceof Enemy) {
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells().get(state.getX() + 1).get(state.getY() + 2).getObject() instanceof Enemy) {
 				return EnemyCost.FAR_CORNERS.getCost();
 			}
 		}

@@ -133,7 +133,7 @@ public class EnemyAI extends AI implements Runnable, Constants {
 	 */
 	private void moveUp(State current) {
 		if (current.getY() > 0) {
-			Object object = scene.getCells()[current.getX()][current.getY() - 1].getObject();
+			Object object = scene.getCells().get(current.getX()).get(current.getY() - 1).getObject();
 			if (object == null || object instanceof Player) {
 				State next = new State(current.getX(), current.getY() - 1, State.Type.UP, current, current.getImportance());
 				move(next);
@@ -148,7 +148,7 @@ public class EnemyAI extends AI implements Runnable, Constants {
 	 */
 	private void moveDown(State current) {
 		if (current.getY() < VERTICAL_CELLS - 1) {
-			Object object = scene.getCells()[current.getX()][current.getY() + 1].getObject();
+			Object object = scene.getCells().get(current.getX()).get(current.getY() + 1).getObject();
 			if (object == null || object instanceof Player) {
 				State next = new State(current.getX(), current.getY() + 1, State.Type.DOWN, current, current.getImportance());
 				move(next);
@@ -163,7 +163,7 @@ public class EnemyAI extends AI implements Runnable, Constants {
 	 */
 	private void moveLeft(State current) {
 		if (current.getX() > 0) {
-			Object object = scene.getCells()[current.getX() - 1][current.getY()].getObject();
+			Object object = scene.getCells().get(current.getX() - 1).get(current.getY()).getObject();
 			if (object == null || object instanceof Player) {
 				State next = new State(current.getX() - 1, current.getY(), State.Type.LEFT, current, current.getImportance());
 				move(next);
@@ -178,7 +178,7 @@ public class EnemyAI extends AI implements Runnable, Constants {
 	 */
 	private void moveRight(State current) {
 		if (current.getX() < HORIZONTAL_CELLS - 1) {
-			Object object = scene.getCells()[current.getX() + 1][current.getY()].getObject();
+			Object object = scene.getCells().get(current.getX() + 1).get(current.getY()).getObject();
 			if (object == null || object instanceof Player) {
 				State next = new State(current.getX() + 1, current.getY(), State.Type.RIGHT, current, current.getImportance());
 				move(next);

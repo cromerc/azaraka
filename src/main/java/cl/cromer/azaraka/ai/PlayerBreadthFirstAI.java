@@ -138,7 +138,7 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveUp(State current) {
 		if (current.getY() > 0) {
-			if (scene.getCells()[current.getX()][current.getY() - 1].getObject() == null) {
+			if (scene.getCells().get(current.getX()).get(current.getY() - 1).getObject() == null) {
 				State next = new State(current.getX(), current.getY() - 1, State.Type.UP, current, -1);
 				move(next);
 			}
@@ -152,7 +152,7 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveDown(State current) {
 		if (current.getY() < VERTICAL_CELLS - 1) {
-			if (scene.getCells()[current.getX()][current.getY() + 1].getObject() == null) {
+			if (scene.getCells().get(current.getX()).get(current.getY() + 1).getObject() == null) {
 				State next = new State(current.getX(), current.getY() + 1, State.Type.DOWN, current, -1);
 				move(next);
 			}
@@ -166,7 +166,7 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveLeft(State current) {
 		if (current.getX() > 0) {
-			if (scene.getCells()[current.getX() - 1][current.getY()].getObject() == null) {
+			if (scene.getCells().get(current.getX() - 1).get(current.getY()).getObject() == null) {
 				State next = new State(current.getX() - 1, current.getY(), State.Type.LEFT, current, -1);
 				move(next);
 			}
@@ -180,7 +180,7 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	 */
 	private void moveRight(State current) {
 		if (current.getX() < HORIZONTAL_CELLS - 1) {
-			if (scene.getCells()[current.getX() + 1][current.getY()].getObject() == null) {
+			if (scene.getCells().get(current.getX() + 1).get(current.getY()).getObject() == null) {
 				State next = new State(current.getX() + 1, current.getY(), State.Type.RIGHT, current, -1);
 				move(next);
 			}

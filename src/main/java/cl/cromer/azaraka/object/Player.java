@@ -146,9 +146,9 @@ public class Player extends Object implements Constants {
 			}
 		}
 		else if (y > 0) {
-			Object type = getScene().getCells()[x][y - 1].getObject();
+			Object type = getScene().getCells().get(x).get(y - 1).getObject();
 			if (type == null) {
-				Object typeBottom = getScene().getCells()[x][y - 1].getObjectOnBottom();
+				Object typeBottom = getScene().getCells().get(x).get(y - 1).getObjectOnBottom();
 				if (typeBottom instanceof Key) {
 					for (Key key : getScene().getCanvas().getKeys()) {
 						if (key.checkPosition(x, y - 1)) {
@@ -201,9 +201,9 @@ public class Player extends Object implements Constants {
 		int y = getY();
 		getLogger().info("Down key pressed");
 		if (y < (VERTICAL_CELLS - 1)) {
-			Object type = getScene().getCells()[x][y + 1].getObject();
+			Object type = getScene().getCells().get(x).get(y + 1).getObject();
 			if (type == null) {
-				Object typeBottom = getScene().getCells()[x][y + 1].getObjectOnBottom();
+				Object typeBottom = getScene().getCells().get(x).get(y + 1).getObjectOnBottom();
 				if (typeBottom instanceof Key) {
 					for (Key key : getScene().getCanvas().getKeys()) {
 						if (key.checkPosition(x, y + 1)) {
@@ -256,9 +256,9 @@ public class Player extends Object implements Constants {
 		int y = getY();
 		getLogger().info("Left key pressed");
 		if (x > 0) {
-			Object type = getScene().getCells()[x - 1][y].getObject();
+			Object type = getScene().getCells().get(x - 1).get(y).getObject();
 			if (type == null) {
-				Object typeBottom = getScene().getCells()[x - 1][y].getObjectOnBottom();
+				Object typeBottom = getScene().getCells().get(x - 1).get(y).getObjectOnBottom();
 				if (typeBottom instanceof Key) {
 					for (Key key : getScene().getCanvas().getKeys()) {
 						if (key.checkPosition(x - 1, y)) {
@@ -311,9 +311,9 @@ public class Player extends Object implements Constants {
 		int y = getY();
 		getLogger().info("Right key pressed");
 		if (x < (HORIZONTAL_CELLS - 1)) {
-			Object type = getScene().getCells()[x + 1][y].getObject();
+			Object type = getScene().getCells().get(x + 1).get(y).getObject();
 			if (type == null) {
-				Object typeBottom = getScene().getCells()[x + 1][y].getObjectOnBottom();
+				Object typeBottom = getScene().getCells().get(x + 1).get(y).getObjectOnBottom();
 				if (typeBottom instanceof Key) {
 					for (Key key : getScene().getCanvas().getKeys()) {
 						if (key.checkPosition(x + 1, y)) {
@@ -379,7 +379,7 @@ public class Player extends Object implements Constants {
 		getLogger().info("Space bar pressed");
 		if (y > 0) {
 			if (getAnimation().getCurrentDirection() == Animation.Direction.UP) {
-				if (getScene().getCells()[x][y - 1].getObject() instanceof Chest) {
+				if (getScene().getCells().get(x).get(y - 1).getObject() instanceof Chest) {
 					if (hasKey()) {
 						getLogger().info("Player opened chest");
 
