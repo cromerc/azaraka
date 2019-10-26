@@ -22,6 +22,7 @@ import cl.cromer.azaraka.object.Portal;
 import cl.cromer.azaraka.sprite.Animation;
 
 import java.awt.event.KeyEvent;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,28 +53,36 @@ public interface PlayerAI extends Runnable, Constants {
 
 	/**
 	 * The heuristic to get the distance between the start state and the end state
-	 *
+	 * <p>
 	 * Manhattan Distance
 	 * Used for 4 direction movements
-	 *      h = abs (current_cell.x – goal.x) +
-	 *          abs (current_cell.y – goal.y)
-	 *
+	 * h = abs (current_cell.x – goal.x) +
+	 * abs (current_cell.y – goal.y)
+	 * <p>
 	 * Diagonal Distance
 	 * Used for 8 direction movements
-	 *      h = max { abs(current_cell.x – goal.x),
-	 *                abs(current_cell.y – goal.y) }
-	 *
+	 * h = max { abs(current_cell.x – goal.x),
+	 * abs(current_cell.y – goal.y) }
+	 * <p>
 	 * Euclidean Distance
 	 * Used for distance between 2 points
-	 *      h = sqrt ( (current_cell.x – goal.x)2 +
-	 *                 (current_cell.y – goal.y)2 )
+	 * h = sqrt ( (current_cell.x – goal.x)2 +
+	 * (current_cell.y – goal.y)2 )
 	 *
 	 * @param start The start state
 	 * @param goal  The goal state
 	 * @return Returns the distance between the states
 	 */
 	default double heuristic(State start, State goal) {
-		return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
+		switch (aIHeuristic) {
+			case DIAGONAL:
+				return Math.max(Math.abs(start.getX() - goal.getX()), Math.abs(start.getY() - goal.getY()));
+			case EUCLIDEAN:
+				return Point2D.distance(start.getX(), start.getY(), goal.getX(), goal.getY());
+			case MANHATTAN:
+			default:
+				return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
+		}
 	}
 
 	/**

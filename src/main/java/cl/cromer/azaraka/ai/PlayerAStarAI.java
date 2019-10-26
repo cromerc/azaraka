@@ -504,7 +504,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 		 * Initialize the enemy cost and level
 		 *
 		 * @param level The level
-		 * @param cost The cost
+		 * @param cost  The cost
 		 */
 		EnemyCost(int level, int cost) {
 			this.level = level;

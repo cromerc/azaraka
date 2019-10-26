@@ -35,6 +35,10 @@ public interface Constants {
 	 */
 	String TITLE = "La Aventura de Azaraka";
 	/**
+	 * The heuristic to use in the AI distance calculations
+	 */
+	AIHeuristic aIHeuristic = AIHeuristic.MANHATTAN;
+	/**
 	 * Which type of AI to use
 	 */
 	PlayerAIType PLAYER_AI = PlayerAIType.ASTAR;
@@ -184,6 +188,24 @@ public interface Constants {
 				fileHandler.setFormatter(formatter);
 			}
 		}
+	}
+
+	/**
+	 * The different heuristics that the AI uses to calculate distance
+	 */
+	enum AIHeuristic {
+		/**
+		 * Used for 4 direction movements
+		 */
+		MANHATTAN,
+		/**
+		 * Used for 8 direction movements
+		 */
+		DIAGONAL,
+		/**
+		 * Used for distance between 2 points
+		 */
+		EUCLIDEAN
 	}
 
 	/**
