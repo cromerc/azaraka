@@ -17,7 +17,6 @@ plugins {
 	id 'idea'
 	id 'java'
 	id 'application'
-	id 'distribution'
 }
 
 group 'cl.cromer.azaraka'
@@ -70,6 +69,12 @@ jar {
 	}
 }
 
+task createDocs {
+	def docs = file("$buildDir/docs")
+	outputs.dir docs
+}
+
+
 task copyDependencies(type: Copy) {
 	from configurations.default
 	into "$buildDir/libs"
@@ -77,11 +82,22 @@ task copyDependencies(type: Copy) {
 
 plugins.withType(DistributionPlugin) {
 	distTar {
+		//noinspection GroovyAssignabilityCheck, GroovyAccessibility
 		archiveExtension = 'tar.gz'
 		compression = Compression.GZIP
 	}
 }
 
-wrapper {
-	gradleVersion = '5.6.2'
+distributions {
+	main {
+		contents {
+			from(createDocs) {
+				into 'docs'
+			}
+		}
+	}
 }
+
+// Javadoc needs to be generated before the distributions are built
+distTar.dependsOn(javadoc)
+distZip.dependsOn(javadoc)
