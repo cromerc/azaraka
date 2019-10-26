@@ -77,6 +77,17 @@ public class AI implements Runnable {
 	}
 
 	/**
+	 * Remove the picked up key from destinations if it is there
+	 *
+	 * @param x The x coordinate of the key
+	 * @param y The y coordinate of the key
+	 * @throws AIException Thrown when the parent method is called directly
+	 */
+	public void removeKeyDestination(int x, int y) throws AIException {
+		throw new AIException("The addDestination method should be run by the child only!");
+	}
+
+	/**
 	 * Sort the destinations
 	 *
 	 * @throws AIException Thrown when the parent method is called directly

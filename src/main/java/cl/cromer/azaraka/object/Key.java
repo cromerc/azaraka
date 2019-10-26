@@ -18,6 +18,7 @@ package cl.cromer.azaraka.object;
 import cl.cromer.azaraka.Cell;
 import cl.cromer.azaraka.Constants;
 import cl.cromer.azaraka.Scene;
+import cl.cromer.azaraka.ai.AIException;
 import cl.cromer.azaraka.sound.Sound;
 import cl.cromer.azaraka.sound.SoundException;
 import cl.cromer.azaraka.sprite.Animation;
@@ -116,6 +117,12 @@ public class Key extends Object implements Constants {
 		// Remove the key from the cell
 		getCell().setObjectOnBottom(null);
 		setState(State.HELD);
+		try {
+			getScene().getCanvas().getPlayer().getAi().removeKeyDestination(getCell().getX(), getCell().getY());
+		}
+		catch (AIException e) {
+			getLogger().warning(e.getMessage());
+		}
 	}
 
 	/**

@@ -318,7 +318,7 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			}
 
 			for (Key key : keys) {
-				player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 2));
+				player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 1));
 			}
 
 			player.getAi().sortDestinations();

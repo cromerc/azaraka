@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The class implements the A* search AI algorithm for the player
@@ -58,7 +59,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	/**
 	 * The destinations the player needs to visit
 	 */
-	private List<State> destinations = new ArrayList<>();
+	private List<State> destinations = new CopyOnWriteArrayList<>();
 	/**
 	 * The objective that was found
 	 */
@@ -95,7 +96,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 		cameFrom.put(start, start);
 		costSoFar.put(start, 0.0);
 
-		while (frontier.size() > 0 && cameFrom.size() <= (HORIZONTAL_CELLS * VERTICAL_CELLS) * 2) {
+		while (frontier.size() > 0 && cameFrom.size() <= (HORIZONTAL_CELLS * VERTICAL_CELLS) * 5) {
 			State current = frontier.poll();
 
 			if (current.equals(goal)) {
@@ -200,52 +201,155 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	private double getCost(State state) {
 		// The cost increases based on how close the enemy is
 		/*
-			  2
-			 444
+			22222
+			24442
 			24842
-			 444
-			  2
+			24442
+			22222
 		 */
-		if (state.getOperation() == State.Type.ENEMY) {
-			return 8;
+
+		EnemyCost enemyCost = EnemyCost.DIRECT_CORNERS;
+
+		if (enemyCost.getLevel() == EnemyCost.NONE.getLevel()) {
+			return EnemyCost.NONE.getCost();
 		}
-		else if (state.getX() > 0 && scene.getCells()[state.getX() - 1][state.getY()].getObject() instanceof Enemy) {
-			return 4;
+
+		if (enemyCost.getLevel() >= EnemyCost.DIRECT.getLevel()) {
+			// The enemy
+			if (scene.getCells()[state.getX()][state.getY()].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT.getCost();
+			}
 		}
-		else if (state.getX() < HORIZONTAL_CELLS - 1 && scene.getCells()[state.getX() + 1][state.getY()].getObject() instanceof Enemy) {
-			return 4;
+
+		if (enemyCost.getLevel() >= EnemyCost.DIRECT_SIDES.getLevel()) {
+			// Left
+			if (state.getX() > 0 && scene.getCells()[state.getX() - 1][state.getY()].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_SIDES.getCost();
+			}
+
+			// Right
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && scene.getCells()[state.getX() + 1][state.getY()].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_SIDES.getCost();
+			}
+
+			// Up
+			else if (state.getY() > 0 && scene.getCells()[state.getX()][state.getY() - 1].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_SIDES.getCost();
+			}
+
+			// Down
+			else if (state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX()][state.getY() + 1].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_SIDES.getCost();
+			}
 		}
-		else if (state.getY() > 0 && scene.getCells()[state.getX()][state.getY() - 1].getObject() instanceof Enemy) {
-			return 4;
+
+		if (enemyCost.getLevel() >= EnemyCost.DIRECT_CORNERS.getLevel()) {
+			// Upper left corner
+			if (state.getX() > 0 && state.getY() > 0 && scene.getCells()[state.getX() - 1][state.getY() - 1].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_CORNERS.getCost();
+			}
+
+			// Upper right corner
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 0 && scene.getCells()[state.getX() + 1][state.getY() - 1].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_CORNERS.getCost();
+			}
+
+			// Lower left corner
+			else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() - 1][state.getY() + 1].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_CORNERS.getCost();
+			}
+
+			// Lower right corner
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() + 1][state.getY() + 1].getObject() instanceof Enemy) {
+				return EnemyCost.DIRECT_CORNERS.getCost();
+			}
 		}
-		else if (state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX()][state.getY() + 1].getObject() instanceof Enemy) {
-			return 4;
+
+		if (enemyCost.getLevel() >= EnemyCost.FAR_SIDES.getLevel()) {
+			// Left
+			if (state.getX() > 1 && scene.getCells()[state.getX() - 2][state.getY()].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_SIDES.getCost();
+			}
+
+			// Right
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && scene.getCells()[state.getX() + 2][state.getY()].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_SIDES.getCost();
+			}
+
+			// Up
+			else if (state.getY() > 1 && scene.getCells()[state.getX()][state.getY() - 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_SIDES.getCost();
+			}
+
+			// Down
+			else if (state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX()][state.getY() + 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_SIDES.getCost();
+			}
 		}
-		else if (state.getX() > 1 && scene.getCells()[state.getX() - 2][state.getY()].getObject() instanceof Enemy) {
-			return 2;
+
+		if (enemyCost.getLevel() >= EnemyCost.FAR_CORNERS.getLevel()) {
+			// Upper left corner
+			if (state.getX() > 1 && state.getY() > 0 && scene.getCells()[state.getX() - 2][state.getY() - 1].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() > 1 && state.getY() > 1 && scene.getCells()[state.getX() - 2][state.getY() - 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() > 0 && state.getY() > 1 && scene.getCells()[state.getX() - 1][state.getY() - 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+
+			// Upper right corner
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() > 0 && scene.getCells()[state.getX() + 2][state.getY() - 1].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() > 1 && scene.getCells()[state.getX() + 2][state.getY() - 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 1 && scene.getCells()[state.getX() + 1][state.getY() - 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+
+			// Lower left corner
+			else if (state.getX() > 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() - 2][state.getY() + 1].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() > 1 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() - 2][state.getY() + 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() - 1][state.getY() + 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+
+			// Lower right corner
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() + 2][state.getY() + 1].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() < HORIZONTAL_CELLS - 2 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() + 2][state.getY() + 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
+			else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX() + 1][state.getY() + 2].getObject() instanceof Enemy) {
+				return EnemyCost.FAR_CORNERS.getCost();
+			}
 		}
-		else if (state.getX() < HORIZONTAL_CELLS - 2 && scene.getCells()[state.getX() + 2][state.getY()].getObject() instanceof Enemy) {
-			return 2;
+
+		return EnemyCost.NONE.getCost();
+	}
+
+	/**
+	 * Remove the picked up key from destinations if it is there
+	 *
+	 * @param x The x coordinate of the key
+	 * @param y The y coordinate of the key
+	 */
+	public void removeKeyDestination(int x, int y) {
+		for (State state : destinations) {
+			if (state.getOperation() == State.Type.KEY && state.getX() == x && state.getY() == y) {
+				destinations.remove(state);
+				sortDestinations();
+				break;
+			}
 		}
-		else if (state.getY() > 1 && scene.getCells()[state.getX()][state.getY() - 2].getObject() instanceof Enemy) {
-			return 2;
-		}
-		else if (state.getY() < VERTICAL_CELLS - 2 && scene.getCells()[state.getX()][state.getY() + 2].getObject() instanceof Enemy) {
-			return 2;
-		}
-		else if (state.getX() > 0 && state.getY() > 0 && scene.getCells()[state.getX() - 1][state.getY() - 1].getObject() instanceof Enemy) {
-			return 4;
-		}
-		else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() > 0 && scene.getCells()[state.getX() + 1][state.getY() - 1].getObject() instanceof Enemy) {
-			return 4;
-		}
-		else if (state.getX() > 0 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() - 1][state.getY() + 1].getObject() instanceof Enemy) {
-			return 4;
-		}
-		else if (state.getX() < HORIZONTAL_CELLS - 1 && state.getY() < VERTICAL_CELLS - 1 && scene.getCells()[state.getX() + 1][state.getY() + 1].getObject() instanceof Enemy) {
-			return 4;
-		}
-		return 1;
 	}
 
 	/**
@@ -255,37 +359,6 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	 */
 	public void addDestination(State destination) {
 		destinations.add(destination);
-	}
-
-	/**
-	 * Calculate the route from the objective to the player
-	 */
-	private void calculateRoute() {
-		getLogger().info("Calculate the route!");
-		State predecessor = foundObjective;
-		do {
-			steps.add(0, predecessor.getOperation());
-			predecessor = predecessor.getPredecessor();
-		}
-		while (predecessor != null);
-	}
-
-	/**
-	 * Sort the destinations by importance, if the importance is the same then sort them by distance
-	 */
-	@Override
-	public void sortDestinations() {
-		destinations = sortDestinations(destinations, initial);
-	}
-
-	/**
-	 * Clear the states to be ready for a new search
-	 */
-	private void clearStates() {
-		frontier.clear();
-		cameFrom.clear();
-		costSoFar.clear();
-		steps.clear();
 	}
 
 	/**
@@ -334,11 +407,14 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 				}
 				destinationIndex++;
 				if (destinationIndex >= destinations.size()) {
-					destinationIndex = 0;
+					getLogger().info("None of the destinations are reachable for A* Search!");
 					// No destinations are reachable, make the player move around at random to help move the enemies
-					if (steps.size() > 0) {
-						steps.add(1, getOpenSpaceAroundPlayer(scene));
+					if (steps.size() == 0) {
+						steps.add(0, State.Type.PLAYER);
 					}
+					steps.add(1, getOpenSpaceAroundPlayer(scene));
+					found = true;
+					break;
 				}
 			}
 			while (!found && !destinations.isEmpty());
@@ -346,6 +422,105 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 			if (found) {
 				doAction(scene, steps);
 			}
+		}
+	}
+
+	/**
+	 * Calculate the route from the objective to the player
+	 */
+	private void calculateRoute() {
+		getLogger().info("Calculate the route!");
+		State predecessor = foundObjective;
+		do {
+			steps.add(0, predecessor.getOperation());
+			predecessor = predecessor.getPredecessor();
+		}
+		while (predecessor != null);
+	}
+
+	/**
+	 * Sort the destinations by importance, if the importance is the same then sort them by distance
+	 */
+	@Override
+	public void sortDestinations() {
+		destinations = sortDestinations(destinations, initial);
+	}
+
+	/**
+	 * Clear the states to be ready for a new search
+	 */
+	private void clearStates() {
+		frontier.clear();
+		cameFrom.clear();
+		costSoFar.clear();
+		steps.clear();
+	}
+
+	/**
+	 * The cost based on enemy position
+	 */
+	private enum EnemyCost {
+		/**
+		 * The enemy does not have a cost
+		 */
+		NONE(0, 1),
+		/**
+		 * The enemy cell has a cost
+		 */
+		DIRECT(1, 8),
+		/**
+		 * The cells to the side of the enemy have a cost
+		 */
+		DIRECT_SIDES(2, 4),
+		/**
+		 * The cells on the corner of the enemy
+		 */
+		DIRECT_CORNERS(3, 4),
+		/**
+		 * The cells father to the side of the enemy
+		 */
+		FAR_SIDES(4, 2),
+		/**
+		 * The cells in the corner farthest from the enemy
+		 */
+		FAR_CORNERS(5, 2);
+
+		/**
+		 * The level of cost to use for the enemy
+		 */
+		private final int level;
+		/**
+		 * The cost value to use
+		 */
+		private final int cost;
+
+		/**
+		 * Initialize the enemy cost and level
+		 *
+		 * @param level The level
+		 * @param cost The cost
+		 */
+		EnemyCost(int level, int cost) {
+			this.level = level;
+			this.cost = cost;
+		}
+
+		/**
+		 * Get the cost level of the enemy
+		 *
+		 * @return Returns the cost level
+		 */
+		protected int getLevel() {
+			return this.level;
+		}
+
+		/**
+		 * Get the cost of the enemy
+		 *
+		 * @return Returns the cost
+		 */
+		protected int getCost() {
+			return this.cost;
 		}
 	}
 }

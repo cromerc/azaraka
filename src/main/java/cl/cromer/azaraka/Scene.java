@@ -60,6 +60,7 @@ public class Scene extends JComponent implements Constants {
 	 * The cells of the game
 	 */
 	private final Cell[][] cells;
+	//private final CopyOnWriteArrayList<CopyOnWriteArrayList<Cell>> cells;
 	/**
 	 * The logger
 	 */

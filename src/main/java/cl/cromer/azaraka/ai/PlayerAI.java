@@ -129,10 +129,14 @@ public interface PlayerAI extends Runnable, Constants {
 					if (player.getAnimation().getCurrentDirection() != Animation.Direction.UP) {
 						player.keyPressed(KeyEvent.VK_UP);
 					}
-					player.interact();
+					boolean portalWasActive = false;
 					Portal portal = scene.getCanvas().getPortal();
 					if (portal.getState() == Portal.State.ACTIVE) {
-						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 2));
+						portalWasActive = true;
+					}
+					player.interact();
+					if (!portalWasActive) {
+						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 1));
 					}
 					sortDestinations();
 					return true;
@@ -213,6 +217,12 @@ public interface PlayerAI extends Runnable, Constants {
 		if (player.getCell().getY() < VERTICAL_CELLS - 1 && scene.getCells()[player.getCell().getX()][player.getCell().getY() + 1].getObject() == null) {
 			openSpaces.add(State.Type.DOWN);
 		}
+
+		if (openSpaces.size() == 0) {
+			// The player can't move
+			return State.Type.EXIT;
+		}
+
 		int random = random(0, openSpaces.size() - 1);
 		return openSpaces.get(random);
 	}

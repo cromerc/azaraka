@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This is an implementation of the Breadth-First search algorithm with multiple objectives
@@ -59,7 +60,7 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	/**
 	 * The destinations to visit
 	 */
-	private List<State> destinations = new ArrayList<>();
+	private List<State> destinations = new CopyOnWriteArrayList<>();
 	/**
 	 * The initial point to start searching from
 	 */
@@ -221,6 +222,22 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	}
 
 	/**
+	 * Remove the picked up key from destinations if it is there
+	 *
+	 * @param x The x coordinate of the key
+	 * @param y The y coordinate of the key
+	 */
+	public void removeKeyDestination(int x, int y) {
+		for (State state : destinations) {
+			if (state.getOperation() == State.Type.KEY && state.getX() == x && state.getY() == y) {
+				destinations.remove(state);
+				sortDestinations();
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Sort the destinations by importance, if the importance is the same then sort them by distance
 	 */
 	public void sortDestinations() {
@@ -284,10 +301,14 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 					}
 					destinationIndex++;
 					if (destinationIndex >= destinations.size()) {
-						destinationIndex = 0;
-						if (steps.size() > 0) {
-							steps.add(1, getOpenSpaceAroundPlayer(scene));
+						getLogger().info("None of the destinations are reachable for Breadth-First Search!");
+						// No destinations are reachable, make the player move around at random to help move the enemies
+						if (steps.size() == 0) {
+							steps.add(0, State.Type.PLAYER);
 						}
+						steps.add(1, getOpenSpaceAroundPlayer(scene));
+						found = true;
+						break;
 					}
 				}
 				while (!found && !destinations.isEmpty());
