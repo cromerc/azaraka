@@ -219,6 +219,7 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 	 */
 	public void addDestination(State destination) {
 		destinations.add(destination);
+		sortDestinations();
 	}
 
 	/**
@@ -279,43 +280,46 @@ public class PlayerBreadthFirstAI extends AI implements PlayerAI, Constants {
 					if (checkCondition(scene, destination)) {
 						getLogger().info("Check Breadth-First Search goal!");
 						found = search(initial, destination);
-					}
 
-					if (initial.equals(destination)) {
-						if (destinationArrived(scene, destination)) {
-							destinations.remove(destination);
-							destinationIndex = 0;
+						if (initial.equals(destination)) {
+							if (destinationArrived(scene, destination)) {
+								destinations.remove(destination);
+								destinationIndex = 0;
+							}
+						}
+						else {
+							if (!found) {
+								clearStates();
+								// Don't run this because the destination might return to be available again at some point
+								//destinationArrived(objective);
+							}
 						}
 					}
 					else {
-						if (!found) {
-							clearStates();
-							// Don't run this because the destination might return to be available again at some point
-							//destinationArrived(objective);
-						}
+						clearStates();
 					}
 
 					if (destinations.isEmpty()) {
 						getLogger().info("No more destinations for Breadth-First Search!");
 						setActive(false);
+						return;
 					}
-					destinationIndex++;
-					if (destinationIndex >= destinations.size()) {
-						getLogger().info("None of the destinations are reachable for Breadth-First Search!");
-						// No destinations are reachable, make the player move around at random to help move the enemies
-						if (steps.size() == 0) {
-							steps.add(0, State.Type.PLAYER);
+					if (!found) {
+						destinationIndex++;
+						if (destinationIndex >= destinations.size()) {
+							getLogger().info("None of the destinations are reachable for Breadth-First Search!");
+							// No destinations are reachable, make the player move around at random to help move the enemies
+							if (steps.size() == 0) {
+								steps.add(0, State.Type.PLAYER);
+							}
+							steps.add(1, getOpenSpaceAroundPlayer(scene));
+							break;
 						}
-						steps.add(1, getOpenSpaceAroundPlayer(scene));
-						found = true;
-						break;
 					}
 				}
-				while (!found && !destinations.isEmpty());
+				while (!found);
 
-				if (found) {
-					doAction(scene, steps);
-				}
+				doAction(scene, steps);
 			}
 		}
 	}

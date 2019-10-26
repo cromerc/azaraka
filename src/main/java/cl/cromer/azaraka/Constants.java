@@ -85,7 +85,7 @@ public interface Constants {
 	/**
 	 * Generates the scene manually instead of from the JSON file if true
 	 */
-	boolean GENERATE_SCENE = true;
+	boolean GENERATE_SCENE = false;
 	/**
 	 * Exports the scene to a JSON file if true
 	 */

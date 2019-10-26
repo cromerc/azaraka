@@ -136,7 +136,7 @@ public interface PlayerAI extends Runnable, Constants {
 					}
 					player.interact();
 					if (!portalWasActive) {
-						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 1));
+						addDestination(new State(portal.getCell().getX(), portal.getCell().getY(), State.Type.PORTAL, null, 3));
 					}
 					sortDestinations();
 					return true;

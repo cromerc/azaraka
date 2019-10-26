@@ -208,7 +208,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 			22222
 		 */
 
-		EnemyCost enemyCost = EnemyCost.DIRECT_CORNERS;
+		EnemyCost enemyCost = EnemyCost.FAR_CORNERS;
 
 		if (enemyCost.getLevel() == EnemyCost.NONE.getLevel()) {
 			return EnemyCost.NONE.getCost();
@@ -359,6 +359,7 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	 */
 	public void addDestination(State destination) {
 		destinations.add(destination);
+		sortDestinations();
 	}
 
 	/**
@@ -385,43 +386,46 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 				if (checkCondition(scene, destination)) {
 					getLogger().info("Check A* Search goal!");
 					found = search(initial, destination);
-				}
 
-				if (initial.equals(destination)) {
-					if (destinationArrived(scene, destination)) {
-						destinations.remove(destination);
-						destinationIndex = 0;
+					if (initial.equals(destination)) {
+						if (destinationArrived(scene, destination)) {
+							destinations.remove(destination);
+							destinationIndex = 0;
+						}
+					}
+					else {
+						if (!found) {
+							clearStates();
+							// Don't run this because the destination might return to be available again at some point
+							//destinationArrived(objective);
+						}
 					}
 				}
 				else {
-					if (!found) {
-						clearStates();
-						// Don't run this because the destination might return to be available again at some point
-						//destinationArrived(objective);
-					}
+					clearStates();
 				}
 
 				if (destinations.isEmpty()) {
 					getLogger().info("No more destinations for A* Search!");
 					setActive(false);
+					return;
 				}
-				destinationIndex++;
-				if (destinationIndex >= destinations.size()) {
-					getLogger().info("None of the destinations are reachable for A* Search!");
-					// No destinations are reachable, make the player move around at random to help move the enemies
-					if (steps.size() == 0) {
-						steps.add(0, State.Type.PLAYER);
+				if (!found) {
+					destinationIndex++;
+					if (destinationIndex >= destinations.size()) {
+						getLogger().info("None of the destinations are reachable for A* Search!");
+						// No destinations are reachable, make the player move around at random to help move the enemies
+						if (steps.size() == 0) {
+							steps.add(0, State.Type.PLAYER);
+						}
+						steps.add(1, getOpenSpaceAroundPlayer(scene));
+						break;
 					}
-					steps.add(1, getOpenSpaceAroundPlayer(scene));
-					found = true;
-					break;
 				}
 			}
-			while (!found && !destinations.isEmpty());
+			while (!found);
 
-			if (found) {
-				doAction(scene, steps);
-			}
+			doAction(scene, steps);
 		}
 	}
 

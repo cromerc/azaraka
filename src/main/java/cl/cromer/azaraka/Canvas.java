@@ -40,11 +40,9 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Logger;
 
 /**
@@ -309,10 +307,10 @@ public class Canvas extends java.awt.Canvas implements Constants {
 	 */
 	private void setupPlayerAI() {
 		try {
-			player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null, 3));
+			player.getAi().addDestination(new State(2, 0, State.Type.EXIT, null, 4));
 
 			// Shuffle the chests so that the AI doesn't open the correct chests on the first go
-			Collections.shuffle(chests, new Random(23));
+			//Collections.shuffle(chests, new Random(23));
 			for (Chest chest : chests) {
 				player.getAi().addDestination(new State(chest.getCell().getX(), chest.getCell().getY() + 1, State.Type.CHEST, null, 2));
 			}
@@ -320,8 +318,6 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			for (Key key : keys) {
 				player.getAi().addDestination(new State(key.getCell().getX(), key.getCell().getY(), State.Type.KEY, null, 1));
 			}
-
-			player.getAi().sortDestinations();
 		}
 		catch (AIException e) {
 			logger.warning(e.getMessage());
