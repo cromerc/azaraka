@@ -195,7 +195,7 @@ public class Scene extends JComponent implements Constants {
 			}
 		}
 
-		final Lock lock = new ReentrantLock(false);
+		final Lock lock = new ReentrantLock(true);
 		for (int i = 0; i < ENEMIES; i++) {
 			random = randomCoordinates();
 			cells.get(random[0]).get(random[1]).setObject(new Enemy(this, cells.get(random[0]).get(random[1]), lock));

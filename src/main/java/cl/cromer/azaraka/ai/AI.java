@@ -88,15 +88,6 @@ public class AI implements Runnable {
 	}
 
 	/**
-	 * Sort the destinations
-	 *
-	 * @throws AIException Thrown when the parent method is called directly
-	 */
-	public void sortDestinations() throws AIException {
-		throw new AIException("The addDestination method should be run by the child only!");
-	}
-
-	/**
 	 * The AI should run in a loop
 	 */
 	@Override

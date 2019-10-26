@@ -69,7 +69,7 @@ public interface Constants {
 	/**
 	 * The amount of chests to draw, if less then 2 the game cannot be won
 	 */
-	int CHESTS = 3;
+	int CHESTS = 2;
 	/**
 	 * The amount of enemies to draw
 	 */

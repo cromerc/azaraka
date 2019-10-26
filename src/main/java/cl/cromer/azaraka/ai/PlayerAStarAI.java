@@ -445,7 +445,6 @@ public class PlayerAStarAI extends AI implements PlayerAI, Constants {
 	/**
 	 * Sort the destinations by importance, if the importance is the same then sort them by distance
 	 */
-	@Override
 	public void sortDestinations() {
 		if (initial == null) {
 			initial = new State(player.getCell().getX(), player.getCell().getY(), State.Type.PLAYER, null, 0);

@@ -89,7 +89,6 @@ public interface PlayerAI extends Runnable, Constants {
 	 * @return Returns the new sorted destinations
 	 */
 	default List<State> sortDestinations(List<State> destinations, State initial) {
-		// TODO: make the AI look for the goal farthest from the enemy
 		destinations.sort((state1, state2) -> {
 			if (state1.getImportance() > state2.getImportance()) {
 				// The first state is more important
@@ -103,7 +102,9 @@ public interface PlayerAI extends Runnable, Constants {
 				// The states have equal importance, so let's compare distances between them
 				if (initial != null) {
 					double state1Distance = heuristic(initial, state1);
+					// TODO: Find closest enemy to state 1, if player distance is closer than enemy, go for it
 					double state2Distance = heuristic(initial, state2);
+					// TODO: Find closest enemy to state 2, if player distance is closer than enemy, go for it
 					return Double.compare(state1Distance, state2Distance);
 				}
 				else {

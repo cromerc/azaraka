@@ -215,7 +215,7 @@ public class EnemyAI extends AI implements Runnable, Constants {
 	public void run() {
 		while (getActive()) {
 			try {
-				Thread.sleep(700);
+				Thread.sleep(600);
 			}
 			catch (InterruptedException e) {
 				logger.info(e.getMessage());
