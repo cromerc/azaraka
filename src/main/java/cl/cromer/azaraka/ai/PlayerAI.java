@@ -53,31 +53,26 @@ public interface PlayerAI extends Runnable, Constants {
 	/**
 	 * The heuristic to get the distance between the start state and the end state
 	 *
+	 * Manhattan Distance
+	 * Used for 4 direction movements
+	 *      h = abs (current_cell.x – goal.x) +
+	 *          abs (current_cell.y – goal.y)
+	 *
+	 * Diagonal Distance
+	 * Used for 8 direction movements
+	 *      h = max { abs(current_cell.x – goal.x),
+	 *                abs(current_cell.y – goal.y) }
+	 *
+	 * Euclidean Distance
+	 * Used for distance between 2 points
+	 *      h = sqrt ( (current_cell.x – goal.x)2 +
+	 *                 (current_cell.y – goal.y)2 )
+	 *
 	 * @param start The start state
 	 * @param goal  The goal state
 	 * @return Returns the distance between the states
 	 */
 	default double heuristic(State start, State goal) {
-		// Manhattan Distance
-		// Used for 4 direction movements
-		/*
-			h = abs (current_cell.x – goal.x) +
-			abs (current_cell.y – goal.y)
-		 */
-
-		// Diagonal Distance
-		// Used for 8 direction movements
-		/*
-			h = max { abs(current_cell.x – goal.x),
-			abs(current_cell.y – goal.y) }
-		 */
-
-		// Euclidean Distance
-		// Used for distance between 2 points
-		/*
-			h = sqrt ( (current_cell.x – goal.x)2 +
-			(current_cell.y – goal.y)2 )
-		 */
 		return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
 	}
 
