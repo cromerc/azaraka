@@ -74,7 +74,6 @@ task createDocs {
 	outputs.dir docs
 }
 
-
 task copyDependencies(type: Copy) {
 	from configurations.default
 	into "$buildDir/libs"
