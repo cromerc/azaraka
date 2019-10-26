@@ -107,8 +107,11 @@ public interface PlayerAI extends Runnable, Constants {
 					return Double.compare(state1Distance, state2Distance);
 				}
 				else {
+					// We don't know where the player is, so equal importance
 					return 0;
 				}
+
+				//scene.getCanvas().getEnemies();
 			}
 		});
 		return destinations;
