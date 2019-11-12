@@ -60,7 +60,6 @@ public class Scene extends JComponent implements Constants {
 	/**
 	 * The cells of the game
 	 */
-	//private final Cell[][] cells;
 	private final CopyOnWriteArrayList<CopyOnWriteArrayList<Cell>> cells;
 	/**
 	 * The logger
@@ -89,7 +88,6 @@ public class Scene extends JComponent implements Constants {
 		this.canvas = canvas;
 		loadTextures();
 
-		//cells = new Cell[HORIZONTAL_CELLS][VERTICAL_CELLS];
 		cells = new CopyOnWriteArrayList<>();
 
 		if (GENERATE_SCENE) {
@@ -137,7 +135,7 @@ public class Scene extends JComponent implements Constants {
 				cells.get(x).add(cell);
 
 				if (jsonCells[x][y].type.equals(Player.class.getName())) {
-					cells.get(x).get(y).setObject(new Player(null, cells.get(x).get(y)));
+					cells.get(x).get(y).setObject(Player.getInstance(null, cells.get(x).get(y)));
 				}
 				else if (jsonCells[x][y].type.equals(Enemy.class.getName())) {
 					cells.get(x).get(y).setObject(new Enemy(null, cells.get(x).get(y), null));
@@ -155,7 +153,7 @@ public class Scene extends JComponent implements Constants {
 					cells.get(x).get(y).setObject(new Obstacle(null, cells.get(x).get(y)));
 				}
 				else if (jsonCells[x][y].type.equals(Portal.class.getName())) {
-					cells.get(x).get(y).setObject(new Portal(null, cells.get(x).get(y)));
+					cells.get(x).get(y).setObject(Portal.getInstance(null, cells.get(x).get(y)));
 				}
 
 				for (int k = 0; k < jsonCells[x][y].textures.size(); k++) {
@@ -180,7 +178,7 @@ public class Scene extends JComponent implements Constants {
 		List<Object> objectArrayList = new ArrayList<>();
 
 		// The player has a fixed position
-		cells.get(2).get(1).setObject(new Player(this, cells.get(2).get(1)));
+		cells.get(2).get(1).setObject(Player.getInstance(this, cells.get(2).get(1)));
 		objectArrayList.add(cells.get(2).get(1).getObject());
 
 		for (int i = 0; i < OBSTACLES; i++) {
@@ -203,7 +201,7 @@ public class Scene extends JComponent implements Constants {
 		}
 
 		random = randomCoordinates();
-		cells.get(random[0]).get(random[1]).setObjectOnBottom(new Portal(this, cells.get(random[0]).get(random[1])));
+		cells.get(random[0]).get(random[1]).setObjectOnBottom(Portal.getInstance(this, cells.get(random[0]).get(random[1])));
 		objectArrayList.add(cells.get(random[0]).get(random[1]).getObjectOnBottom());
 
 		// Generate enough keys for the chests that will exist
