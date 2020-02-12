@@ -63,6 +63,14 @@
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
+        49,
+        255
+      ]
+    },
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
         97
       ]
     }
@@ -74,6 +82,12 @@
         0,
         144,
         192
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -132,6 +146,12 @@
       "textures": [
         0,
         145
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -237,6 +257,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -251,6 +277,12 @@
         0,
         34,
         222
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -355,6 +387,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -414,6 +452,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -428,6 +472,12 @@
       "textures": [
         0,
         35
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -531,6 +581,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -545,6 +601,12 @@
       "textures": [
         0,
         35
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -649,6 +711,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -663,6 +731,12 @@
       "textures": [
         0,
         35
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -767,6 +841,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -826,6 +906,12 @@
       ]
     },
     {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
       "type": "cl.cromer.azaraka.object.Obstacle",
       "textures": [
         0,
@@ -840,6 +926,272 @@
         0,
         34,
         222
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        98,
+        207
+      ]
+    }
+  ],
+  [
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        35
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        99
+      ]
+    }
+  ],
+  [
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        34,
+        222
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        98,
+        207
+      ]
+    }
+  ],
+  [
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        35
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
+      ]
+    },
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        99
+      ]
+    }
+  ],
+  [
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        34,
+        222
+      ]
+    },
+    {
+      "type": "null",
+      "textures": [
+        0
       ]
     },
     {
@@ -951,6 +1303,14 @@
       "textures": [
         0,
         69
+      ]
+    },
+    {
+      "type": "cl.cromer.azaraka.object.Obstacle",
+      "textures": [
+        0,
+        53,
+        238
       ]
     },
     {

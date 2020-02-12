@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Chris Cromer
+ * Copyright 2020 Chris Cromer
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
@@ -65,11 +65,11 @@ public interface Constants {
 	/**
 	 * The number of cells to draw horizontally
 	 */
-	int HORIZONTAL_CELLS = 16;
+	int HORIZONTAL_CELLS = 20;
 	/**
 	 * The number of cells to draw vertically
 	 */
-	int VERTICAL_CELLS = 9;
+	int VERTICAL_CELLS = 10;
 	/**
 	 * The amount of chests to draw, if less then 2 the game cannot be won
 	 */
