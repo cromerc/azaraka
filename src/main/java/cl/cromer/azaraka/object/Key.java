@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Chris Cromer
+ * Copyright 2020 Chris Cromer
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
@@ -118,7 +118,9 @@ public class Key extends Object implements Constants {
 		getCell().setObjectOnBottom(null);
 		setState(State.HELD);
 		try {
-			getScene().getCanvas().getPlayer().getAi().removeKeyDestination(getCell().getX(), getCell().getY());
+			if (getScene().getCanvas().getPlayer().getAi() != null) {
+				getScene().getCanvas().getPlayer().getAi().removeKeyDestination(getCell().getX(), getCell().getY());
+			}
 		}
 		catch (AIException e) {
 			getLogger().warning(e.getMessage());
