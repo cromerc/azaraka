@@ -114,7 +114,7 @@ public interface Constants {
 	 * @param logLevel What log level to use
 	 * @return Returns the logger
 	 */
-	default Logger getLogger(Class logClass, LogLevel logLevel) {
+	default Logger getLogger(Class<?> logClass, LogLevel logLevel) {
 		String className = logClass.getName();
 		Logger logger;
 		if (GLOBAL_LOG) {
@@ -152,7 +152,7 @@ public interface Constants {
 	 *
 	 * @param logClass The class to be initialized
 	 */
-	default void initializeLogger(Class logClass) {
+	default void initializeLogger(Class<?> logClass) {
 		String className = logClass.getName();
 		Logger logger;
 		if (GLOBAL_LOG) {

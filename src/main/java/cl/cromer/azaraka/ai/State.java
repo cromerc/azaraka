@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Chris Cromer
+ * Copyright 2020 Chris Cromer
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
@@ -18,7 +18,7 @@ package cl.cromer.azaraka.ai;
 /**
  * The states used in the AI algorithms
  */
-public class State implements Comparable {
+public class State implements Comparable<State> {
 	/**
 	 * The x position being checked
 	 */
@@ -147,12 +147,11 @@ public class State implements Comparable {
 	/**
 	 * This is used to compare priorities in a priority queue
 	 *
-	 * @param object The object to compare
+	 * @param that The state to compare
 	 * @return Returns the value of Double.compare()
 	 */
 	@Override
-	public int compareTo(Object object) {
-		State that = (State) object;
+	public int compareTo(State that) {
 		return Double.compare(this.getPriority(), that.getPriority());
 	}
 
