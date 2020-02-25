@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Chris Cromer
+ * Copyright 2020 Chris Cromer
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
@@ -37,10 +37,6 @@ public class Player extends Object implements Constants {
 	 */
 	public final static int MAX_HEALTH = 20;
 	/**
-	 * There can be only 1 player
-	 */
-	private static Player instance = null;
-	/**
 	 * Objects that the player is carrying
 	 */
 	private final List<Object> carrying = new ArrayList<>();
@@ -59,7 +55,7 @@ public class Player extends Object implements Constants {
 	 * @param scene The scene the player is in
 	 * @param cell  The cell the player is in
 	 */
-	private Player(Scene scene, Cell cell) {
+	public Player(Scene scene, Cell cell) {
 		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PLAYER));
 		loadPlayerAnimation();
@@ -74,24 +70,6 @@ public class Player extends Object implements Constants {
 				ai = null;
 				break;
 		}
-	}
-
-	/**
-	 * Get a unique instance of the player
-	 *
-	 * @param scene The scene the player is in
-	 * @param cell  The cell the player is in
-	 * @return Returns the Player instance
-	 */
-	public static Player getInstance(Scene scene, Cell cell) {
-		if (instance == null) {
-			synchronized (Player.class) {
-				if (instance == null) {
-					instance = new Player(scene, cell);
-				}
-			}
-		}
-		return instance;
 	}
 
 	/**

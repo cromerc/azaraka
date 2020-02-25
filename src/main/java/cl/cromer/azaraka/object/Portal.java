@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Chris Cromer
+ * Copyright 2020 Chris Cromer
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
@@ -30,10 +30,6 @@ import java.util.List;
  */
 public class Portal extends Object implements Constants {
 	/**
-	 * There can be only 1 portal
-	 */
-	private static Portal instance = null;
-	/**
 	 * The current state of the portal
 	 */
 	private State state = State.INACTIVE;
@@ -56,28 +52,10 @@ public class Portal extends Object implements Constants {
 	 * @param scene The scene that contains the portal
 	 * @param cell  The cell the portal is in
 	 */
-	private Portal(Scene scene, Cell cell) {
+	public Portal(Scene scene, Cell cell) {
 		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PORTAL));
 		loadPortalAnimations();
-	}
-
-	/**
-	 * Get a unique instance of the portal
-	 *
-	 * @param scene The scene the portal is in
-	 * @param cell  The cell the portal is in
-	 * @return Returns the Portal instance
-	 */
-	public static Portal getInstance(Scene scene, Cell cell) {
-		if (instance == null) {
-			synchronized (Portal.class) {
-				if (instance == null) {
-					instance = new Portal(scene, cell);
-				}
-			}
-		}
-		return instance;
 	}
 
 	/**
