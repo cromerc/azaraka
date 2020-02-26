@@ -48,6 +48,10 @@ public class Player extends Object implements Constants {
 	 * The current health of the player
 	 */
 	private int health = MAX_HEALTH;
+	/**
+	 * The Player instance
+	 */
+	private static Player instance;
 
 	/**
 	 * Initialize the player
@@ -55,7 +59,7 @@ public class Player extends Object implements Constants {
 	 * @param scene The scene the player is in
 	 * @param cell  The cell the player is in
 	 */
-	public Player(Scene scene, Cell cell) {
+	private Player(Scene scene, Cell cell) {
 		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PLAYER));
 		loadPlayerAnimation();
@@ -70,6 +74,31 @@ public class Player extends Object implements Constants {
 				ai = null;
 				break;
 		}
+	}
+
+	/**
+	 * Create the Player instance
+	 *
+	 * @param scene The scene the player is in
+	 * @param cell  The cell the player is in
+	 * @return Returns the instance
+	 */
+	public static Player getInstance(Scene scene, Cell cell) {
+		if (instance == null) {
+			synchronized (Player.class) {
+				if (instance == null) {
+					instance = new Player(scene, cell);
+				}
+			}
+		}
+		return instance;
+	}
+
+	/**
+	 * Delete the Player instance
+	 */
+	public void deleteInstance() {
+		instance = null;
 	}
 
 	/**

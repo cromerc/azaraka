@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Chris Cromer
+ * Copyright 2020 Chris Cromer
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
@@ -514,6 +514,8 @@ public class Canvas extends java.awt.Canvas implements Constants {
 			public void keyPressed(KeyEvent event) {
 				super.keyPressed(event);
 				if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+					player.deleteInstance();
+					portal.deleteInstance();
 					azaraka.restart();
 				}
 			}

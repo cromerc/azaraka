@@ -45,6 +45,10 @@ public class Portal extends Object implements Constants {
 	 * The portal sound when a gem is purified
 	 */
 	private Sound sound;
+	/**
+	 * The Portal instance
+	 */
+	private static Portal instance;
 
 	/**
 	 * Initialize the portal
@@ -52,10 +56,35 @@ public class Portal extends Object implements Constants {
 	 * @param scene The scene that contains the portal
 	 * @param cell  The cell the portal is in
 	 */
-	public Portal(Scene scene, Cell cell) {
+	private Portal(Scene scene, Cell cell) {
 		super(scene, cell);
 		setLogger(getLogger(this.getClass(), LogLevel.PORTAL));
 		loadPortalAnimations();
+	}
+
+	/**
+	 * Create an instance of the portal
+	 *
+	 * @param scene The scene the portal is in
+	 * @param cell  The cell the portal is in
+	 * @return Returns the Portal instance
+	 */
+	public static Portal getInstance(Scene scene, Cell cell) {
+		if (instance == null) {
+			synchronized (Portal.class) {
+				if (instance == null) {
+					instance = new Portal(scene, cell);
+				}
+			}
+		}
+		return instance;
+	}
+
+	/**
+	 * Delete the Portal instance
+	 */
+	public void deleteInstance() {
+		instance = null;
 	}
 
 	/**

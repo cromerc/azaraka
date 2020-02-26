@@ -41,7 +41,7 @@ public interface Constants {
 	/**
 	 * Which type of AI to use
 	 */
-	PlayerAIType PLAYER_AI = PlayerAIType.ASTAR;
+	PlayerAIType PLAYER_AI = PlayerAIType.HUMAN;
 	/**
 	 * Whether or not the enemies should be controlled by AI
 	 */
