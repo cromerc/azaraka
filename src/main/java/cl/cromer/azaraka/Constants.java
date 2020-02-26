@@ -71,7 +71,7 @@ public interface Constants {
 	 */
 	int VERTICAL_CELLS = 10;
 	/**
-	 * The amount of chests to draw, if less then 2 the game cannot be won
+	 * The amount of chests to draw, if less than 2 the game cannot be won
 	 */
 	int CHESTS = 2;
 	/**
