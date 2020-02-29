@@ -74,7 +74,7 @@ public interface PlayerAI extends Runnable, Constants {
 	 * @return Returns the distance between the states
 	 */
 	default double heuristic(State start, State goal) {
-		switch (aIHeuristic) {
+		switch (AI_HEURISTIC) {
 			case DIAGONAL:
 				return Math.max(Math.abs(start.getX() - goal.getX()), Math.abs(start.getY() - goal.getY()));
 			case EUCLIDEAN:

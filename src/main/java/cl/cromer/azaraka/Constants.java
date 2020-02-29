@@ -37,7 +37,7 @@ public interface Constants {
 	/**
 	 * The heuristic to use in the AI distance calculations
 	 */
-	AIHeuristic aIHeuristic = AIHeuristic.MANHATTAN;
+	AIHeuristic AI_HEURISTIC = AIHeuristic.MANHATTAN;
 	/**
 	 * Which type of AI to use
 	 */
