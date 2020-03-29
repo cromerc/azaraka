@@ -85,7 +85,7 @@ public interface Constants {
 	/**
 	 * The default volume between 0 and 100
 	 */
-	int VOLUME = 0;
+	int VOLUME = 100;
 	/**
 	 * Generates the scene manually instead of from the JSON file if true
 	 */
